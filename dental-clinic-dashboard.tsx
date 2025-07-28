@@ -863,6 +863,7 @@ const DentalClinicDashboard = () => {
         description: "Mijoz qo'shishda xatolik yuz berdi",
         variant: "destructive",
       });
+      // localeCompare
     } finally {
       setIsSubmitting(false);
     }
