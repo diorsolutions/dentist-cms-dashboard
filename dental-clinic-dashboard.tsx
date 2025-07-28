@@ -696,8 +696,8 @@ const DentalClinicDashboard = () => {
       await Promise.all(deletePromises);
 
       setClients((prev) =>
-              prev.filter((client) => !selectedClients.includes(client.id))
-            );
+        prev.filter((client) => !selectedClients.includes(client.id))
+      );
       setSelectedClients([]);
       loadStats();
     } catch (err) {
@@ -865,6 +865,7 @@ const DentalClinicDashboard = () => {
       });
       // localeCompare
     } finally {
+      // for rendering...
       setIsSubmitting(false);
     }
   };
