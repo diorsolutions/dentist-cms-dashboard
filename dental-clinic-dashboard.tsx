@@ -124,34 +124,34 @@ interface Stats {
 }
 
 // Keep only 1 example client
-const initialClients: Client[] = [
-  {
-    id: 1,
-    name: "Ahmadjon Karimov",
-    phone: "+998901234567",
-    email: "ahmad@example.com",
-    lastVisit: "2024-01-15",
-    nextAppointment: "2024-01-22",
-    status: "inTreatment",
-    treatment: "Tish to'ldirish",
-    notes: "Yuqori jag'da 3 ta tish davolash kerak",
-    age: 35,
-    address: "Toshkent, Yunusobod tumani",
-    treatmentHistory: [
-      {
-        id: 1,
-        date: "2024-01-15",
-        treatmentType: "Tish to'ldirish",
-        doctor: "Dr. Karimova",
-        cost: 150000,
-        description: "Yuqori jag'dagi tish to'ldirildi",
-        details:
-          "Karies tozalandi, kompozit material bilan to'ldirildi. Bemor og'riq hissi yo'q deb bildirdi.",
-        images: [],
-      },
-    ],
-  },
-];
+// const initialClients: Client[] = [
+//   {
+//     id: 1,
+//     name: "Ahmadjon Karimov",
+//     phone: "+998901234567",
+//     email: "ahmad@example.com",
+//     lastVisit: "2024-01-15",
+//     nextAppointment: "2024-01-22",
+//     status: "inTreatment",
+//     treatment: "Tish to'ldirish",
+//     notes: "Yuqori jag'da 3 ta tish davolash kerak",
+//     age: 35,
+//     address: "Toshkent, Yunusobod tumani",
+//     treatmentHistory: [
+//       {
+//         id: 1,
+//         date: "2024-01-15",
+//         treatmentType: "Tish to'ldirish",
+//         doctor: "Dr. Karimova",
+//         cost: 150000,
+//         description: "Yuqori jag'dagi tish to'ldirildi",
+//         details:
+//           "Karies tozalandi, kompozit material bilan to'ldirildi. Bemor og'riq hissi yo'q deb bildirdi.",
+//         images: [],
+//       },
+//     ],
+//   },
+// ];
 
 type SortState = "none" | "asc" | "desc";
 
@@ -289,7 +289,6 @@ const DentalClinicDashboard = () => {
 
         // If no clients in database, use the example client
         if (transformedClients.length === 0) {
-          setClients(initialClients);
           setTotalClientsEver(1);
         } else {
           setClients(transformedClients);
@@ -297,14 +296,12 @@ const DentalClinicDashboard = () => {
         }
       } else {
         // Fallback to example client if API fails
-        setClients(initialClients);
         setTotalClientsEver(1);
       }
     } catch (error) {
       console.error("Error loading clients:", error);
       setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
       // Fallback to example client
-      setClients(initialClients);
       setTotalClientsEver(1);
     } finally {
       setLoading(false);
@@ -1977,7 +1974,7 @@ const DentalClinicDashboard = () => {
                     visit: e.target.value,
                   }))
                 }
-                placeholder="Bugun qanday muolaja oldi?"
+                placeholder="Bugun qanday muolaja qilindi?"
               />
             </div>
 
