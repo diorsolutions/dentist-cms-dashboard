@@ -5,12 +5,20 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "build": "echo 'No build needed for Express server'",
     "dev": "nodemon server.js",
     "seed": "node utils/seedData.js",
     "test": "jest --watchAll",
     "install-global": "npm install -g nodemon"
   },
-  "keywords": ["dental", "clinic", "management", "api", "nodejs", "express"],
+  "keywords": [
+    "dental",
+    "clinic",
+    "management",
+    "api",
+    "nodejs",
+    "express"
+  ],
   "author": "Dental Clinic",
   "license": "MIT",
   "dependencies": {
