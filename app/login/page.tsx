@@ -1,52 +1,58 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Lock, User } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const [failedAttempts, setFailedAttempts] = useState(0)
-  const [isBlocked, setIsBlocked] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Check if user is already logged in
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("dental_clinic_auth")
+    const isLoggedIn = localStorage.getItem("dental_clinic_auth");
     if (isLoggedIn === "true") {
-      router.push("/")
+      router.push("/");
     }
 
     // Check if user is blocked
-    const blockData = localStorage.getItem("login_block")
+    const blockData = localStorage.getItem("login_block");
     if (blockData) {
-      const { blockedUntil, attempts } = JSON.parse(blockData)
-      const now = Date.now()
+      const { blockedUntil, attempts } = JSON.parse(blockData);
+      const now = Date.now();
 
       if (now < blockedUntil) {
-        setIsBlocked(true)
-        setTimeLeft(Math.ceil((blockedUntil - now) / 1000))
-        setFailedAttempts(attempts)
+        setIsBlocked(true);
+        setTimeLeft(Math.ceil((blockedUntil - now) / 1000));
+        setFailedAttempts(attempts);
       } else {
         // Block time expired, clear data
-        localStorage.removeItem("login_block")
-        setFailedAttempts(0)
+        localStorage.removeItem("login_block");
+        setFailedAttempts(0);
       }
     }
-  }, [router])
+  }, [router]);
 
   // Countdown timer
   useEffect(() => {
@@ -54,116 +60,137 @@ export default function LoginPage() {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            setIsBlocked(false)
-            setFailedAttempts(0)
-            localStorage.removeItem("login_block")
-            return 0
+            setIsBlocked(false);
+            setFailedAttempts(0);
+            localStorage.removeItem("login_block");
+            return 0;
           }
-          return prev - 1
-        })
-      }, 1000)
+          return prev - 1;
+        });
+      }, 1000);
 
-      return () => clearInterval(timer)
+      return () => clearInterval(timer);
     }
-  }, [isBlocked, timeLeft])
+  }, [isBlocked, timeLeft]);
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
 
-    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
-  }
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Check credentials
     if (formData.username === "dentist" && formData.password === "dashboard") {
       // Success
-      localStorage.setItem("dental_clinic_auth", "true")
-      localStorage.removeItem("login_block")
-      router.push("/")
+      localStorage.setItem("dental_clinic_auth", "true");
+      localStorage.removeItem("login_block");
+      router.push("/");
     } else {
       // Failed login
-      const newFailedAttempts = failedAttempts + 1
-      setFailedAttempts(newFailedAttempts)
+      const newFailedAttempts = failedAttempts + 1;
+      setFailedAttempts(newFailedAttempts);
 
       if (newFailedAttempts >= 6) {
         // Block user for 2 hours
-        const blockedUntil = Date.now() + 2 * 60 * 60 * 1000 // 2 hours
+        const blockedUntil = Date.now() + 2 * 60 * 60 * 1000; // 2 hours
         localStorage.setItem(
           "login_block",
           JSON.stringify({
             blockedUntil,
             attempts: newFailedAttempts,
-          }),
-        )
-        setIsBlocked(true)
-        setTimeLeft(2 * 60 * 60) // 2 hours in seconds
-        setError("")
+          })
+        );
+        setIsBlocked(true);
+        setTimeLeft(2 * 60 * 60); // 2 hours in seconds
+        setError("");
       } else {
-        setError(`Noto'g'ri login yoki parol. Qolgan urinishlar: ${6 - newFailedAttempts}`)
+        setError(
+          `Noto'g'ri login yoki parol. Qolgan urinishlar: ${
+            6 - newFailedAttempts
+          }`
+        );
       }
     }
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }))
-    setError("")
-  }
+    }));
+    setError("");
+  };
 
   if (isBlocked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-300">
+        <Card className="w-full max-w-md shadow-xl">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <Lock className="w-8 h-8 text-red-600" />
+            <div className="mx-auto mb-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center transition-colors duration-300">
+              <Lock className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <CardTitle className="text-2xl font-bold text-red-600">Kirish bloklandi</CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardTitle className="text-2xl font-bold text-red-600 dark:text-red-400">
+              Kirish bloklandi
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-300">
               6 marta noto'g'ri urinish tufayli kirish 2 soatga bloklandi
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
-              <div className="text-4xl font-mono font-bold text-red-600 mb-2">{formatTime(timeLeft)}</div>
-              <p className="text-sm text-red-500">Qolgan vaqt</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 mb-4 transition-colors duration-300">
+              <div className="text-4xl font-mono font-bold text-red-600 dark:text-red-400 mb-2">
+                {formatTime(timeLeft)}
+              </div>
+              <p className="text-sm text-red-500 dark:text-red-400">
+                Qolgan vaqt
+              </p>
             </div>
-            <p className="text-sm text-gray-500">Vaqt tugaganidan keyin qayta urinib ko'rishingiz mumkin</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Vaqt tugaganidan keyin qayta urinib ko'rishingiz mumkin
+            </p>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-300">
+      <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <User className="w-8 h-8 text-blue-600" />
+          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center transition-colors duration-300">
+            <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-800">Dental Klinika CMS</CardTitle>
-          <CardDescription className="text-gray-600">
+          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Dental Klinika CMS
+          </CardTitle>
+          <CardDescription className="text-gray-600 dark:text-gray-300">
             Tizimga kirish uchun login ma'lumotlarini kiriting
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Login</Label>
+              <Label
+                htmlFor="username"
+                className="text-gray-700 dark:text-gray-300"
+              >
+                Login
+              </Label>
               <Input
                 id="username"
                 name="username"
@@ -172,13 +199,18 @@ export default function LoginPage() {
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="w-full"
+                className="w-full transition-colors duration-300"
                 disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Parol</Label>
+              <Label
+                htmlFor="password"
+                className="text-gray-700 dark:text-gray-300"
+              >
+                Parol
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -188,7 +220,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full pr-10"
+                  className="w-full pr-10 transition-colors duration-300"
                   disabled={isLoading}
                 />
                 <Button
@@ -200,36 +232,49 @@ export default function LoginPage() {
                   disabled={isLoading}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
+                    <EyeOff className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
+                    <Eye className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   )}
                 </Button>
               </div>
             </div>
 
             {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert
+                variant="destructive"
+                className="border-red-200 dark:border-red-800"
+              >
+                <AlertDescription className="text-red-700 dark:text-red-300">
+                  {error}
+                </AlertDescription>
               </Alert>
             )}
 
             {failedAttempts > 0 && failedAttempts < 6 && (
-              <Alert>
-                <AlertDescription>Ogohlantirish: {failedAttempts}/6 noto'g'ri urinish</AlertDescription>
+              <Alert className="border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20">
+                <AlertDescription className="text-yellow-700 dark:text-yellow-300">
+                  Ogohlantirish: {failedAttempts}/6 noto'g'ri urinish
+                </AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300"
+              disabled={isLoading}
+            >
               {isLoading ? "Tekshirilmoqda..." : "Kirish"}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">Faqat tizim administratori uchun</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Faqat tizim administratori uchun
+            </p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
