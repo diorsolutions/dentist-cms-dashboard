@@ -17,26 +17,28 @@ A modern, fullstack, and highly customizable **Next.js 14** application powered 
 
 ## 🛠 Tech Stack
 
-**Frontend:**
-- [Next.js 14](https://nextjs.org/) (App Router)
-- [TypeScript](https://www.typescriptlang.org/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [Radix UI](https://www.radix-ui.com/)
-- Lucide React Icons
-- Zustand / Context API
+## 🛠 Tech Stack
 
-**Backend:**
-- [Express.js](https://expressjs.com/)
-- [MongoDB + Mongoose](https://mongoosejs.com/)
-- JWT Auth
-- Multer (file uploads)
-- Helmet & Rate Limiting (security)
+### **Frontend**
+- [Next.js 14 (App Router)](https://nextjs.org/docs/app/building-your-application/routing)  
+- [TypeScript](https://www.typescriptlang.org/)  
+- [TailwindCSS](https://tailwindcss.com/)  
+- [Radix UI](https://www.radix-ui.com/)  
+- [Lucide React Icons](https://lucide.dev/)  
+- [Zustand](https://zustand-demo.pmnd.rs/) / [Context API](https://react.dev/reference/react/useContext)  
 
-**Other Tools:**
-- Recharts
-- jsPDF
-- date-fns
-- Zod / Joi validation
+### **Backend**
+- [Express.js](https://expressjs.com/)  
+- [MongoDB](https://www.mongodb.com/) + [Mongoose](https://mongoosejs.com/)  
+- [JWT Auth](https://jwt.io/)  
+- [Multer (file uploads)](https://github.com/expressjs/multer)  
+- [Helmet](https://helmetjs.github.io/) & [Rate Limiting](https://www.npmjs.com/package/express-rate-limit)  
+
+### **Other Tools**
+- [Recharts](https://recharts.org/en-US/)  
+- [jsPDF](https://github.com/parallax/jsPDF)  
+- [date-fns](https://date-fns.org/)  
+- [Zod](https://zod.dev/) / [Joi](https://joi.dev/)  
 
 ## 📦 Installation
 
