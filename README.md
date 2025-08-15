@@ -20,13 +20,14 @@ A modern, fullstack, and highly customizable **Next.js 14** application powered 
 <img width="1915" height="959" alt="image" src="https://github.com/user-attachments/assets/23bbdaed-118b-4822-bba4-9bffafe96ba1" />
 
 ## Loading befor get clients to database
-<img width="1917" height="967" alt="image" src="https://github.com/user-attachments/assets/9ebddedd-2d0a-4c7a-875e-c42155f7811c" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8cb308e4-2fd3-4800-b4e4-9fea2e8f851b" />
 
 ## Pretty admin dashboard😉
-<img width="1904" height="970" alt="image" src="https://github.com/user-attachments/assets/b1cca6e8-660c-447f-82f8-68b6d8485fb2" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9b91737f-c886-441f-b12e-e079b6814640" />
 
 ## Check client details
-<img width="1141" height="579" alt="image" src="https://github.com/user-attachments/assets/ecd725c9-1e78-4a50-8183-73229657381c" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9139faaa-f01b-4cae-b8f7-1f6bd84578e1" />
+
 
 
 ## 🛠 Tech Stack
