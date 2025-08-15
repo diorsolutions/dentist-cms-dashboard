@@ -97,6 +97,9 @@ app.use("/api/treatments", treatmentRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // Health check endpoint
+
+
+
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
