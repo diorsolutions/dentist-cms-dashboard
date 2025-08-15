@@ -63,7 +63,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "http://127.0.0.1:3000",
-      "dentist-cms-production.up.railway.app", // Bu qo'shiladi
+      "https://dentist-cms-production.up.railway.app", // Bu qo'shiladi
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -97,9 +97,6 @@ app.use("/api/treatments", treatmentRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // Health check endpoint
-
-
-
 app.get("/api/health", (req, res) => {
   res.json({
     success: true,
