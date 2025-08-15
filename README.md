@@ -15,7 +15,20 @@ A modern, fullstack, and highly customizable **Next.js 14** application powered 
 - 🌓 **Theme Switching** – Dark/Light mode with next-themes
 - ✅ **Form Handling** – React Hook Form + Zod validation
 
-## 🛠 Tech Stack
+# Let's see:
+## Login required
+<img width="1915" height="959" alt="image" src="https://github.com/user-attachments/assets/23bbdaed-118b-4822-bba4-9bffafe96ba1" />
+
+## Loading befor get clients to database
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8cb308e4-2fd3-4800-b4e4-9fea2e8f851b" />
+
+## Pretty admin dashboard😉
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9b91737f-c886-441f-b12e-e079b6814640" />
+
+## Check client details
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9139faaa-f01b-4cae-b8f7-1f6bd84578e1" />
+
+
 
 ## 🛠 Tech Stack
 
