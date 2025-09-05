@@ -1190,23 +1190,6 @@ const DentalClinicDashboard = () => {
         <Card className="mb-6 animate-in fade-in-50 duration-300">
           <CardContent className="p-4">
             <div className="w-full flex items-center gap-4">
-              {/* Select All - moved to the very beginning */}
-              {selectedClients.length > 0 && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="select-all"
-                    checked={
-                      selectedClients.length ===
-                        filteredAndSortedClients.length &&
-                      filteredAndSortedClients.length > 0
-                    }
-                    onCheckedChange={handleSelectAll}
-                  />
-                  <Label htmlFor="select-all" className="font-medium">
-                    ({selectedClients.length})
-                  </Label>
-                </div>
-              )}
 
               {/* Column Filters */}
               <Button
@@ -1274,14 +1257,30 @@ const DentalClinicDashboard = () => {
           <CardContent className="p-0">
             {/* Header - removed ID column */}
             <div className="grid grid-cols-11 gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
-              <div className="col-span-1"></div>
+              <div className="col-span-1">
+                {selectedClients.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="select-all"
+                      checked={
+                        selectedClients.length ===
+                          filteredAndSortedClients.length &&
+                        filteredAndSortedClients.length > 0
+                      }
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <Label htmlFor="select-all" className="font-medium">
+                      ({selectedClients.length})
+                    </Label>
+                  </div>
+                )}
+              </div>
               <div className="col-span-3">
                 <Button
                   variant="ghost"
-                  onClick={handleNameSort}
-                  className="h-auto p-0 font-medium"
+                  className="h-auto cursor-default p-0 font-medium"
                 >
-                  {t.name} {getSortIcon(nameSortState)}
+                  {t.name}
                 </Button>
               </div>
               <div className="col-span-2">{t.lastVisit}</div>
@@ -1759,7 +1758,6 @@ const DentalClinicDashboard = () => {
                 <Label htmlFor="phone">{t.phoneNumber} *</Label>
                 <Input
                   id="phone"
-                  value={newClient.phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   placeholder="+998901234567"
                   className={formErrors.phone ? "border-red-500" : ""}
