@@ -514,117 +514,70 @@ const DentalClinicDashboard = () => {
     selectedClientsData.length > 0 &&
     selectedClientsData.every((client) => client.status === "inTreatment");
 
-const generatePDF = async () => {
-  const selectedClientData = clients.filter((client) =>
-    selectedClients.includes(client.id)
-  );
+  const generatePDF = async () => {
+    const selectedClientData = clients.filter((client) =>
+      selectedClients.includes(client.id)
+    );
 
-  // Treatment history yuklamasak, har bir client uchun alohida yuklash
-  const clientsWithTreatments = await Promise.all(
-    selectedClientData.map(async (client) => {
-      if (client._id) {
-        const treatments = await loadClientTreatments(client._id);
-        return {
-          ...client,
-          treatmentHistory: treatments,
-        };
-      }
-      return client;
-    })
-  );
+    // Treatment history yuklamasak, har bir client uchun alohida yuklash
+    const clientsWithTreatments = await Promise.all(
+      selectedClientData.map(async (client) => {
+        if (client._id) {
+          const treatments = await loadClientTreatments(client._id);
+          return {
+            ...client,
+            treatmentHistory: treatments,
+          };
+        }
+        return client;
+      })
+    );
 
-  const doc = new jsPDF();
+    const doc = new jsPDF();
 
-  // Set font
-  doc.setFont("helvetica");
+    // Set font
+    doc.setFont("helvetica");
 
-  // Title
-  doc.setFontSize(18);
-  doc.text("Mijozlar haqida PDF hujjat", 105, 20, { align: "center" });
+    // Title
+    doc.setFontSize(18);
+    doc.text("Mijozlar haqida PDF hujjat", 105, 20, { align: "center" });
 
-  // Table setup
-  let yPos = 40;
-  const startX = 20;
-  const tableWidth = 170;
-  const rowHeight = 8;
-  const colWidths = [15, 50, 35, 25, 30, 15]; // No, Name, Phone, Age, Status, Treatments
+    // Table setup
+    let yPos = 40;
+    const startX = 20;
+    const tableWidth = 170;
+    const rowHeight = 8;
+    const colWidths = [15, 50, 35, 25, 30, 15]; // No, Name, Phone, Age, Status, Treatments
 
-  // Headers
-  const headers = ["No.", "To'liq Ism", "Telefon", "Yosh", "Holat", "Muolaja"];
-
-  // Header background
-  doc.setFillColor(240, 240, 240);
-  doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight, "F");
-
-  // Header borders
-  doc.setLineWidth(0.5);
-  doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
-
-  // Header text (centered)
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  let xPos = startX;
-  headers.forEach((header, index) => {
-    const colWidth = colWidths[index];
-    const textX = xPos + colWidth / 2; // center of column
-    doc.text(header, textX, yPos, { align: "center" });
-
-    // vertical divider
-    if (index < headers.length - 1) {
-      doc.line(
-        xPos + colWidth,
-        yPos - rowHeight + 2,
-        xPos + colWidth,
-        yPos + 2
-      );
-    }
-    xPos += colWidth;
-  });
-
-  yPos += rowHeight;
-
-  // Draw table data
-  doc.setFont("helvetica", "normal");
-  clientsWithTreatments.forEach((client, index) => {
-    if (yPos > 270) {
-      doc.addPage();
-      yPos = 20;
-    }
-
-    // Alternating row background
-    if (index % 2 === 1) {
-      doc.setFillColor(250, 250, 250);
-      doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight, "F");
-    }
-
-    // Row border
-    doc.setLineWidth(0.3);
-    doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
-
-    // Treatment count - to'g'ri hisoblash
-    const treatmentCount = client.treatmentHistory?.length || 0;
-    console.log(`Client ${client.name}: ${treatmentCount} treatments`); // Debug uchun
-
-    const rowData = [
-      (index + 1).toString(),
-      client.name.length > 20
-        ? client.name.substring(0, 20) + "..."
-        : client.name,
-      client.phone,
-      client.age.toString(),
-      t[client.status],
-      treatmentCount.toString(), // Bu yerda to'g'ri count
+    // Headers
+    const headers = [
+      "No.",
+      "To'liq Ism",
+      "Telefon",
+      "Yosh",
+      "Holat",
+      "Muolaja",
     ];
 
-    // Row data (centered)
-    xPos = startX;
-    rowData.forEach((data, colIndex) => {
-      const colWidth = colWidths[colIndex];
-      const textX = xPos + colWidth / 2;
-      doc.text(data, textX, yPos, { align: "center" });
+    // Header background
+    doc.setFillColor(240, 240, 240);
+    doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight, "F");
+
+    // Header borders
+    doc.setLineWidth(0.5);
+    doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
+
+    // Header text (centered)
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    let xPos = startX;
+    headers.forEach((header, index) => {
+      const colWidth = colWidths[index];
+      const textX = xPos + colWidth / 2; // center of column
+      doc.text(header, textX, yPos, { align: "center" });
 
       // vertical divider
-      if (colIndex < rowData.length - 1) {
+      if (index < headers.length - 1) {
         doc.line(
           xPos + colWidth,
           yPos - rowHeight + 2,
@@ -636,10 +589,64 @@ const generatePDF = async () => {
     });
 
     yPos += rowHeight;
-  });
 
-  doc.save("mijoz-malumotlari.pdf");
-};
+    // Draw table data
+    doc.setFont("helvetica", "normal");
+    clientsWithTreatments.forEach((client, index) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Alternating row background
+      if (index % 2 === 1) {
+        doc.setFillColor(250, 250, 250);
+        doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight, "F");
+      }
+
+      // Row border
+      doc.setLineWidth(0.3);
+      doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
+
+      // Treatment count - to'g'ri hisoblash
+      const treatmentCount = client.treatmentHistory?.length || 0;
+      console.log(`Client ${client.name}: ${treatmentCount} treatments`); // Debug uchun
+
+      const rowData = [
+        (index + 1).toString(),
+        client.name.length > 20
+          ? client.name.substring(0, 20) + "..."
+          : client.name,
+        client.phone,
+        client.age.toString(),
+        t[client.status],
+        treatmentCount.toString(), // Bu yerda to'g'ri count
+      ];
+
+      // Row data (centered)
+      xPos = startX;
+      rowData.forEach((data, colIndex) => {
+        const colWidth = colWidths[colIndex];
+        const textX = xPos + colWidth / 2;
+        doc.text(data, textX, yPos, { align: "center" });
+
+        // vertical divider
+        if (colIndex < rowData.length - 1) {
+          doc.line(
+            xPos + colWidth,
+            yPos - rowHeight + 2,
+            xPos + colWidth,
+            yPos + 2
+          );
+        }
+        xPos += colWidth;
+      });
+
+      yPos += rowHeight;
+    });
+
+    doc.save("mijoz-malumotlari.pdf");
+  };
 
   const openClientModal = async (client: Client) => {
     setSelectedClient(client);
