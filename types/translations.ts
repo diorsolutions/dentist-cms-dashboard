@@ -1,187 +1,576 @@
 export interface Translations {
-  // Navigation
-  dentalManagement: string
-  searchPlaceholder: string
+  // Main navigation and titles
+  dentalManagement: string;
+  clientInfo: string;
+  treatmentHistory: string;
 
-  // Language options
-  uzbekLatin: string
-  uzbekCyrillic: string
+  // Client form fields
+  name: string;
+  firstName: string;
+  lastName: string;
+  age: string;
+  phone: string;
+  phoneNumber: string;
+  email: string;
+  address: string;
+  clientAge: string;
+  clientAddress: string;
+  clientNotes: string;
+  initialTreatment: string;
 
-  // Filters and sorting
-  selectAll: string
-  selected: string
-  lastVisit: string
-  nextAppointment: string
-  status: string
-  name: string
-  phone: string
-  allStatuses: string
-
-  // Status values (removed waiting)
-  inTreatment: string
-  completed: string
+  // Status and filters
+  status: string;
+  allStatuses: string;
+  inTreatment: string;
+  completed: string;
+  lastVisit: string;
+  nextAppointment: string;
+  treatment: string;
+  notes: string;
 
   // Actions
-  addNewClient: string
-  markCompleted: string
-  delete: string
-  downloadPDF: string
+  addNewClient: string;
+  addNewClientTitle: string;
+  markCompleted: string;
+  delete: string;
+  save: string;
+  cancel: string;
+  downloadPDF: string;
+  searchPlaceholder: string;
 
-  // Modal tabs
-  clientInfo: string
-  treatmentHistory: string
-  addTreatment: string
+  // History and records
+  noTreatmentHistory: string;
+  noClientsFound: string;
+  totalTreated: string;
 
-  // Client info fields
-  age: string
-  email: string
-  address: string
-  treatment: string
-  notes: string
+  // Languages
+  uzbekLatin: string;
+  uzbekCyrillic: string;
+  english: string;
 
-  // Treatment history
-  visitDate: string
-  treatmentType: string
-  doctor: string
-  cost: string
-  description: string
-  nextVisitDate: string
-  treatmentImages: string
-  noImagesUploaded: string
+  // Image and upload
+  uploadImage: string;
+  uploadedImages: string;
+  noImagesUploaded: string;
 
-  // Add client form
-  addNewClientTitle: string
-  firstName: string
-  lastName: string
-  phoneNumber: string
-  emailAddress: string
-  clientAge: string
-  clientAddress: string
-  initialTreatment: string
-  clientNotes: string
-  uploadFiles: string
-  uploadImage: string
-  uploadAudio: string
-  uploadVideo: string
-  save: string
-  cancel: string
+  // Treatment specific
+  todayVisit: string;
+  nextVisitPlan: string;
+  nextVisitDate: string;
+  additionalNotes: string;
+  treatmentType: string;
+  doctor: string;
+  cost: string;
+  description: string;
+  details: string;
 
-  // Other
-  totalShown: string
-  totalTreated: string
-  noClientsFound: string
-  noTreatmentHistory: string
+  // Form validation
+  required: string;
+  invalidPhone: string;
+  invalidEmail: string;
+  invalidAge: string;
+  nameRequired: string;
+  firstNameRequired: string;
+  lastNameRequired: string;
+  phoneRequired: string;
+  emailRequired: string;
+  ageRequired: string;
+  addressRequired: string;
+
+  // Success messages
+  success: string;
+  clientAdded: string;
+  clientUpdated: string;
+  clientDeleted: string;
+  treatmentAdded: string;
+  statusUpdated: string;
+
+  // Error messages
+  error: string;
+  loadingError: string;
+  submitError: string;
+
+  // Loading states
+  loading: string;
+  saving: string;
+  deleting: string;
+
+  // Modal actions
+  addTreatment: string;
+  viewDetails: string;
+  editClient: string;
+
+  // Statistics
+  totalClients: string;
+  activeClients: string;
+  todayAppointments: string;
+  monthlyRevenue: string;
+
+  // Date and time
+  today: string;
+  yesterday: string;
+  tomorrow: string;
+  thisWeek: string;
+  thisMonth: string;
+
+  // Navigation
+  back: string;
+  next: string;
+  previous: string;
+  close: string;
+
+  // Additional features
+  exportData: string;
+  importData: string;
+  settings: string;
+  profile: string;
+  logout: string;
+
+  // Treatment details
+  visitNumber: string;
+  treatmentReceived: string;
+  nextVisitNotes: string;
+  createdOn: string;
+  notSpecified: string;
+
+  // Responsive labels
+  clients: string;
+  treatments: string;
+  images: string;
+  information: string;
+  history: string;
 }
 
-export const translations: Record<string, Translations> = {
+export const translations: Record<
+  "latin" | "cyrillic" | "english",
+  Translations
+> = {
   latin: {
-    dentalManagement: "Dental Management",
-    searchPlaceholder: "Mijoz qidirish...",
-    uzbekLatin: "O'zbekcha",
-    uzbekCyrillic: "Ўзбекча",
-    selectAll: "Barchasini tanlash",
-    selected: "tanlangan",
-    lastVisit: "Oxirgi tashrif",
-    nextAppointment: "Keyingi uchrashv",
-    status: "Holat",
-    name: "Ism",
-    phone: "Telefon",
-    allStatuses: "Barcha holatlar",
-    inTreatment: "davolanmoqda",
-    completed: "tugallangan",
-    addNewClient: "Yangi mijoz qo'shish",
-    markCompleted: "Tugallangan deb belgilash",
-    delete: "O'chirish",
-    downloadPDF: "PDF formatda yuklab olish",
+    // Main navigation and titles
+    dentalManagement: "Stomatologiya boshqaruvi",
     clientInfo: "Mijoz ma'lumotlari",
-    treatmentHistory: "Muolaja tarixi",
-    addTreatment: "Muolaja qo'shish",
-    age: "Yoshi",
-    email: "Email",
-    address: "Manzil",
-    treatment: "Davolash",
-    notes: "Izohlar",
-    visitDate: "Tashrif sanasi",
-    treatmentType: "Muolaja turi",
-    doctor: "Shifokor",
-    cost: "Narxi",
-    description: "Tavsif",
-    nextVisitDate: "Keyingi uchrashv sanasi",
-    treatmentImages: "Yuklangan muolaja rasmlari",
-    noImagesUploaded: "Siz rasm yuklamagansiz",
-    addNewClientTitle: "Yangi mijoz qo'shish",
+    treatmentHistory: "Davolash tarixi",
+
+    // Client form fields
+    name: "Ism",
     firstName: "Ism",
     lastName: "Familiya",
-    phoneNumber: "Telefon raqam",
-    emailAddress: "Email manzil",
-    clientAge: "Yosh",
-    clientAddress: "Manzil",
-    initialTreatment: "Dastlabki muolaja",
+    age: "Yosh",
+    phone: "Telefon",
+    phoneNumber: "Telefon raqami",
+    email: "Email",
+    address: "Manzil",
+    clientAge: "Mijoz yoshi",
+    clientAddress: "Mijoz manzili",
     clientNotes: "Izohlar",
-    uploadFiles: "Fayllar yuklash",
-    uploadImage: "Rasm yuklash",
-    uploadAudio: "Audio yuklash",
-    uploadVideo: "Video yuklash",
+    initialTreatment: "Dastlabki muolaja",
+
+    // Status and filters
+    status: "Holat",
+    allStatuses: "Barcha holatlar",
+    inTreatment: "Davolanmoqda",
+    completed: "Tugallangan",
+    lastVisit: "Oxirgi tashrif",
+    nextAppointment: "Keyingi uchrashiv",
+    treatment: "Muolaja",
+    notes: "Izohlar",
+
+    // Actions
+    addNewClient: "Yangi mijoz qo'shish",
+    addNewClientTitle: "Yangi mijoz qo'shish",
+    markCompleted: "Tugallangan deb belgilash",
+    delete: "O'chirish",
     save: "Saqlash",
     cancel: "Bekor qilish",
-    totalShown: "Jami ko'rsatilgan:",
+    downloadPDF: "PDF yuklab olish",
+    searchPlaceholder: "Mijoz qidirish...",
+
+    // History and records
+    noTreatmentHistory: "Davolash tarixi yo'q",
+    noClientsFound: "Mijozlar topilmadi",
     totalTreated: "Jami davolangan:",
-    noClientsFound: "Hech qanday mijoz topilmadi",
-    noTreatmentHistory: "Muolaja tarixi mavjud emas",
+
+    // Languages
+    uzbekLatin: "Uz, (Lotin)",
+    uzbekCyrillic: "Ўз, (Кирилл)",
+    english: "English",
+
+    // Image and upload
+    uploadImage: "Rasm yuklash",
+    uploadedImages: "Yuklangan rasmlar",
+    noImagesUploaded: "Rasm yuklanmagan",
+
+    // Treatment specific
+    todayVisit: "Bugungi tashrif",
+    nextVisitPlan: "Keyingi tashrif uchun reja",
+    nextVisitDate: "Keyingi tashrif sanasi",
+    additionalNotes: "Qo'shimcha izohlar",
+    treatmentType: "Muolaja turi",
+    doctor: "Shifokor",
+    cost: "Narx",
+    description: "Tavsif",
+    details: "Tafsilotlar",
+
+    // Form validation
+    required: "Majburiy maydon",
+    invalidPhone: "Telefon raqami noto'g'ri formatda",
+    invalidEmail: "Email manzili noto'g'ri formatda",
+    invalidAge: "Yosh 1 dan 150 gacha bo'lishi kerak",
+    nameRequired: "Siz ism kiritmagansiz",
+    firstNameRequired: "Siz ism kiritmagansiz",
+    lastNameRequired: "Siz familiya kiritmagansiz",
+    phoneRequired: "Siz telefon raqami kiritmagansiz",
+    emailRequired: "Siz email kiritmagansiz",
+    ageRequired: "Siz yosh kiritmagansiz",
+    addressRequired: "Siz manzil kiritmagansiz",
+
+    // Success messages
+    success: "Muvaffaqiyat",
+    clientAdded: "Mijoz muvaffaqiyatli qo'shildi",
+    clientUpdated: "Mijoz ma'lumotlari yangilandi",
+    clientDeleted: "Mijoz o'chirildi",
+    treatmentAdded: "Muolaja qo'shildi",
+    statusUpdated: "Holat yangilandi",
+
+    // Error messages
+    error: "Xatolik",
+    loadingError: "Ma'lumotlarni yuklashda xatolik",
+    submitError: "Yuborishda xatolik yuz berdi",
+
+    // Loading states
+    loading: "Yuklanmoqda...",
+    saving: "Saqlanmoqda...",
+    deleting: "O'chirilmoqda...",
+
+    // Modal actions
+    addTreatment: "Muolaja qo'shish",
+    viewDetails: "Tafsilotlarni ko'rish",
+    editClient: "Mijozni tahrirlash",
+
+    // Statistics
+    totalClients: "Jami mijozlar",
+    activeClients: "Faol mijozlar",
+    todayAppointments: "Bugungi uchrashuvlar",
+    monthlyRevenue: "Oylik daromad",
+
+    // Date and time
+    today: "Bugun",
+    yesterday: "Kecha",
+    tomorrow: "Ertaga",
+    thisWeek: "Bu hafta",
+    thisMonth: "Bu oy",
+
+    // Navigation
+    back: "Orqaga",
+    next: "Keyingi",
+    previous: "Oldingi",
+    close: "Yopish",
+
+    // Additional features
+    exportData: "Ma'lumotlarni eksport qilish",
+    importData: "Ma'lumotlarni import qilish",
+    settings: "Sozlamalar",
+    profile: "Profil",
+    logout: "Chiqish",
+
+    // Treatment details
+    visitNumber: "Tashrif raqami",
+    treatmentReceived: "Olingan muolaja",
+    nextVisitNotes: "Keyingi tashrif uchun izoh",
+    createdOn: "Yaratilgan",
+    notSpecified: "Belgilanmagan",
+
+    // Responsive labels
+    clients: "Mijozlar",
+    treatments: "Muolajalar",
+    images: "Rasmlar",
+    information: "Ma'lumotlar",
+    history: "Tarix",
   },
+
   cyrillic: {
-    dentalManagement: "Дентал Менежмент",
-    searchPlaceholder: "Мижоз қидириш...",
-    uzbekLatin: "O'zbekcha",
-    uzbekCyrillic: "Ўзбекча",
-    selectAll: "Барчасини танлаш",
-    selected: "танланган",
-    lastVisit: "Охирги ташриф",
-    nextAppointment: "Кейинги учрашув",
-    status: "Ҳолат",
-    name: "Исм",
-    phone: "Телефон",
-    allStatuses: "Барча ҳолатлар",
-    inTreatment: "даволанмоқда",
-    completed: "тугалланган",
-    addNewClient: "Янги мижоз қўшиш",
-    markCompleted: "Тугалланган деб белгилаш",
-    delete: "Ўчириш",
-    downloadPDF: "PDF форматда юклаб олиш",
+    // Main navigation and titles
+    dentalManagement: "Стоматология бошқаруви",
     clientInfo: "Мижоз маълумотлари",
-    treatmentHistory: "Муолажа тарихи",
-    addTreatment: "Муолажа қўшиш",
-    age: "Ёши",
-    email: "Email",
-    address: "Манзил",
-    treatment: "Даволаш",
-    notes: "Изоҳлар",
-    visitDate: "Ташриф санаси",
-    treatmentType: "Муолажа тури",
-    doctor: "Шифокор",
-    cost: "Нархи",
-    description: "Тавсиф",
-    nextVisitDate: "Кейинги учрашув санаси",
-    treatmentImages: "Юкланган муолажа расмлари",
-    noImagesUploaded: "Сиз расм юкламагансиз",
-    addNewClientTitle: "Янги мижоз қўшиш",
+    treatmentHistory: "Даволаш тарихи",
+
+    // Client form fields
+    name: "Исм",
     firstName: "Исм",
     lastName: "Фамилия",
-    phoneNumber: "Телефон рақам",
-    emailAddress: "Email манзил",
-    clientAge: "Ёш",
-    clientAddress: "Манзил",
-    initialTreatment: "Дастлабки муолажа",
+    age: "Ёш",
+    phone: "Телефон",
+    phoneNumber: "Телефон рақами",
+    email: "Email",
+    address: "Манзил",
+    clientAge: "Мижоз ёши",
+    clientAddress: "Мижоз манзили",
     clientNotes: "Изоҳлар",
-    uploadFiles: "Файллар юклаш",
-    uploadImage: "Расм юклаш",
-    uploadAudio: "Аудио юклаш",
-    uploadVideo: "Видео юклаш",
+    initialTreatment: "Дастлабки муолажа",
+
+    // Status and filters
+    status: "Ҳолат",
+    allStatuses: "Барча ҳолатлар",
+    inTreatment: "Даволанмоқда",
+    completed: "Тугалланган",
+    lastVisit: "Охирги ташриф",
+    nextAppointment: "Кейинги учрашув",
+    treatment: "Муолажа",
+    notes: "Изоҳлар",
+
+    // Actions
+    addNewClient: "Янги мижоз қўшиш",
+    addNewClientTitle: "Янги мижоз қўшиш",
+    markCompleted: "Тугалланган деб белгилаш",
+    delete: "Ўчириш",
     save: "Сақлаш",
     cancel: "Бекор қилиш",
-    totalShown: "Жами кўрсатилган:",
+    downloadPDF: "PDF юклаб олиш",
+    searchPlaceholder: "Мижоз қидириш...",
+
+    // History and records
+    noTreatmentHistory: "Даволаш тарихи йўқ",
+    noClientsFound: "Мижозлар топилмади",
     totalTreated: "Жами даволанган:",
-    noClientsFound: "Ҳеч қандай мижоз топилмади",
-    noTreatmentHistory: "Муолажа тарихи мавжуд эмас",
+
+    // Languages
+    uzbekLatin: "Uz, (Лотин)",
+    uzbekCyrillic: "Ўз, (Кирилл)",
+    english: "English",
+
+    // Image and upload
+    uploadImage: "Расм юклаш",
+    uploadedImages: "Юкланган расмлар",
+    noImagesUploaded: "Расм юкланмаган",
+
+    // Treatment specific
+    todayVisit: "Бугунги ташриф",
+    nextVisitPlan: "Кейинги ташриф учун режа",
+    nextVisitDate: "Кейинги ташриф санаси",
+    additionalNotes: "Қўшимча изоҳлар",
+    treatmentType: "Муолажа тури",
+    doctor: "Шифокор",
+    cost: "Нарх",
+    description: "Тавсиф",
+    details: "Тафсилотлар",
+
+    // Form validation
+    required: "Мажбурий майдон",
+    invalidPhone: "Телефон рақами нотўғри форматда",
+    invalidEmail: "Email манзили нотўғри форматда",
+    invalidAge: "Ёш 1 дан 150 гача бўлиши керак",
+    nameRequired: "Сиз исм киритмагансиз",
+    firstNameRequired: "Сиз исм киритмагансиз",
+    lastNameRequired: "Сиз фамилия киритмагансиз",
+    phoneRequired: "Сиз телефон рақами киритмагансиз",
+    emailRequired: "Сиз email киритмагансиз",
+    ageRequired: "Сиз ёш киритмагансиз",
+    addressRequired: "Сиз манзил киритмагансиз",
+
+    // Success messages
+    success: "Муваффақият",
+    clientAdded: "Мижоз муваффақиятли қўшилди",
+    clientUpdated: "Мижоз маълумотлари янгиланди",
+    clientDeleted: "Мижоз ўчирилди",
+    treatmentAdded: "Муолажа қўшилди",
+    statusUpdated: "Ҳолат янгиланди",
+
+    // Error messages
+    error: "Хатолик",
+    loadingError: "Маълумотларни юклашда хатолик",
+    submitError: "Юборишда хатолик юз берди",
+
+    // Loading states
+    loading: "Юкланмоқда...",
+    saving: "Сақланмоқда...",
+    deleting: "Ўчирилмоқда...",
+
+    // Modal actions
+    addTreatment: "Муолажа қўшиш",
+    viewDetails: "Тафсилотларни кўриш",
+    editClient: "Мижозни таҳрирлаш",
+
+    // Statistics
+    totalClients: "Жами мижозлар",
+    activeClients: "Фаол мижозлар",
+    todayAppointments: "Бугунги учрашувлар",
+    monthlyRevenue: "Ойлик даромад",
+
+    // Date and time
+    today: "Бугун",
+    yesterday: "Кеча",
+    tomorrow: "Эртага",
+    thisWeek: "Бу ҳафта",
+    thisMonth: "Бу ой",
+
+    // Navigation
+    back: "Орқага",
+    next: "Кейинги",
+    previous: "Олдинги",
+    close: "Ёпиш",
+
+    // Additional features
+    exportData: "Маълумотларни экспорт қилиш",
+    importData: "Маълумотларни импорт қилиш",
+    settings: "Созламалар",
+    profile: "Профил",
+    logout: "Чиқиш",
+
+    // Treatment details
+    visitNumber: "Ташриф рақами",
+    treatmentReceived: "Олинган муолажа",
+    nextVisitNotes: "Кейинги ташриф учун изоҳ",
+    createdOn: "Яратилган",
+    notSpecified: "Белгиланмаган",
+
+    // Responsive labels
+    clients: "Мижозлар",
+    treatments: "Муолажалар",
+    images: "Расмлар",
+    information: "Маълумотлар",
+    history: "Тарих",
   },
-}
+
+  english: {
+    // Main navigation and titles
+    dentalManagement: "Dental Management",
+    clientInfo: "Client Information",
+    treatmentHistory: "Treatment History",
+
+    // Client form fields
+    name: "Name",
+    firstName: "First Name",
+    lastName: "Last Name",
+    age: "Age",
+    phone: "Phone",
+    phoneNumber: "Phone Number",
+    email: "Email",
+    address: "Address",
+    clientAge: "Client Age",
+    clientAddress: "Client Address",
+    clientNotes: "Notes",
+    initialTreatment: "Initial Treatment",
+
+    // Status and filters
+    status: "Status",
+    allStatuses: "All Statuses",
+    inTreatment: "In Treatment",
+    completed: "Completed",
+    lastVisit: "Last Visit",
+    nextAppointment: "Next Appointment",
+    treatment: "Treatment",
+    notes: "Notes",
+
+    // Actions
+    addNewClient: "Add New Client",
+    addNewClientTitle: "Add New Client",
+    markCompleted: "Mark as Completed",
+    delete: "Delete",
+    save: "Save",
+    cancel: "Cancel",
+    downloadPDF: "Download PDF",
+    searchPlaceholder: "Search clients...",
+
+    // History and records
+    noTreatmentHistory: "No treatment history",
+    noClientsFound: "No clients found",
+    totalTreated: "Total treated:",
+
+    // Languages
+    uzbekLatin: "Uzbek (Latin)",
+    uzbekCyrillic: "Uzbek (Cyrillic)",
+    english: "English",
+
+    // Image and upload
+    uploadImage: "Upload Image",
+    uploadedImages: "Uploaded Images",
+    noImagesUploaded: "No images uploaded",
+
+    // Treatment specific
+    todayVisit: "Today's Visit",
+    nextVisitPlan: "Next Visit Plan",
+    nextVisitDate: "Next Visit Date",
+    additionalNotes: "Additional Notes",
+    treatmentType: "Treatment Type",
+    doctor: "Doctor",
+    cost: "Cost",
+    description: "Description",
+    details: "Details",
+
+    // Form validation
+    required: "Required field",
+    invalidPhone: "Invalid phone format",
+    invalidEmail: "Invalid email format",
+    invalidAge: "Age must be between 1 and 150",
+    nameRequired: "You haven't entered name",
+    firstNameRequired: "You haven't entered first name",
+    lastNameRequired: "You haven't entered last name",
+    phoneRequired: "You haven't entered phone number",
+    emailRequired: "You haven't entered email",
+    ageRequired: "You haven't entered age",
+    addressRequired: "You haven't entered address",
+
+    // Success messages
+    success: "Success",
+    clientAdded: "Client added successfully",
+    clientUpdated: "Client information updated",
+    clientDeleted: "Client deleted",
+    treatmentAdded: "Treatment added",
+    statusUpdated: "Status updated",
+
+    // Error messages
+    error: "Error",
+    loadingError: "Error loading data",
+    submitError: "Error occurred while submitting",
+
+    // Loading states
+    loading: "Loading...",
+    saving: "Saving...",
+    deleting: "Deleting...",
+
+    // Modal actions
+    addTreatment: "Add Treatment",
+    viewDetails: "View Details",
+    editClient: "Edit Client",
+
+    // Statistics
+    totalClients: "Total Clients",
+    activeClients: "Active Clients",
+    todayAppointments: "Today's Appointments",
+    monthlyRevenue: "Monthly Revenue",
+
+    // Date and time
+    today: "Today",
+    yesterday: "Yesterday",
+    tomorrow: "Tomorrow",
+    thisWeek: "This Week",
+    thisMonth: "This Month",
+
+    // Navigation
+    back: "Back",
+    next: "Next",
+    previous: "Previous",
+    close: "Close",
+
+    // Additional features
+    exportData: "Export Data",
+    importData: "Import Data",
+    settings: "Settings",
+    profile: "Profile",
+    logout: "Logout",
+
+    // Treatment details
+    visitNumber: "Visit Number",
+    treatmentReceived: "Treatment Received",
+    nextVisitNotes: "Next Visit Notes",
+    createdOn: "Created On",
+    notSpecified: "Not Specified",
+
+    // Responsive labels
+    clients: "Clients",
+    treatments: "Treatments",
+    images: "Images",
+    information: "Information",
+    history: "History",
+  },
+};

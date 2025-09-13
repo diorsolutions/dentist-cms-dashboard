@@ -368,38 +368,37 @@ const DentalClinicDashboard = () => {
     loadClients();
   }, []);
 
-  // Validate form
   const validateForm = () => {
     const errors: { [key: string]: string } = {};
 
     if (!newClient.firstName.trim()) {
-      errors.firstName = "Ism majburiy";
+      errors.firstName = t.firstNameRequired;
     }
 
     if (!newClient.lastName.trim()) {
-      errors.lastName = "Familiya majburiy";
+      errors.lastName = t.lastNameRequired;
     }
 
     if (!newClient.phone.trim()) {
-      errors.phone = "Telefon raqami majburiy";
+      errors.phone = t.phoneRequired;
     } else {
       const phoneRegex = /^\+998\d{9}$/;
       if (!phoneRegex.test(newClient.phone.trim())) {
-        errors.phone = "Telefon raqami +998XXXXXXXXX formatida bo'lishi kerak";
+        errors.phone = t.invalidPhone;
       }
     }
 
     if (newClient.email && newClient.email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(newClient.email.trim())) {
-        errors.email = "Email manzili noto'g'ri formatda";
+        errors.email = t.invalidEmail;
       }
     }
 
     if (newClient.age && newClient.age.trim()) {
       const age = Number.parseInt(newClient.age);
       if (isNaN(age) || age < 1 || age > 150) {
-        errors.age = "Yosh 1 dan 150 gacha bo'lishi kerak";
+        errors.age = t.invalidAge;
       }
     }
 
@@ -1564,6 +1563,7 @@ const DentalClinicDashboard = () => {
                             key={index}
                             src={
                               UploadService.getImageUrl(image) ||
+                              "/placeholder.svg" ||
                               "/placeholder.svg"
                             }
                             alt={`Mijoz rasmi ${index + 1}`}
@@ -1582,6 +1582,7 @@ const DentalClinicDashboard = () => {
                           key={index}
                           src={
                             UploadService.getImageUrl(image) ||
+                            "/placeholder.svg" ||
                             "/placeholder.svg"
                           }
                           alt={`Mijoz rasmi ${index + 1}`}
@@ -1744,7 +1745,7 @@ const DentalClinicDashboard = () => {
                       setFormErrors((prev) => ({ ...prev, firstName: "" }));
                     }
                   }}
-                  placeholder="Ism"
+                  placeholder={t.firstName}
                   className={formErrors.firstName ? "border-red-500" : ""}
                 />
                 {formErrors.firstName && (
@@ -1768,7 +1769,7 @@ const DentalClinicDashboard = () => {
                       setFormErrors((prev) => ({ ...prev, lastName: "" }));
                     }
                   }}
-                  placeholder="Familiya"
+                  placeholder={t.lastName}
                   className={formErrors.lastName ? "border-red-500" : ""}
                 />
                 {formErrors.lastName && (
@@ -1853,7 +1854,7 @@ const DentalClinicDashboard = () => {
                       address: e.target.value,
                     }))
                   }
-                  placeholder="Manzil"
+                  placeholder={t.address}
                 />
               </div>
             </div>
@@ -1869,7 +1870,7 @@ const DentalClinicDashboard = () => {
                     treatment: e.target.value,
                   }))
                 }
-                placeholder="Dastlabki muolaja"
+                placeholder={t.initialTreatment}
               />
             </div>
 
@@ -1881,7 +1882,7 @@ const DentalClinicDashboard = () => {
                 onChange={(e) =>
                   setNewClient((prev) => ({ ...prev, notes: e.target.value }))
                 }
-                placeholder="Qo'shimcha izohlar"
+                placeholder={t.notes}
                 rows={3}
               />
             </div>
