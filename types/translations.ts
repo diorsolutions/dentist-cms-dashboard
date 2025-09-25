@@ -76,6 +76,8 @@ export interface Translations {
   emailRequired: string;
   ageRequired: string;
   addressRequired: string;
+  initialTreatmentRequired: string;
+  notesRequired: string;
 
   // Success messages
   success: string;
@@ -223,6 +225,8 @@ export const translations: Record<
     emailRequired: "Siz email kiritmagansiz",
     ageRequired: "Siz yosh kiritmagansiz",
     addressRequired: "Siz manzil kiritmagansiz",
+    initialTreatmentRequired: "Siz dastlabki muolaja kiritmagansiz",
+    notesRequired: "Siz izoh kiritmagansiz",
 
     // Success messages
     success: "Muvaffaqiyat",
@@ -366,6 +370,8 @@ export const translations: Record<
     emailRequired: "Сиз email киритмагансиз",
     ageRequired: "Сиз ёш киритмагансиз",
     addressRequired: "Сиз манзил киритмагансиз",
+    initialTreatmentRequired: "Сиз дастлабки муолажа киритмагансиз",
+    notesRequired: "Сиз изоҳ киритмагансиз",
 
     // Success messages
     success: "Муваффақият",
@@ -509,6 +515,8 @@ export const translations: Record<
     emailRequired: "You haven't entered email",
     ageRequired: "You haven't entered age",
     addressRequired: "You haven't entered address",
+    initialTreatmentRequired: "You haven't entered initial treatment",
+    notesRequired: "You haven't entered notes",
 
     // Success messages
     success: "Success",

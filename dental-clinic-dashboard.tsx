@@ -267,7 +267,7 @@ const DentalClinicDashboard = () => {
           _id: client._id,
           name: `${client.firstName} ${client.lastName}`,
           phone: client.phone,
-          email: client.email || "",
+          email: client.email,
           lastVisit: client.updatedAt
             ? new Date(client.updatedAt).toISOString().split("T")[0]
             : new Date().toISOString().split("T")[0],
@@ -275,10 +275,10 @@ const DentalClinicDashboard = () => {
             .toISOString()
             .split("T")[0],
           status: client.status,
-          treatment: client.initialTreatment || "",
-          notes: client.notes || "",
-          age: client.age || 0,
-          address: client.address || "",
+          treatment: client.initialTreatment,
+          notes: client.notes,
+          age: client.age,
+          address: client.address,
           treatmentHistory: [],
           uploadedImages: client.uploadedFiles?.images || [],
           uploadedFiles: client.uploadedFiles || { images: [] },
@@ -1494,7 +1494,7 @@ const DentalClinicDashboard = () => {
                       {t.age}
                     </Label>
                     <p className="text-base font-medium text-foreground">
-                      {selectedClient.age}
+                      {selectedClient.age || t.ageRequired}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -1510,7 +1510,7 @@ const DentalClinicDashboard = () => {
                       {t.email}
                     </Label>
                     <p className="text-base font-medium text-foreground">
-                      {selectedClient.email}
+                      {selectedClient.email || t.emailRequired}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -1518,7 +1518,7 @@ const DentalClinicDashboard = () => {
                       {t.address}
                     </Label>
                     <p className="text-base font-medium text-foreground">
-                      {selectedClient.address}
+                      {selectedClient.address || t.addressRequired}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -1536,7 +1536,7 @@ const DentalClinicDashboard = () => {
                     {t.treatment}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.treatment}
+                    {selectedClient.treatment || t.initialTreatmentRequired}
                   </p>
                 </div>
 
@@ -1545,7 +1545,7 @@ const DentalClinicDashboard = () => {
                     {t.notes}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.notes}
+                    {selectedClient.notes || t.notesRequired}
                   </p>
                 </div>
 

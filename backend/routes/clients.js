@@ -84,13 +84,6 @@ router.post("/", optionalAuth, validateClient, async (req, res) => {
   } catch (error) {
     console.error("Create client error:", error);
 
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: "Phone number or email already exists",
-      });
-    }
-
     res.status(500).json({
       success: false,
       message: "Error creating client",
@@ -156,13 +149,6 @@ router.put("/:id", optionalAuth, validateClient, async (req, res) => {
     });
   } catch (error) {
     console.error("Update client error:", error);
-
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: "Phone number or email already exists",
-      });
-    }
 
     res.status(500).json({
       success: false,

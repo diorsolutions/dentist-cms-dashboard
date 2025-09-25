@@ -18,7 +18,6 @@ const clientSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, "Phone number is required"],
-      unique: true,
       match: [/^\+998\d{9}$/, "Please enter a valid phone number (+998XXXXXXXXX)"],
     },
     email: {
@@ -108,7 +107,6 @@ clientSchema.virtual("treatmentCount", {
 
 // Indexes for better performance
 clientSchema.index({ firstName: 1, lastName: 1 })
-clientSchema.index({ phone: 1 })
 clientSchema.index({ email: 1 })
 clientSchema.index({ status: 1 })
 clientSchema.index({ createdAt: -1 })
