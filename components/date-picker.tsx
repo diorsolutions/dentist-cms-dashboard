@@ -10,7 +10,11 @@ import { useTheme } from "next-themes"; // Import useTheme
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface DatePickerProps {
   value?: Date;
@@ -41,7 +45,7 @@ export function DatePicker({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}> {/* Popoverga open va onOpenChange prop'larini berish */}
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -52,28 +56,36 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "dd/MM/yyyy", { locale: uzbekLocale }) : <span>{placeholder}</span>}
+          {value ? (
+            format(value, "dd/MM/yyyy", { locale: uzbekLocale })
+          ) : (
+            <span>{placeholder}</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <DayPicker
           mode="single"
           selected={value}
-          onSelect={handleDaySelect} {/* Yangi handleDaySelect funksiyasini ishlatish */}
+          onSelect={handleDaySelect}
           initialFocus
           locale={uzbekLocale}
           fromDate={allowPastDates ? undefined : new Date()} // Conditionally allow past dates
           captionLayout={showDropdowns ? "dropdown" : "buttons"} // Conditionally show dropdowns
           fromYear={showDropdowns ? fromYear : undefined} // Set fromYear for dropdowns
-          toYear={showDropdowns ? toYear : undefined}   // Set toYear for dropdowns
-          className={cn(showDropdowns && "day-picker-custom-dropdowns", theme === "dark" && "dark")} // Add dark class here
+          toYear={showDropdowns ? toYear : undefined} // Set toYear for dropdowns
+          className={cn(
+            showDropdowns && "day-picker-custom-dropdowns",
+            theme === "dark" && "dark"
+          )} // Add dark class here
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",
             labelYearDropdown: () => "Yilni tanlang",
             labelNext: () => "Keyingi oy",
             labelPrevious: () => "Oldingi oy",
-            labelDay: (day) => format(day, "dd MMMM yyyy", { locale: uzbekLocale }),
+            labelDay: (day) =>
+              format(day, "dd MMMM yyyy", { locale: uzbekLocale }),
           }}
         />
       </PopoverContent>

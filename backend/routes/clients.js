@@ -63,21 +63,19 @@ router.get("/", optionalAuth, async (req, res) => {
 
       if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
         try {
-          const searchDate = new Date(search); // Parse the "yyyy-MM-dd" string from frontend
-          if (!isNaN(searchDate.getTime())) {
-            const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-            const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+          // Parse the "yyyy-MM-dd" string from frontend
+          const [year, month, day] = search.split('-').map(Number);
+          
+          // Construct UTC dates for the start and end of the selected day
+          const startOfDayUTC = new Date(Date.UTC(year, month - 1, day)); // month is 0-indexed
+          const endOfDayUTC = new Date(Date.UTC(year, month - 1, day + 1));
 
-            if (searchField === "lastVisit") {
-              dynamicSearchFilter.lastVisit = { $gte: startOfDay, $lt: endOfDay };
-            } else if (searchField === "nextAppointment") {
-              dynamicSearchFilter.nextAppointment = { $gte: startOfDay, $lt: endOfDay };
-            } else if (searchField === "dateOfBirth") {
-              dynamicSearchFilter.dateOfBirth = { $gte: startOfDay, $lt: endOfDay };
-            }
-          } else {
-            // If date is invalid, ensure no results for date search
-            dynamicSearchFilter[searchField] = null; // Match nothing or handle as appropriate
+          if (searchField === "lastVisit") {
+            dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+          } else if (searchField === "nextAppointment") {
+            dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+          } else if (searchField === "dateOfBirth") {
+            dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
           }
         } catch (dateError) {
           console.error("Error parsing date for filter:", dateError);
@@ -181,20 +179,16 @@ router.get("/", optionalAuth, async (req, res) => {
         let dynamicSearchFilter = {};
         if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
             try {
-                const searchDate = new Date(search);
-                if (!isNaN(searchDate.getTime())) {
-                    const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-                    const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+                const [year, month, day] = search.split('-').map(Number);
+                const startOfDayUTC = new Date(Date.UTC(year, month - 1, day));
+                const endOfDayUTC = new Date(Date.UTC(year, month - 1, day + 1));
 
-                    if (searchField === "lastVisit") {
-                        dynamicSearchFilter.lastVisit = { $gte: startOfDay, $lt: endOfDay };
-                    } else if (searchField === "nextAppointment") {
-                        dynamicSearchFilter.nextAppointment = { $gte: startOfDay, $lt: endOfDay };
-                    } else if (searchField === "dateOfBirth") {
-                        dynamicSearchFilter.dateOfBirth = { $gte: startOfDay, $lt: endOfDay };
-                    }
-                } else {
-                    dynamicSearchFilter[searchField] = null;
+                if (searchField === "lastVisit") {
+                    dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                } else if (searchField === "nextAppointment") {
+                    dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                } else if (searchField === "dateOfBirth") {
+                    dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
                 }
             } catch (dateError) {
                 console.error("Error parsing date for filter in total count:", dateError);
