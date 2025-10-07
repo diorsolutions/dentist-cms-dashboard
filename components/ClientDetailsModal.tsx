@@ -339,18 +339,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                             </div>
                           </div>
 
-                          <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
-                            <div>
-                              <span className="font-medium text-base">
-                                {t.treatmentCategoryLabel}:
-                              </span>
-                              <div className="text-muted-foreground text-base">
-                                {treatment.treatmentType || t.notSpecified}
-                              </div>
-                            </div>
-                          </div>
-
                           {treatment.description && (
                             <div className="flex items-start gap-3">
                               <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
@@ -360,20 +348,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                                 </span>
                                 <div className="text-muted-foreground text-base">
                                   {treatment.description}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {treatment.notes && (
-                            <div className="flex items-start gap-3">
-                              <div className="w-2 h-2 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></div>
-                              <div>
-                                <span className="font-medium text-base">
-                                  {t.additionalNotes}:
-                                </span>
-                                <div className="text-muted-foreground text-base">
-                                  {treatment.notes}
                                 </div>
                               </div>
                             </div>
