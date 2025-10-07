@@ -51,9 +51,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "email":
         return t.searchByEmail;
       case "lastVisit":
-        return t.searchByLastVisitDate;
       case "nextAppointment":
-        return t.searchByNextAppointmentDate;
       case "dateOfBirth":
         return t.searchByBirthDate;
       default:
@@ -101,7 +99,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               setSearchTerm(""); // Clear input field
-              handleApplySearch(); // Trigger search with empty term to reset filter
+              // Removed handleApplySearch() here to prevent immediate request
             }}
           >
             <SelectTrigger className="w-48">
