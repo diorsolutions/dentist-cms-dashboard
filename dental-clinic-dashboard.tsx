@@ -30,7 +30,7 @@ import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/use-debounce";
+// Removed useDebounce import
 
 // Types
 interface TreatmentRecord {
@@ -116,6 +116,8 @@ const DentalClinicDashboard = () => {
   const [currentFilterAndSortField, setCurrentFilterAndSortField] = useState<FilterAndSortField>("name");
   const [currentSortDirection, setCurrentSortDirection] = useState<SortDirection>("asc");
 
+  // Removed debounced states as per user request
+
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
@@ -156,10 +158,6 @@ const DentalClinicDashboard = () => {
 
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
-
-  // Debounced values for filters and sort
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const debouncedStatusFilter = useDebounce(statusFilter, 500);
 
   // Client-side cache for treatment histories
   const [clientTreatmentsCache, setClientTreatmentsCache] = useState<Map<string, TreatmentRecord[]>>(new Map());
@@ -217,19 +215,14 @@ const DentalClinicDashboard = () => {
       setLoading(true);
       setError(null);
 
-      let actualSearchTerm = debouncedSearchTerm;
-      // If phone filter is active and user has typed some digits, prepend '+998' for backend
-      if (currentFilterAndSortField === "phone" && debouncedSearchTerm.length > 0) {
-        actualSearchTerm = `+998${debouncedSearchTerm}`;
-      }
-
       const params = {
         page: String(page),
         limit: String(limit),
-        search: actualSearchTerm, // Use the constructed search term
-        status: debouncedStatusFilter,
-        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
+        search: searchTerm, // Use direct searchTerm
+        status: statusFilter, // Use direct statusFilter
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Backend will use this for sorting
         sortOrder: currentSortDirection,
+        searchField: currentFilterAndSortField, // New parameter to tell backend which field to search
       };
       const response = await ClientService.getAllClients(params);
 
@@ -246,10 +239,10 @@ const DentalClinicDashboard = () => {
               status: client.status,
               treatment: client.initialTreatment,
               notes: client.notes,
-              age: client.age, // Now comes from virtual field
-              dateOfBirth: client.dateOfBirth || null, 
+              age: client.dateOfBirth ? calculateAge(client.dateOfBirth) : null, // Calculate age on frontend
+              dateOfBirth: client.dateOfBirth || null,
               address: client.address,
-              treatmentHistory: clientTreatmentsCache.get(client._id) || [], // Use cached or empty
+              treatmentHistory: clientTreatmentsCache.get(client._id) || [],
               uploadedImages: client.uploadedFiles?.images || [],
               uploadedFiles: client.uploadedFiles || { images: [] },
               images: client.images || [],
@@ -260,7 +253,7 @@ const DentalClinicDashboard = () => {
           });
 
         setClients(transformedClients);
-        setTotalClientsEver(response.totalClientsOverall); // Use the new field for overall count
+        setTotalClientsEver(response.totalClientsOverall);
         setTotalPages(response.pagination.pages);
         setCurrentPage(response.pagination.current);
       } else {
@@ -282,20 +275,8 @@ const DentalClinicDashboard = () => {
   };
 
   useEffect(() => {
-    // Condition to skip loading:
-    // If the filter is by phone AND the debounced search term is empty (no digits typed yet).
-    if (currentFilterAndSortField === "phone" && debouncedSearchTerm.length === 0) {
-      console.log("Skipping loadClients: Phone filter with empty search term.");
-      setClients([]); // Clear clients if no search is intended
-      setTotalPages(1);
-      setCurrentPage(1);
-      return;
-    }
-
-    // In all other cases, proceed to load clients.
-    console.log("Proceeding to loadClients()...");
     loadClients();
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, currentFilterAndSortField, currentSortDirection, language]);
+  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Depend on direct states
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -311,7 +292,6 @@ const DentalClinicDashboard = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(newClient.email.trim())) errors.email = t.invalidEmail;
     }
-    // Age validation removed as it's now derived
     if (newClient.dateOfBirth) {
       if (isNaN(newClient.dateOfBirth.getTime())) {
         errors.dateOfBirth = t.invalidBirthDate;
@@ -337,17 +317,9 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  // New handler for search input changes, specifically for phone formatting
+  // Generic handler for search input changes
   const handleSearchInputChange = (value: string) => {
-    if (currentFilterAndSortField === "phone") {
-      let cleaned = value.replace(/\D/g, ""); // Remove non-digits
-      if (cleaned.length > 9) { // Limit to 9 digits for display
-        cleaned = cleaned.substring(0, 9);
-      }
-      setSearchTerm(cleaned); // Store only the 9 digits in state
-    } else {
-      setSearchTerm(value);
-    }
+    setSearchTerm(value);
   };
 
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
@@ -439,7 +411,7 @@ const DentalClinicDashboard = () => {
 
       xPos = startX;
       rowData.forEach((data, colIndex) => {
-        const colWidth = colWidths[colIndex];
+        const colWidth = colColWidths[colIndex];
         const textX = xPos + colWidth / 2;
         doc.text(data, textX, yPos, { align: "center" });
         if (colIndex < rowData.length - 1) {

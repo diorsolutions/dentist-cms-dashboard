@@ -45,7 +45,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "name":
         return t.searchByName;
       case "phone":
-        return "91 878 78 07"; // Updated placeholder for phone
+        return t.searchByPhone;
       case "email":
         return t.searchByEmail;
       case "lastVisit":
@@ -103,12 +103,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              type={currentFilterAndSortField === "phone" ? "tel" : "text"}
+              type="text" // Make type generic
               placeholder={getPlaceholderText(currentFilterAndSortField)}
               value={searchTerm}
               onChange={(e) => handleSearchInputChange(e.target.value)}
               className="pl-10 w-full"
-              maxLength={currentFilterAndSortField === "phone" ? 9 : undefined} // Max 9 chars for phone digits
+              // Removed maxLength for phone, as it's now handled generically
             />
           </div>
 

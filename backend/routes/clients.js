@@ -10,51 +10,30 @@ router.get("/", optionalAuth, async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 30, // Default to 30 clients per page
+      limit = 30,
       search = "",
       status = "all",
       sortBy = "createdAt",
       sortOrder = "desc",
+      searchField = "name", // New parameter to specify which field to search by
     } = req.query;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    let matchFilter = { isActive: true };
-    if (search) {
-      matchFilter.$or = [
-        { firstName: { $regex: search, $options: "i" } },
-        { lastName: { $regex: search, $options: "i" } },
-        { phone: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+    // Initial match for isActive and status
+    let initialMatch = { isActive: true };
     if (status !== "all") {
-      matchFilter.status = status;
+      initialMatch.status = status;
     }
 
-    const sortStage = {};
-    // Map frontend sort fields to backend fields if necessary
-    let backendSortBy = sortBy;
-    if (sortBy === "name") {
-      backendSortBy = "firstName"; // Or 'lastName' depending on primary sort
-    } else if (sortBy === "lastVisit") {
-      backendSortBy = "lastVisit";
-    } else if (sortBy === "nextAppointment") {
-      backendSortBy = "nextAppointment";
-    } else if (sortBy === "dateOfBirth") { // Handle new sort field
-      backendSortBy = "dateOfBirth";
-    } else if (sortBy === "phone") { // Handle phone sort field
-      backendSortBy = "phone";
-    }
-    sortStage[backendSortBy] = sortOrder === "desc" ? -1 : 1;
-
+    // Build the aggregation pipeline
     const pipeline = [
-      { $match: matchFilter },
+      { $match: initialMatch }, // Apply initial filters first
       {
         $lookup: {
-          from: "treatments", // The name of the treatments collection
+          from: "treatments",
           localField: "_id",
           foreignField: "clientId",
           as: "treatments",
@@ -62,6 +41,7 @@ router.get("/", optionalAuth, async (req, res) => {
       },
       {
         $addFields: {
+          fullName: { $concat: ["$firstName", " ", "$lastName"] },
           treatmentCount: { $size: "$treatments" },
           lastVisit: { $max: "$treatments.treatmentDate" },
           nextAppointment: {
@@ -69,23 +49,81 @@ router.get("/", optionalAuth, async (req, res) => {
               $filter: {
                 input: "$treatments.nextVisitDate",
                 as: "date",
-                cond: { $gte: ["$$date", new Date()] }, // Filter for future dates
+                cond: { $gte: ["$$date", new Date()] },
               },
             },
           },
+          // Convert dateOfBirth to ISO string for consistent searching/sorting
+          dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } }
         },
       },
-      {
+    ];
+
+    // Add dynamic search filter if search term is provided
+    if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+      let dynamicSearchFilter = {};
+
+      switch (searchField) {
+        case "name":
+          dynamicSearchFilter.fullName = searchRegex;
+          break;
+        case "phone":
+          dynamicSearchFilter.phone = searchRegex;
+          break;
+        case "email":
+          dynamicSearchFilter.email = searchRegex;
+          break;
+        case "lastVisit":
+          // Search on the ISO string representation of lastVisit
+          dynamicSearchFilter.lastVisit = searchRegex;
+          break;
+        case "nextAppointment":
+          // Search on the ISO string representation of nextAppointment
+          dynamicSearchFilter.nextAppointment = searchRegex;
+          break;
+        case "dateOfBirth":
+          dynamicSearchFilter.dateOfBirthString = searchRegex;
+          break;
+        default:
+          // Fallback to searching across multiple fields if searchField is unknown or not provided
+          dynamicSearchFilter.$or = [
+            { firstName: searchRegex },
+            { lastName: searchRegex },
+            { phone: searchRegex },
+            { email: searchRegex },
+            { fullName: searchRegex }, // Include computed fullName
+            { dateOfBirthString: searchRegex } // Include computed dateOfBirthString
+          ];
+          break;
+      }
+      pipeline.push({ $match: dynamicSearchFilter });
+    }
+
+    // Add sort stage
+    const sortStage = {};
+    let actualSortBy = sortBy;
+    if (sortBy === "name") {
+        actualSortBy = "fullName"; // Sort by computed fullName
+    } else if (sortBy === "dateOfBirth") {
+        actualSortBy = "dateOfBirthString"; // Sort by computed dateOfBirthString
+    }
+    sortStage[actualSortBy] = sortOrder === "desc" ? -1 : 1;
+    pipeline.push({ $sort: sortStage });
+
+    // Add pagination stages
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limitNum });
+
+    // Add final projection stage
+    pipeline.push({
         $project: {
-          // Explicitly include all desired client fields.
-          // Other fields (like 'treatments' array) will be implicitly excluded.
           _id: 1,
           firstName: 1,
           lastName: 1,
           phone: 1,
           email: 1,
-          age: 1,
-          dateOfBirth: 1, // Include new field
+          dateOfBirth: 1,
           address: 1,
           status: 1,
           initialTreatment: 1,
@@ -98,20 +136,67 @@ router.get("/", optionalAuth, async (req, res) => {
           treatmentCount: 1,
           lastVisit: 1,
           nextAppointment: 1,
+          fullName: 1, // Keep fullName if it was used for sorting/searching
+          dateOfBirthString: 1 // Keep dateOfBirthString if it was used for sorting/searching
         },
-      },
-      { $sort: sortStage },
-      { $skip: skip },
-      { $limit: limitNum },
-    ];
+    });
 
     const clients = await Client.aggregate(pipeline);
 
     // For total count of currently filtered/active clients (for pagination)
-    const total = await Client.countDocuments(matchFilter);
+    // This needs a separate pipeline that applies all filters but no skip/limit
+    const totalCountPipeline = [
+        { $match: initialMatch },
+        {
+            $lookup: {
+                from: "treatments",
+                localField: "_id",
+                foreignField: "clientId",
+                as: "treatments",
+            },
+        },
+        {
+            $addFields: {
+                fullName: { $concat: ["$firstName", " ", "$lastName"] },
+                lastVisit: { $max: "$treatments.treatmentDate" },
+                nextAppointment: {
+                    $min: {
+                        $filter: {
+                            input: "$treatments.nextVisitDate",
+                            as: "date",
+                            cond: { $gte: ["$$date", new Date()] },
+                        },
+                    },
+                },
+                dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } }
+            },
+        },
+    ];
+    if (search) {
+        const searchRegex = { $regex: search, $options: "i" };
+        let dynamicSearchFilter = {};
+        switch (searchField) {
+            case "name": dynamicSearchFilter.fullName = searchRegex; break;
+            case "phone": dynamicSearchFilter.phone = searchRegex; break;
+            case "email": dynamicSearchFilter.email = searchRegex; break;
+            case "lastVisit": dynamicSearchFilter.lastVisit = searchRegex; break;
+            case "nextAppointment": dynamicSearchFilter.nextAppointment = searchRegex; break;
+            case "dateOfBirth": dynamicSearchFilter.dateOfBirthString = searchRegex; break;
+            default:
+                dynamicSearchFilter.$or = [
+                    { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
+                    { email: searchRegex }, { fullName: searchRegex }, { dateOfBirthString: searchRegex }
+                ];
+                break;
+        }
+        totalCountPipeline.push({ $match: dynamicSearchFilter });
+    }
+    totalCountPipeline.push({ $count: "total" });
 
-    // For total clients ever created (regardless of active status)
-    const totalClientsOverall = await Client.countDocuments({}); // This is the new count
+    const totalResult = await Client.aggregate(totalCountPipeline);
+    const total = totalResult.length > 0 ? totalResult[0].total : 0;
+
+    const totalClientsOverall = await Client.countDocuments({});
 
     res.json({
       success: true,
@@ -120,11 +205,11 @@ router.get("/", optionalAuth, async (req, res) => {
         current: pageNum,
         limit: limitNum,
         pages: Math.ceil(total / limitNum),
-        total, // This is the count for the current view
+        total,
         hasNext: pageNum < Math.ceil(total / limitNum),
         hasPrev: pageNum > 1,
       },
-      totalClientsOverall: totalClientsOverall, // Add the new overall count here
+      totalClientsOverall: totalClientsOverall,
     });
   } catch (error) {
     console.error("Get clients error:", error);
