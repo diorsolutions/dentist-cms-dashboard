@@ -210,10 +210,22 @@ const DentalClinicDashboard = () => {
   };
 
   const loadClients = useCallback(async (page = currentPage, limit = clientsPerPage) => {
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    // Agar qidiruv maydoni bo'sh bo'lsa VA 'name' dan boshqa aniq qidiruv maydoni tanlangan bo'lsa,
+    // API so'rovini yubormasdan mijozlar ro'yxatini bo'shatish.
+    // 'name' maydoni umumiy qidiruv hisoblanadi, shuning uchun u bo'sh bo'lsa ham barcha mijozlarni yuklaydi.
+    if (!appliedSearchTerm && currentFilterAndSortField !== "name") {
+      setClients([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+      setTotalClientsEver(0);
+      setLoading(false);
+      return; // API so'rovini yubormasdan chiqib ketish
+    }
+
+    try {
       const params = {
         page: String(page),
         limit: String(limit),
