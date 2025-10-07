@@ -29,6 +29,7 @@ import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
+import { useDebounce } from "@/hooks/use-debounce"; // Import useDebounce
 
 // Types
 interface TreatmentRecord {
@@ -157,6 +158,13 @@ const DentalClinicDashboard = () => {
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
 
+  // Debounced values for filters and sort
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedStatusFilter = useDebounce(statusFilter, 500);
+  const debouncedFilterAndSortField = useDebounce(currentFilterAndSortField, 500);
+  const debouncedSortDirection = useDebounce(currentSortDirection, 500);
+
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -203,10 +211,10 @@ const DentalClinicDashboard = () => {
       const params = {
         page: String(page),
         limit: String(limit),
-        search: searchTerm,
-        status: statusFilter,
-        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Adjust for backend field names
-        sortOrder: currentSortDirection,
+        search: debouncedSearchTerm,
+        status: debouncedStatusFilter,
+        sortBy: debouncedFilterAndSortField === "name" ? "firstName" : debouncedFilterAndSortField, // Adjust for backend field names
+        sortOrder: debouncedSortDirection,
       };
       const response = await ClientService.getAllClients(params);
 
@@ -224,7 +232,7 @@ const DentalClinicDashboard = () => {
             const futureTreatments = treatments.filter(
               (t: TreatmentRecord) => t.nextVisitDate && !isPast(parseISO(t.nextVisitDate))
             );
-            const nextAppointment = futureTreatments.length > 0
+            const nextAppointment = futureTreats.length > 0
               ? futureTreatments[0].nextVisitDate // Assuming treatments are sorted by date desc
               : null;
 
@@ -275,7 +283,7 @@ const DentalClinicDashboard = () => {
 
   useEffect(() => {
     loadClients();
-  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Reload on filter/sort/page change
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, debouncedFilterAndSortField, debouncedSortDirection, language]); // Reload on debounced filter/sort/page change
 
   const validateForm = () => {
     const errors: FormErrors = {};
