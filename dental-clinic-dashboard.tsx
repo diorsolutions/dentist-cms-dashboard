@@ -411,7 +411,7 @@ const DentalClinicDashboard = () => {
 
       xPos = startX;
       rowData.forEach((data, colIndex) => {
-        const colWidth = colColWidths[colIndex];
+        const colWidth = colWidths[colIndex]; // Corrected from colColWidths
         const textX = xPos + colWidth / 2;
         doc.text(data, textX, yPos, { align: "center" });
         if (colIndex < rowData.length - 1) {
