@@ -182,7 +182,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <User className="h-4 w-4" /> {t.name}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {selectedClient.name}
                     </p>
                   </div>
@@ -190,7 +190,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.birthDate}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {formatDate(selectedClient.dateOfBirth)}
                     </p>
                   </div>
@@ -198,7 +198,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <Clock className="h-4 w-4" /> {t.ageCalculated}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {clientAge !== null ? clientAge : t.notSpecified}
                     </p>
                   </div>
@@ -206,7 +206,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <MapPin className="h-4 w-4" /> {t.address}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {selectedClient.address || t.notSpecified}
                     </p>
                   </div>
@@ -228,7 +228,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     </Label>
                     <a
                       href={`tel:${selectedClient.phone}`}
-                      className="text-base font-medium text-blue-600 hover:underline"
+                      className="text-base font-semibold text-blue-600 hover:underline"
                     >
                       {selectedClient.phone}
                     </a>
@@ -237,12 +237,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <Mail className="h-4 w-4" /> {t.email}
                     </Label>
-                    <a
-                      href={`mailto:${selectedClient.email}`}
-                      className="text-base font-medium text-blue-600 hover:underline"
-                    >
+                    <p className="text-base font-semibold text-foreground">
                       {selectedClient.email || t.notSpecified}
-                    </a>
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -260,7 +257,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <FileText className="h-4 w-4" /> {t.initialTreatment}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {selectedClient.treatment || t.notSpecified}
                     </p>
                   </div>
@@ -276,7 +273,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.lastVisit}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {formatDate(selectedClient.lastVisit)}
                     </p>
                   </div>
@@ -284,7 +281,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     <Label className="text-sm text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.nextAppointment}
                     </Label>
-                    <p className="text-base font-medium text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {formatDate(selectedClient.nextAppointment)}
                     </p>
                   </div>
@@ -300,7 +297,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-base font-medium text-foreground">
+                  <p className="text-base font-semibold text-foreground">
                     {selectedClient.notes || t.notSpecified}
                   </p>
                 </CardContent>
