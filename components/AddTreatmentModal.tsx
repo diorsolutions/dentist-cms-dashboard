@@ -56,21 +56,14 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
     <Dialog open={isAddTreatmentOpen} onOpenChange={setIsAddTreatmentOpen}>
       <DialogContent
         className={cn(
-          "max-h-[90vh] overflow-y-auto", // Add max-h and overflow for consistency
-          "sm:top-[50%] sm:translate-y-[-50%] top-0 translate-y-0",
-          "sm:max-w-2xl max-w-full",
-          "sm:rounded-lg rounded-none",
-          "sm:p-6 p-0",
-          "data-[state=open]:sm:slide-in-from-top-[48%] data-[state=open]:slide-in-from-bottom-full",
-          "data-[state=closed]:sm:slide-out-to-top-[48%] data-[state=closed]:slide-out-to-bottom-full",
-          "animate-in fade-in-0 zoom-in-95 duration-300"
+          "sm:max-w-2xl max-h-[90vh] overflow-y-auto"
         )}
       >
-        <DialogHeader className="px-6 pt-6 pb-6">
+        <DialogHeader className="pb-6">
           <DialogTitle>Yangi muolaja qo'shish</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 px-6">
+        <div className="space-y-4">
           <div>
             <Label htmlFor="visit">Bugungi tashrif *</Label>
             <Input
@@ -142,7 +135,7 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="gap-2 px-6 py-4">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={resetForm} disabled={loading}>
             Bekor qilish
           </Button>

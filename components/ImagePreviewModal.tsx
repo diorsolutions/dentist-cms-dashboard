@@ -19,15 +19,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
     <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
       <DialogContent
         className={cn(
-          "max-h-[90vh] overflow-hidden", // Keep max-h and overflow
-          "sm:top-[50%] sm:translate-y-[-50%] top-0 translate-y-0", // Align to top on small screens
-          "sm:max-w-4xl max-w-full", // Full width on small screens, max-w-4xl on larger
-          "sm:rounded-lg rounded-none", // No rounded corners on small screens
-          "p-0", // Keep p-0 for image preview
-          // Custom animations for small screens (slide from bottom)
-          "data-[state=open]:sm:slide-in-from-top-[48%] data-[state=open]:slide-in-from-bottom-full",
-          "data-[state=closed]:sm:slide-out-to-top-[48%] data-[state=closed]:slide-out-to-bottom-full",
-          "animate-in fade-in-0 zoom-in-95 duration-300" // Keep existing animations
+          "sm:max-w-4xl max-h-[90vh] overflow-hidden p-0"
         )}
       >
         <div className="relative">
