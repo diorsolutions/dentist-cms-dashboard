@@ -221,7 +221,7 @@ const DentalClinicDashboard = () => {
         status: statusFilter,
         sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
         sortOrder: currentSortDirection,
-        searchField: currentFilterAndSortField, // Corrected this line
+        searchField: currentFilterAndSortField,
       };
       const response = await ClientService.getAllClients(params);
 
@@ -756,6 +756,30 @@ const DentalClinicDashboard = () => {
     }
   };
 
+  // Function to reset all filters
+  const resetAllFilters = useCallback(() => {
+    setSearchTerm("");
+    setAppliedSearchTerm("");
+    setStatusFilter("all");
+    setCurrentFilterAndSortField("name");
+    setCurrentSortDirection("asc");
+    setCurrentPage(1);
+    // No need to call loadClients here, as changing appliedSearchTerm, statusFilter, etc.
+    // will trigger the useEffect that calls loadClients.
+  }, []);
+
+  // Determine if any filter is active
+  const isFilterActive = useMemo(() => {
+    return (
+      appliedSearchTerm !== "" ||
+      statusFilter !== "all" ||
+      currentFilterAndSortField !== "name" ||
+      currentSortDirection !== "asc" ||
+      currentPage !== 1
+    );
+  }, [appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, currentPage]);
+
+
   if (!mounted) {
     return null;
   }
@@ -800,6 +824,8 @@ const DentalClinicDashboard = () => {
           selectedClientCount={selectedClients.length}
           generatePDF={generatePDF}
           handleApplySearch={handleApplySearch} // Pass new handler
+          onResetFilters={resetAllFilters} // Pass reset function
+          isFilterActive={isFilterActive} // Pass filter active status
         />
 
         <ClientTable

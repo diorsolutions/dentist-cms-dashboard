@@ -51,6 +51,7 @@ export interface Translations {
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
   filterByBirthDate: string; // New
+  resetFilters: string; // New translation key
 
   // History and records
   noTreatmentHistory: string;
@@ -214,6 +215,7 @@ export const translations: Record<
     filterByLastVisit: "Oxirgi tashrif",
     filterByNextAppointment: "Keyingi uchrashuv",
     filterByBirthDate: "Tug'ilgan sana", // New
+    resetFilters: "Barcha filtrlarni bekor qilish", // New
 
     // History and records
     noTreatmentHistory: "Davolash tarixi yo'q",
@@ -374,6 +376,7 @@ export const translations: Record<
     filterByLastVisit: "Охирги ташриф",
     filterByNextAppointment: "Кейинги учрашув",
     filterByBirthDate: "Туғилган сана", // New
+    resetFilters: "Барча филтрларни бекор қилиш", // New
 
     // History and records
     noTreatmentHistory: "Даволаш тарихи йўқ",
@@ -534,6 +537,7 @@ export const translations: Record<
     filterByLastVisit: "Last Visit",
     filterByNextAppointment: "Next Appointment",
     filterByBirthDate: "Birth Date", // New
+    resetFilters: "Reset All Filters", // New
 
     // History and records
     noTreatmentHistory: "No treatment history",

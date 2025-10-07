@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Download } from "lucide-react";
+import { Search, Download, RotateCcw } from "lucide-react"; // Import RotateCcw icon
 import type { Translations } from "@/types/translations";
 
 type SortDirection = "asc" | "desc";
@@ -25,6 +25,8 @@ interface ClientFiltersProps {
   selectedClientCount: number;
   generatePDF: () => void;
   handleApplySearch: () => void; // New prop for triggering search
+  onResetFilters: () => void; // New prop for resetting all filters
+  isFilterActive: boolean; // New prop to indicate if any filter is active
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -41,6 +43,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   selectedClientCount,
   generatePDF,
   handleApplySearch, // Destructure new prop
+  onResetFilters, // Destructure new prop
+  isFilterActive, // Destructure new prop
 }) => {
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -152,6 +156,18 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             <Button onClick={generatePDF} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               {t.downloadPDF}
+            </Button>
+          )}
+
+          {/* Reset Filters Button */}
+          {isFilterActive && (
+            <Button
+              variant="outline"
+              onClick={onResetFilters}
+              className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950 bg-transparent"
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t.resetFilters}
             </Button>
           )}
         </div>
