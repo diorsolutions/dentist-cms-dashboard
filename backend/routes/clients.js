@@ -73,9 +73,8 @@ router.get("/", optionalAuth, async (req, res) => {
       },
       {
         $project: {
-          // Exclude the full treatments array if not needed for the list view
-          treatments: 0,
-          // Include all other client fields
+          // Explicitly include all desired client fields.
+          // Other fields (like 'treatments' array) will be implicitly excluded.
           _id: 1,
           firstName: 1,
           lastName: 1,
