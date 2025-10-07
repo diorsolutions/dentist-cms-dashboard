@@ -57,17 +57,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
     }
   };
 
-  const handleSortToggle = () => {
-    setCurrentSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-  };
-
-  const getSortIconComponent = (direction: SortDirection) => {
-    return direction === "asc" ? (
-      <ChevronUp className="w-4 h-4" />
-    ) : (
-      <ChevronDown className="w-4 h-4" />
-    );
-  };
+  // Removed handleSortToggle and getSortIconComponent as the button is being removed.
 
   return (
     <Card className="mb-6 animate-in fade-in-50 duration-300">
@@ -96,14 +86,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             </SelectContent>
           </Select>
 
-          {/* Sort Direction Toggle Button */}
-          <Button
-            variant="outline"
-            onClick={handleSortToggle}
-            className="flex items-center gap-2 bg-transparent"
-          >
-            {getSortIconComponent(currentSortDirection)}
-          </Button>
+          {/* Sort Direction Toggle Button - REMOVED */}
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
