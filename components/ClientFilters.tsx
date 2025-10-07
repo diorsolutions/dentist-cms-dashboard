@@ -42,6 +42,10 @@ interface ClientFiltersProps {
   isFilterActive: boolean;
   lastVisitFilterDate: Date | undefined; // New prop
   setLastVisitFilterDate: (date: Date | undefined) => void; // New prop
+  nextAppointmentFilterDate: Date | undefined; // New prop
+  setNextAppointmentFilterDate: (date: Date | undefined) => void; // New prop
+  birthDateFilterDate: Date | undefined; // New prop
+  setBirthDateFilterDate: (date: Date | undefined) => void; // New prop
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -62,6 +66,10 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   isFilterActive,
   lastVisitFilterDate, // Destructure new prop
   setLastVisitFilterDate, // Destructure new prop
+  nextAppointmentFilterDate, // Destructure new prop
+  setNextAppointmentFilterDate, // Destructure new prop
+  birthDateFilterDate, // Destructure new prop
+  setBirthDateFilterDate, // Destructure new prop
 }) => {
   // Local state for phone number parts
   const [localPhoneCode, setLocalPhoneCode] = useState(""); // e.g., 91
@@ -119,6 +127,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "lastVisit":
         return t.searchByLastVisitDate; // Use specific placeholder for date picker
       case "nextAppointment":
+        return t.searchByNextAppointmentDate;
       case "dateOfBirth":
         return t.searchByBirthDate;
       default:
@@ -131,10 +140,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "phone":
         return "tel";
       case "lastVisit":
-        return "text"; // DatePicker handles the input, but type is text for consistency
       case "nextAppointment":
       case "dateOfBirth":
-        return "text";
+        return "text"; // DatePicker handles the input, but type is text for consistency
       default:
         return "text";
     }
@@ -153,7 +161,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
     if (
       e.key === "Enter" &&
       currentFilterAndSortField !== "phone" &&
-      currentFilterAndSortField !== "lastVisit"
+      currentFilterAndSortField !== "lastVisit" &&
+      currentFilterAndSortField !== "nextAppointment" && // Add this
+      currentFilterAndSortField !== "dateOfBirth" // Add this
     ) {
       // Only apply search on Enter for non-live search fields
       handleApplySearch();
@@ -172,6 +182,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               setSearchTerm(""); // Clear input field in parent
               setLastVisitFilterDate(undefined); // Clear date picker value
+              setNextAppointmentFilterDate(undefined); // Clear new date picker value
+              setBirthDateFilterDate(undefined);     // Clear new date picker value
               handleApplySearch(); // Trigger immediate search with empty term
             }}
           >
@@ -261,6 +273,36 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 showDropdowns={true}
               />
             </div>
+          ) : currentFilterAndSortField === "nextAppointment" ? (
+            <div className="flex-1">
+              <DatePicker
+                value={nextAppointmentFilterDate}
+                onChange={(date) => {
+                  setNextAppointmentFilterDate(date);
+                  handleSearchInputChange(
+                    date ? format(date, "yyyy-MM-dd") : ""
+                  );
+                }}
+                placeholder={t.searchByNextAppointmentDate}
+                allowPastDates={false} // Next appointment should be future dates
+                showDropdowns={true}
+              />
+            </div>
+          ) : currentFilterAndSortField === "dateOfBirth" ? (
+            <div className="flex-1">
+              <DatePicker
+                value={birthDateFilterDate}
+                onChange={(date) => {
+                  setBirthDateFilterDate(date);
+                  handleSearchInputChange(
+                    date ? format(date, "yyyy-MM-dd") : ""
+                  );
+                }}
+                placeholder={t.searchByBirthDate}
+                allowPastDates={true} // Birth date should be past dates
+                showDropdowns={true}
+              />
+            </div>
           ) : (
             <div className="relative flex-1 flex items-center gap-2">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -275,13 +317,11 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 minLength={getMinLength(currentFilterAndSortField)}
               />
               {/* Only show search button for non-live search fields */}
-              {currentFilterAndSortField === "name" ||
-                currentFilterAndSortField === "nextAppointment" ||
-                (currentFilterAndSortField === "dateOfBirth" && (
+              {currentFilterAndSortField === "name" && (
                   <Button onClick={handleApplySearch} className="shrink-0">
                     {t.searchPlaceholder.replace("...", "")}
                   </Button>
-                ))}
+                )}
             </div>
           )}
 

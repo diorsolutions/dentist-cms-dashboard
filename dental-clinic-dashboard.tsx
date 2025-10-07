@@ -64,13 +64,13 @@ interface Client {
   address: string;
   treatmentHistory: TreatmentRecord[];
   uploadedImages?: string[];
-  firstName?: string;
-  lastName?: string;
-  initialTreatment?: string;
   uploadedFiles?: {
     images?: string[];
   };
   images?: string[];
+  firstName?: string;
+  lastName?: string;
+  initialTreatment?: string;
   treatmentCount: number;
 }
 
@@ -170,6 +170,16 @@ const DentalClinicDashboard = () => {
     Date | undefined
   >(undefined);
 
+  // New state for next appointment date filter
+  const [nextAppointmentFilterDate, setNextAppointmentFilterDate] = useState<
+    Date | undefined
+  >(undefined);
+
+  // New state for birth date filter
+  const [birthDateFilterDate, setBirthDateFilterDate] = useState<
+    Date | undefined
+  >(undefined);
+
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
 
@@ -248,6 +258,12 @@ const DentalClinicDashboard = () => {
         if (currentFilterAndSortField === "lastVisit" && lastVisitFilterDate) {
           searchParam = format(lastVisitFilterDate, "yyyy-MM-dd");
           searchFieldParam = "lastVisit";
+        } else if (currentFilterAndSortField === "nextAppointment" && nextAppointmentFilterDate) {
+          searchParam = format(nextAppointmentFilterDate, "yyyy-MM-dd");
+          searchFieldParam = "nextAppointment";
+        } else if (currentFilterAndSortField === "dateOfBirth" && birthDateFilterDate) {
+          searchParam = format(birthDateFilterDate, "yyyy-MM-dd");
+          searchFieldParam = "dateOfBirth";
         }
         // Note: For phone, appliedSearchTerm already contains the combined phone number.
         // The backend handles the "+998" prefix removal for phone search.
@@ -322,6 +338,8 @@ const DentalClinicDashboard = () => {
       language,
       clientTreatmentsCache,
       lastVisitFilterDate,
+      nextAppointmentFilterDate, // Add new dependency
+      birthDateFilterDate,     // Add new dependency
     ]
   );
 
@@ -392,7 +410,9 @@ const DentalClinicDashboard = () => {
     setCurrentSortDirection("asc"); // Reset sort direction when field changes
     setSearchTerm(""); // Clear input field
     setAppliedSearchTerm(""); // Clear applied search term immediately
-    setLastVisitFilterDate(undefined); // Clear date picker value when changing filter field
+    setLastVisitFilterDate(undefined); // Clear last visit filter date
+    setNextAppointmentFilterDate(undefined); // Clear next appointment filter date
+    setBirthDateFilterDate(undefined);     // Clear birth date filter date
   };
 
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
@@ -859,6 +879,8 @@ const DentalClinicDashboard = () => {
     setCurrentFilterAndSortField("name");
     setCurrentSortDirection("asc");
     setLastVisitFilterDate(undefined); // Clear last visit filter date
+    setNextAppointmentFilterDate(undefined); // Clear next appointment filter date
+    setBirthDateFilterDate(undefined);     // Clear birth date filter date
     setCurrentPage(1);
   }, []);
 
@@ -870,6 +892,8 @@ const DentalClinicDashboard = () => {
       currentFilterAndSortField !== "name" ||
       currentSortDirection !== "asc" ||
       lastVisitFilterDate !== undefined || // Add this
+      nextAppointmentFilterDate !== undefined || // Add this
+      birthDateFilterDate !== undefined ||     // Add this
       currentPage !== 1
     );
   }, [
@@ -878,6 +902,8 @@ const DentalClinicDashboard = () => {
     currentFilterAndSortField,
     currentSortDirection,
     lastVisitFilterDate,
+    nextAppointmentFilterDate,
+    birthDateFilterDate,
     currentPage,
   ]);
 
@@ -929,6 +955,10 @@ const DentalClinicDashboard = () => {
           isFilterActive={isFilterActive} // Pass filter active status
           lastVisitFilterDate={lastVisitFilterDate} // Pass new prop
           setLastVisitFilterDate={setLastVisitFilterDate} // Pass new prop
+          nextAppointmentFilterDate={nextAppointmentFilterDate} // Pass new prop
+          setNextAppointmentFilterDate={setNextAppointmentFilterDate} // Pass new prop
+          birthDateFilterDate={birthDateFilterDate} // Pass new prop
+          setBirthDateFilterDate={setBirthDateFilterDate} // Pass new prop
         />
 
         <ClientTable
