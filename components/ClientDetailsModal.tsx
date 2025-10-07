@@ -7,11 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, ChevronDown, ChevronRight, ImageIcon, ZoomIn, X, Loader2 } from "lucide-react"; // Added Loader2
+import {
+  Plus,
+  ChevronDown,
+  ChevronRight,
+  ImageIcon,
+  ZoomIn,
+  X,
+  Loader2,
+  User, // Added
+  Phone, // Added
+  Mail, // Added
+  Calendar, // Added
+  MapPin, // Added
+  Stethoscope, // Added
+  FileText, // Added
+  Clock, // Added
+} from "lucide-react";
 import UploadService from "@/services/uploadService";
 import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils";
-import { calculateAge } from "@/utils/date-formatter"; // Import calculateAge
+import { calculateAge } from "@/utils/date-formatter";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Import Card components
 
 interface TreatmentRecord {
   _id?: string;
@@ -39,8 +56,8 @@ interface Client {
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
-  age: number | null; // Age can be null if dateOfBirth is not set
-  dateOfBirth: string | null; // New field
+  age: number | null;
+  dateOfBirth: string | null;
   address: string;
   treatmentHistory: TreatmentRecord[];
   uploadedImages?: string[];
@@ -66,7 +83,7 @@ interface ClientDetailsModalProps {
   formatDate: (dateString: string | null) => string;
   getStatusColor: (status: string) => string;
   setPreviewImage: (imageUrl: string | null) => void;
-  loadingTreatments: boolean; // New prop for loading state
+  loadingTreatments: boolean;
 }
 
 const ImagePreview = ({
@@ -105,16 +122,16 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   formatDate,
   getStatusColor,
   setPreviewImage,
-  loadingTreatments, // Use the new prop
+  loadingTreatments,
 }) => {
-  const clientAge = selectedClient?.dateOfBirth ? calculateAge(selectedClient.dateOfBirth) : null;
+  const clientAge = selectedClient?.dateOfBirth
+    ? calculateAge(selectedClient.dateOfBirth)
+    : null;
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent
-        className={cn(
-          "sm:max-w-4xl max-h-[90vh] overflow-y-auto"
-        )}
+        className={cn("sm:max-w-4xl max-h-[90vh] overflow-y-auto")}
       >
         <DialogHeader className="pb-6">
           <div>
@@ -152,93 +169,175 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               value="info"
               className="space-y-6 mt-4 animate-in fade-in-50 duration-300"
             >
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.name}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {selectedClient.name}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.ageCalculated}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {clientAge !== null ? clientAge : t.notSpecified}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.phone}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {selectedClient.phone}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.email}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {selectedClient.email || t.notSpecified}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.birthDate}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {formatDate(selectedClient.dateOfBirth)}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.address}
-                  </Label>
-                  <p className="text-base font-medium text-foreground">
-                    {selectedClient.address || t.notSpecified}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    {t.status}
-                  </Label>
-                  <Badge className={getStatusColor(selectedClient.status)}>
-                    {t[selectedClient.status]}
-                  </Badge>
-                </div>
-              </div>
+              {/* Personal Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <User className="h-5 w-5 text-primary" />
+                    {t.clientInfo}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <User className="h-4 w-4" /> {t.name}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {selectedClient.name}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-4 w-4" /> {t.birthDate}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {formatDate(selectedClient.dateOfBirth)}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-4 w-4" /> {t.ageCalculated}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {clientAge !== null ? clientAge : t.notSpecified}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-4 w-4" /> {t.address}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {selectedClient.address || t.notSpecified}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  {t.initialTreatment}
-                </Label>
-                <p className="text-base font-medium text-foreground">
-                  {selectedClient.treatment || t.notSpecified}
-                </p>
-              </div>
+              {/* Contact Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Phone className="h-5 w-5 text-primary" />
+                    {t.phoneNumber} & {t.email}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Phone className="h-4 w-4" /> {t.phone}
+                    </Label>
+                    <a
+                      href={`tel:${selectedClient.phone}`}
+                      className="text-base font-medium text-blue-600 hover:underline"
+                    >
+                      {selectedClient.phone}
+                    </a>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Mail className="h-4 w-4" /> {t.email}
+                    </Label>
+                    <a
+                      href={`mailto:${selectedClient.email}`}
+                      className="text-base font-medium text-blue-600 hover:underline"
+                    >
+                      {selectedClient.email || t.notSpecified}
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-muted-foreground">
-                  {t.clientNotes}
-                </Label>
-                <p className="text-base font-medium text-foreground">
-                  {selectedClient.notes || t.notSpecified}
-                </p>
-              </div>
+              {/* Treatment Overview Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Stethoscope className="h-5 w-5 text-primary" />
+                    {t.treatment}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <FileText className="h-4 w-4" /> {t.initialTreatment}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {selectedClient.treatment || t.notSpecified}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-4 w-4" /> {t.status}
+                    </Label>
+                    <Badge className={getStatusColor(selectedClient.status)}>
+                      {t[selectedClient.status]}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-4 w-4" /> {t.lastVisit}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {formatDate(selectedClient.lastVisit)}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-4 w-4" /> {t.nextAppointment}
+                    </Label>
+                    <p className="text-base font-medium text-foreground">
+                      {formatDate(selectedClient.nextAppointment)}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Enhanced Images Gallery Section */}
-              <div className="space-y-4">
-                <Label className="text-lg font-semibold text-foreground">
-                  {t.uploadedImages}
-                </Label>
-                {selectedClient.uploadedFiles?.images &&
-                selectedClient.uploadedFiles.images.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {selectedClient.uploadedFiles.images.map(
-                      (image, index) => (
+              {/* Additional Notes Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <FileText className="h-5 w-5 text-primary" />
+                    {t.clientNotes}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-base font-medium text-foreground">
+                    {selectedClient.notes || t.notSpecified}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Images Gallery Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <ImageIcon className="h-5 w-5 text-primary" />
+                    {t.uploadedImages}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedClient.uploadedFiles?.images &&
+                  selectedClient.uploadedFiles.images.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {selectedClient.uploadedFiles.images.map(
+                        (image, index) => (
+                          <ImagePreview
+                            key={index}
+                            src={
+                              UploadService.getImageUrl(image) ||
+                              "/placeholder.svg"
+                            }
+                            alt={`Mijoz rasmi ${index + 1}`}
+                            onClick={() =>
+                              setPreviewImage(UploadService.getImageUrl(image))
+                            }
+                          />
+                        )
+                      )}
+                    </div>
+                  ) : selectedClient.images &&
+                    selectedClient.images.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {selectedClient.images.map((image, index) => (
                         <ImagePreview
                           key={index}
                           src={
@@ -250,38 +349,21 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                             setPreviewImage(UploadService.getImageUrl(image))
                           }
                         />
-                      )
-                    )}
-                  </div>
-                ) : selectedClient.images &&
-                  selectedClient.images.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {selectedClient.images.map((image, index) => (
-                      <ImagePreview
-                        key={index}
-                        src={
-                          UploadService.getImageUrl(image) ||
-                          "/placeholder.svg"
-                        }
-                        alt={`Mijoz rasmi ${index + 1}`}
-                        onClick={() =>
-                          setPreviewImage(UploadService.getImageUrl(image))
-                        }
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
-                    <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                    <p className="text-muted-foreground text-lg">
-                      {t.noImagesUploaded}
-                    </p>
-                    <p className="text-muted-foreground/70 text-sm mt-2">
-                      Mijoz qo'shish vaqtida rasm yuklash mumkin
-                    </p>
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
+                      <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                      <p className="text-muted-foreground text-lg">
+                        {t.noImagesUploaded}
+                      </p>
+                      <p className="text-muted-foreground/70 text-sm mt-2">
+                        Mijoz qo'shish vaqtida rasm yuklash mumkin
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent
@@ -316,7 +398,10 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               ) : (
                 <div className="space-y-4">
                   {selectedClient.treatmentHistory.map((treatment, index) => (
-                    <Collapsible key={treatment.id} open={expandedTreatment === treatment.id}>
+                    <Collapsible
+                      key={treatment.id}
+                      open={expandedTreatment === treatment.id}
+                    >
                       <CollapsibleTrigger
                         className="flex items-center justify-between w-full p-5 border rounded-lg hover:bg-muted/50 transition-all duration-200"
                         onClick={() =>
@@ -407,7 +492,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                         <div className="mt-4 pt-4 border-t">
                           <div className="text-sm text-muted-foreground flex items-center gap-2">
                             <span>
-                              {t.createdOn}: {formatDate(treatment.treatmentDate)}
+                              {t.createdOn}:{" "}
+                              {formatDate(treatment.treatmentDate)}
                             </span>
                           </div>
                         </div>
