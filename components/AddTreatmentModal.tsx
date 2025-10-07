@@ -85,21 +85,6 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="treatmentType">{t.treatmentCategoryLabel} *</Label>
-            <Input
-              id="treatmentType"
-              value={newTreatment.treatmentType}
-              onChange={(e) =>
-                setNewTreatment((prev) => ({
-                  ...prev,
-                  treatmentType: e.target.value,
-                }))
-              }
-              placeholder="Qanday muolaja qilindi? (Masalan: Karies davolash, Tish tozalash)"
-            />
-          </div>
-
-          <div>
             <Label htmlFor="description">{t.treatmentDescription}</Label>
             <Textarea
               id="description"
@@ -112,22 +97,6 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
               }
               placeholder="Muolaja haqida qisqacha tavsif..."
               rows={2}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="notes">{t.additionalNotes}</Label>
-            <Textarea
-              id="notes"
-              value={newTreatment.notes}
-              onChange={(e) =>
-                setNewTreatment((prev) => ({
-                  ...prev,
-                  notes: e.target.value,
-                }))
-              }
-              placeholder="Qo'shimcha izohlar (masalan, ishlatilgan materiallar, bemorning reaksiyasi)..."
-              rows={3}
             />
           </div>
 
