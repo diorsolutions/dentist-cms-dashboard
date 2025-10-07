@@ -10,7 +10,7 @@ router.get("/", optionalAuth, async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 50,
+      limit = 30, // Default to 30 clients per page
       search = "",
       status = "all",
       sortBy = "createdAt",
@@ -39,11 +39,13 @@ router.get("/", optionalAuth, async (req, res) => {
     const sortOptions = {};
     sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
 
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
     // Clients + treatment count
     const clients = await Client.find(filter)
       .sort(sortOptions)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .skip(skip)
       .populate("treatmentCount") // virtual field
       .exec();
 
@@ -54,10 +56,11 @@ router.get("/", optionalAuth, async (req, res) => {
       data: clients,
       pagination: {
         current: Number.parseInt(page),
-        pages: Math.ceil(total / limit),
+        limit: Number.parseInt(limit),
+        pages: Math.ceil(total / parseInt(limit)),
         total,
-        hasNext: page < Math.ceil(total / limit),
-        hasPrev: page > 1,
+        hasNext: Number.parseInt(page) < Math.ceil(total / parseInt(limit)),
+        hasPrev: Number.parseInt(page) > 1,
       },
     });
   } catch (error) {

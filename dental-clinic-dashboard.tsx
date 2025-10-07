@@ -26,6 +26,7 @@ import ClientDetailsModal from "@/components/ClientDetailsModal";
 import AddClientModal from "@/components/AddClientModal";
 import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
+import PaginationControls from "@/components/PaginationControls"; // New import
 import { Button } from "@/components/ui/button";
 
 // Types
@@ -143,6 +144,11 @@ const DentalClinicDashboard = () => {
   const [totalClientsEver, setTotalClientsEver] = useState(0);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const clientsPerPage = 30; // Defined as 30 in backend
+
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
 
@@ -151,11 +157,19 @@ const DentalClinicDashboard = () => {
     setupUzbekLocale(); // Apply custom styles for date picker
   }, []);
 
-  const loadClients = async () => {
+  const loadClients = async (page = currentPage, limit = clientsPerPage) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await ClientService.getAllClients();
+      const params = {
+        page: String(page),
+        limit: String(limit),
+        search: searchTerm,
+        status: statusFilter,
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Adjust for backend field names
+        sortOrder: currentSortDirection,
+      };
+      const response = await ClientService.getAllClients(params);
 
       if (response.success) {
         const transformedClients = response.data.map((client: any) => ({
@@ -183,23 +197,31 @@ const DentalClinicDashboard = () => {
           lastName: client.lastName,
         }));
 
-        if (transformedClients.length === 0) {
-          setTotalClientsEver(0); // No clients in DB
-        } else {
-          setClients(transformedClients);
-          setTotalClientsEver(transformedClients.length);
-        }
+        setClients(transformedClients);
+        setTotalClientsEver(response.pagination.total);
+        setTotalPages(response.pagination.pages);
+        setCurrentPage(response.pagination.current);
       } else {
         setTotalClientsEver(0);
+        setClients([]);
+        setTotalPages(1);
+        setCurrentPage(1);
       }
     } catch (error) {
       console.error("Error loading clients:", error);
       setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
       setTotalClientsEver(0);
+      setClients([]);
+      setTotalPages(1);
+      setCurrentPage(1);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadClients();
+  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Reload on filter/sort/page change
 
   const loadClientTreatments = async (clientId: string) => {
     try {
@@ -233,10 +255,6 @@ const DentalClinicDashboard = () => {
       return [];
     }
   };
-
-  useEffect(() => {
-    loadClients();
-  }, []);
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -276,43 +294,9 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const filteredAndSortedClients = useMemo(() => {
-    let filtered = clients.filter((client) => {
-      const matchesStatus = statusFilter === "all" || client.status === statusFilter;
-      if (searchTerm === "") return matchesStatus;
-
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      let matchesSearch = false;
-      const clientValue = client[currentFilterAndSortField];
-
-      if (typeof clientValue === "string") {
-        matchesSearch = clientValue.toLowerCase().includes(lowerCaseSearchTerm);
-      } else if (typeof clientValue === "number") {
-        matchesSearch = clientValue.toString().includes(searchTerm);
-      }
-      return matchesSearch && matchesStatus;
-    });
-
-    if (currentSortDirection !== "none") {
-      filtered.sort((a, b) => {
-        let comparison = 0;
-        const fieldA = a[currentFilterAndSortField];
-        const fieldB = b[currentFilterAndSortField];
-
-        if (currentFilterAndSortField === "lastVisit" || currentFilterAndSortField === "nextAppointment") {
-          const dateA = new Date(fieldA as string).getTime();
-          const dateB = new Date(fieldB as string).getTime();
-          comparison = dateA - dateB;
-        } else if (typeof fieldA === "string" && typeof fieldB === "string") {
-          comparison = fieldA.localeCompare(fieldB);
-        } else if (typeof fieldA === "number" && typeof fieldB === "number") {
-          comparison = fieldA - fieldB;
-        }
-        return currentSortDirection === "asc" ? comparison : -comparison;
-      });
-    }
-    return filtered;
-  }, [clients, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection]);
+  // The filteredAndSortedClients memo now just uses the `clients` state directly
+  // because `loadClients` already fetches the filtered, sorted, and paginated data.
+  const filteredAndSortedClients = useMemo(() => clients, [clients]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -681,6 +665,12 @@ const DentalClinicDashboard = () => {
     }
   };
 
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   if (!mounted) {
     return null;
   }
@@ -736,6 +726,16 @@ const DentalClinicDashboard = () => {
           formatDate={formatDate}
           getStatusColor={getStatusColor}
         />
+
+        {totalPages > 1 && (
+          <PaginationControls
+            t={t}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
+        )}
 
         <DashboardFooterActions
           t={t}
