@@ -13,9 +13,9 @@ import { DatePicker } from "@/components/date-picker"; // Import the new DatePic
 
 interface NewTreatmentState {
   visitType: string;
-  treatmentType: string;
+  // treatmentType: string; // Removed
   description: string;
-  notes: string;
+  // notes: string; // Removed
   nextVisitDate?: Date; // Changed type to Date
   nextVisitNotes: string;
   images: File[] | null;
@@ -47,9 +47,9 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
   const resetForm = () => {
     setNewTreatment({
       visitType: "",
-      treatmentType: "",
+      // treatmentType: "", // Removed
       description: "",
-      notes: "",
+      // notes: "", // Removed
       nextVisitDate: undefined,
       nextVisitNotes: "",
       images: null,

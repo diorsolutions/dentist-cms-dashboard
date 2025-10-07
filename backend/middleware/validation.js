@@ -61,8 +61,7 @@ const validateTreatment = (req, res, next) => {
       "string.min": "Visit type must be at least 2 characters",
       "string.max": "Visit type cannot exceed 100 characters",
     }),
-    treatmentType: Joi.string().trim().min(2).max(100).required().messages({
-      "string.empty": "Treatment type is required",
+    treatmentType: Joi.string().trim().min(2).max(100).allow("").optional().messages({ // Made optional
       "string.min": "Treatment type must be at least 2 characters",
       "string.max": "Treatment type cannot exceed 100 characters",
     }),

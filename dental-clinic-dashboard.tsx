@@ -83,12 +83,12 @@ interface NewClientState {
 }
 
 interface NewTreatmentState {
-  visitType: string; // Changed from 'visit' to 'visitType'
-  treatmentType: string; // Changed from 'treatment' to 'treatmentType'
-  description: string; // New field
-  notes: string; // Notes for current treatment
+  visitType: string;
+  // treatmentType: string; // Removed
+  description: string;
+  // notes: string; // Removed
   nextVisitDate?: Date; // Changed type to Date
-  nextVisitNotes: string; // New field
+  nextVisitNotes: string;
   images: File[] | null;
 }
 
@@ -138,9 +138,9 @@ const DentalClinicDashboard = () => {
 
   const [newTreatment, setNewTreatment] = useState<NewTreatmentState>({
     visitType: "",
-    treatmentType: "",
+    // treatmentType: "", // Removed
     description: "",
-    notes: "",
+    // notes: "", // Removed
     nextVisitDate: undefined,
     nextVisitNotes: "",
     images: null,
@@ -620,10 +620,10 @@ const DentalClinicDashboard = () => {
   };
 
   const handleAddTreatment = async () => {
-    if (!newTreatment.visitType || !newTreatment.treatmentType) {
+    if (!newTreatment.visitType) { // Only check visitType as treatmentType is now optional
       toast({
         title: "Xatolik",
-        description: "Bugungi tashrif va muolaja turi to'ldirilishi kerak.",
+        description: "Bugungi tashrif turi to'ldirilishi kerak.",
         variant: "destructive",
       });
       return;
@@ -634,9 +634,9 @@ const DentalClinicDashboard = () => {
       const treatmentData = {
         clientId: selectedClient?._id,
         visitType: newTreatment.visitType,
-        treatmentType: newTreatment.treatmentType,
+        treatmentType: "", // Send empty string as it's removed from UI but still in schema
         description: newTreatment.description || undefined,
-        notes: newTreatment.notes || undefined,
+        notes: "", // Send empty string as it's removed from UI but still in schema
         doctor: "Dr. Karimova", // Default doctor
         cost: 0, // Default cost
         nextVisitDate: newTreatment.nextVisitDate,
@@ -657,7 +657,11 @@ const DentalClinicDashboard = () => {
         }
 
         setNewTreatment({
-          visitType: "", treatmentType: "", description: "", notes: "", nextVisitDate: undefined, nextVisitNotes: "", images: null,
+          visitType: "", // treatmentType: "", description: "", notes: "", nextVisitDate: undefined, nextVisitNotes: "", images: null,
+          description: "",
+          nextVisitDate: undefined,
+          nextVisitNotes: "",
+          images: null,
         });
         setIsAddTreatmentModalOpen(false);
       } else {

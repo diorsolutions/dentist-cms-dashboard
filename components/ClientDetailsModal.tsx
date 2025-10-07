@@ -306,9 +306,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                         }
                       >
                         <div className="flex items-center gap-4">
-                          {/* Treatment number */}
+                          {/* Treatment number: total_treatments - index */}
                           <div className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">
-                            {index + 1}
+                            {selectedClient.treatmentHistory.length - index}
                           </div>
                           <div className="text-left">
                             <div className="text-base font-medium text-foreground">

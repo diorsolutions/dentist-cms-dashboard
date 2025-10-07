@@ -67,10 +67,10 @@ export interface Translations {
 
   // Treatment specific
   visitTypeLabel: string; // Renamed from todayVisit
-  treatmentCategoryLabel: string; // Renamed from treatmentType
+  // treatmentCategoryLabel: string; // Removed
   nextVisitPlan: string;
   nextVisitDate: string;
-  additionalNotes: string;
+  // additionalNotes: string; // Removed
   doctor: string;
   cost: string;
   description: string;
@@ -230,10 +230,10 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Bugungi muolaja turi", // Updated
-    treatmentCategoryLabel: "Muolaja kategoriyasi", // Updated
+    // treatmentCategoryLabel: "Muolaja kategoriyasi", // Removed
     nextVisitPlan: "Keyingi tashrif uchun reja",
     nextVisitDate: "Keyingi tashrif sanasi",
-    additionalNotes: "Qo'shimcha izohlar",
+    // additionalNotes: "Qo'shimcha izohlar", // Removed
     doctor: "Shifokor",
     cost: "Narx",
     description: "Tavsif",
@@ -390,10 +390,10 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Бугунги муолажа тури", // Updated
-    treatmentCategoryLabel: "Муолажа категорияси", // Updated
+    // treatmentCategoryLabel: "Муолажа категорияси", // Removed
     nextVisitPlan: "Кейинги ташриф учун режа",
     nextVisitDate: "Кейинги ташриф санаси",
-    additionalNotes: "Қўшимча изоҳлар",
+    // additionalNotes: "Қўшимча изоҳлар", // Removed
     doctor: "Шифокор",
     cost: "Нарх",
     description: "Тавсиф",
@@ -550,10 +550,10 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Today's Treatment Type", // Updated
-    treatmentCategoryLabel: "Treatment Category", // Updated
+    // treatmentCategoryLabel: "Treatment Category", // Removed
     nextVisitPlan: "Next Visit Plan",
     nextVisitDate: "Next Visit Date",
-    additionalNotes: "Additional Notes",
+    // additionalNotes: "Additional Notes", // Removed
     doctor: "Doctor",
     cost: "Cost",
     description: "Description",

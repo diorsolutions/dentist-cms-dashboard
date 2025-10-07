@@ -18,9 +18,9 @@ const treatmentSchema = new mongoose.Schema(
     },
     treatmentType: {
       type: String,
-      required: [true, "Treatment type is required"],
       trim: true,
       maxlength: [100, "Treatment type cannot exceed 100 characters"],
+      // Removed 'required'
     },
     description: {
       type: String,
