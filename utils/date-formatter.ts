@@ -40,12 +40,16 @@ const uzbekDaysCyrillic = ["Якшанба", "Душанба", "Сешанба",
 const uzbekDaysShortLatin = ["Yak", "Dush", "Sesh", "Chor", "Pay", "Jum", "Shan"];
 const uzbekDaysShortCyrillic = ["Як", "Душ", "Сеш", "Чор", "Пай", "Жум", "Шан"];
 
-export const formatDate = (dateString: string | Date, language = "latin"): string => {
+export const formatDate = (dateString: string | Date | null, language = "latin"): string => {
+  console.log("formatDate received:", dateString); // Debug log
   if (!dateString) return "N/A";
 
   try {
     const date = typeof dateString === 'string' ? parseISO(dateString) : dateString;
-    if (isNaN(date.getTime())) return "N/A";
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date object after parseISO for:", dateString); // Debug log for invalid dates
+      return "N/A";
+    }
 
     // Use date-fns for formatting with locale
     return format(date, "dd/MM/yyyy", { locale: uz });
