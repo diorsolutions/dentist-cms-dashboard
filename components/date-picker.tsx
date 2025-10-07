@@ -28,6 +28,10 @@ export function DatePicker({
   allowPastDates = false, // Default to false (restrict past dates)
   showDropdowns = false, // Default to false (no dropdowns)
 }: DatePickerProps) {
+  const currentYear = new Date().getFullYear();
+  const fromYear = currentYear - 100; // Allow selecting up to 100 years in the past
+  const toYear = currentYear; // Up to the current year
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -52,6 +56,8 @@ export function DatePicker({
           locale={uzbekLocale}
           fromDate={allowPastDates ? undefined : new Date()} // Conditionally allow past dates
           captionLayout={showDropdowns ? "dropdown" : "buttons"} // Conditionally show dropdowns
+          fromYear={showDropdowns ? fromYear : undefined} // Set fromYear for dropdowns
+          toYear={showDropdowns ? toYear : undefined}   // Set toYear for dropdowns
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",
