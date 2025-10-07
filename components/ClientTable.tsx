@@ -62,7 +62,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-11 gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+        <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
           <div className="col-span-1">
             {selectedClients.length > 0 && (
               <div className="flex items-center space-x-2">
@@ -87,7 +87,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
           <div className="col-span-2">{t.birthDate}</div> {/* New column */}
           <div className="col-span-2">{t.lastVisit}</div>
           <div className="col-span-2">{t.nextAppointment}</div>
-          <div className="col-span-1">{t.phone}</div>
+          <div className="col-span-2">{t.phone}</div> {/* Increased col-span */}
           <div className="col-span-1">{t.status}</div>
         </div>
 
@@ -96,7 +96,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-11 gap-4 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50"
+              className="grid grid-cols-12 gap-4 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50"
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
@@ -141,7 +141,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-1 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground"> {/* Increased col-span */}
                 {client.phone}
               </div>
               <div className="col-span-1 flex items-center">
