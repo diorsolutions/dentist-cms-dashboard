@@ -47,10 +47,6 @@ export function DatePicker({
           initialFocus
           locale={uzbekLocale}
           fromDate={new Date()} // Prevent selecting past dates
-          format={{
-            day: (date) => format(date, "d", { locale: uzbekLocale }),
-            monthCaption: (date) => format(date, "LLLL yyyy", { locale: uzbekLocale }),
-          }}
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",
