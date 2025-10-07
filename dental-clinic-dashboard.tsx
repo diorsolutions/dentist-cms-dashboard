@@ -148,6 +148,7 @@ const DentalClinicDashboard = () => {
 
   const [totalClientsEver, setTotalClientsEver] = useState(0);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isFilterChanging, setIsFilterChanging] = useState(false); // New state to prevent immediate search on filter change
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -276,14 +277,24 @@ const DentalClinicDashboard = () => {
 
   // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
+    if (isFilterChanging) {
+      setIsFilterChanging(false); // Reset the flag immediately
+      return; // Skip loading clients for this render cycle
+    }
+
     // Prevent loading if the current filter is 'phone' and the debounced search term is exactly '998'.
     const isPhoneFilterWithDefaultTerm =
       currentFilterAndSortField === "phone" && debouncedSearchTerm === "998";
 
-    if (!isPhoneFilterWithDefaultTerm) {
+    // Only load clients if it's not the default phone search,
+    // or if the search term is not empty (for other filters)
+    if (!isPhoneFilterWithDefaultTerm && debouncedSearchTerm !== "") {
+      loadClients();
+    } else if (currentFilterAndSortField !== "phone" && debouncedSearchTerm === "") {
+      // If filter is not phone and search term is empty, load all clients (e.g., after clearing search)
       loadClients();
     }
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]); // Removed currentFilterAndSortField from dependencies
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language, isFilterChanging, currentFilterAndSortField]);
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -330,13 +341,15 @@ const DentalClinicDashboard = () => {
     if (currentFilterAndSortField === "phone") {
       let cleaned = value.replace(/\D/g, ""); // Remove non-digits
 
-      // Ensure it starts with 998
-      if (!cleaned.startsWith("998") && cleaned.length > 0) {
-        cleaned = "998" + cleaned;
-      } else if (cleaned.length === 0) {
-        // If user clears the input completely, reset to empty string
+      // If input is empty, reset searchTerm to empty
+      if (cleaned === "") {
         setSearchTerm("");
         return;
+      }
+
+      // Ensure it starts with "998"
+      if (!cleaned.startsWith("998")) {
+        cleaned = "998" + cleaned;
       }
 
       // Limit to 12 digits (998 + 9 digits)
@@ -795,6 +808,7 @@ const DentalClinicDashboard = () => {
           setStatusFilter={setStatusFilter}
           selectedClientCount={selectedClients.length}
           generatePDF={generatePDF}
+          setIsFilterChanging={setIsFilterChanging} // Pass the new setter
         />
 
         <ClientTable

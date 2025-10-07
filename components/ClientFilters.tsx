@@ -19,11 +19,12 @@ interface ClientFiltersProps {
   setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  handleSearchInputChange: (value: string) => void; // New prop for input change handling
+  handleSearchInputChange: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
   generatePDF: () => void;
+  setIsFilterChanging: (isChanging: boolean) => void; // New prop
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -34,11 +35,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setCurrentSortDirection,
   searchTerm,
   setSearchTerm,
-  handleSearchInputChange, // Use this for the actual input onChange
+  handleSearchInputChange,
   statusFilter,
   setStatusFilter,
   selectedClientCount,
   generatePDF,
+  setIsFilterChanging, // Destructure new prop
 }) => {
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -67,6 +69,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <Select
             value={currentFilterAndSortField}
             onValueChange={(value: FilterAndSortField) => {
+              setIsFilterChanging(true); // Set flag before changing search term
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               // When filter field changes, reset search term.
@@ -108,7 +111,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               type={currentFilterAndSortField === "phone" ? "tel" : "text"} // Dynamic type
               placeholder={getPlaceholderText(currentFilterAndSortField)}
               value={searchTerm}
-              onChange={(e) => handleSearchInputChange(e.target.value)} // Use the new handler
+              onChange={(e) => handleSearchInputChange(e.target.value)}
               className="pl-10 w-full"
             />
           </div>
