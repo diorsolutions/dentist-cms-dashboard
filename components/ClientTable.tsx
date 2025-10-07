@@ -63,9 +63,9 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-14 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
-          <div className="col-span-1 pl-2">No.</div> {/* New 'No.' column */}
-          <div className="col-span-1">
+        <div className="grid grid-cols-12 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
+          <div className="col-span-1">No.</div> {/* No. column */}
+          <div className="col-span-1"> {/* Checkbox column */}
             {selectedClients.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -83,14 +83,14 @@ const ClientTable: React.FC<ClientTableProps> = ({
               </div>
             )}
           </div>
-          <div className="col-span-3 pl-2">
+          <div className="col-span-3 pl-2"> {/* Name column with left padding */}
             <span className="font-medium">{t.name}</span>
           </div>
-          <div className="col-span-2 px-2">{t.birthDate}</div>
-          <div className="col-span-2 px-2">{t.lastVisit}</div>
-          <div className="col-span-2 px-2">{t.nextAppointment}</div>
-          <div className="col-span-2 px-2">{t.phone}</div>
-          <div className="col-span-1 pr-4">
+          <div className="col-span-2 px-2">{t.birthDate}</div> {/* Birth Date column */}
+          <div className="col-span-2 px-2">{t.lastVisit}</div> {/* Last Visit column */}
+          <div className="col-span-1 px-2">{t.nextAppointment}</div> {/* Next Appointment column */}
+          <div className="col-span-1 px-2">{t.phone}</div> {/* Phone column */}
+          <div className="col-span-1"> {/* Status column */}
             {t.status}
           </div>
         </div>
@@ -100,11 +100,11 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-14 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group"
+              className="grid grid-cols-12 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group"
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
-              <div className="col-span-1 flex items-center pl-2"> {/* New 'No.' column content */}
+              <div className="col-span-1 flex items-center"> {/* No. column content */}
                 <span className="text-sm text-muted-foreground">{index + 1}.</span>
               </div>
               <div
@@ -124,20 +124,20 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   )}
                 />
               </div>
-              <div className="col-span-3 flex items-center pl-2">
+              <div className="col-span-3 flex items-center pl-2"> {/* Name column content */}
                 <div>
                   <div className="text-lg font-semibold text-foreground">
                     {client.name}
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Birth Date content */}
                 {formatDate(client.dateOfBirth)}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Last Visit content */}
                 {formatDate(client.lastVisit)}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
+              <div className="col-span-1 flex items-center text-sm text-muted-foreground px-2"> {/* Next Appointment content */}
                 {client.nextAppointment ? (
                   <span
                     className={
@@ -154,10 +154,10 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
+              <div className="col-span-1 flex items-center text-sm text-muted-foreground px-2"> {/* Phone content */}
                 {client.phone}
               </div>
-              <div className="col-span-1 flex items-center pr-4">
+              <div className="col-span-1 flex items-center"> {/* Status content */}
                 <Badge className={getStatusColor(client.status)}>
                   {t[client.status]}
                 </Badge>
