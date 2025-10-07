@@ -172,41 +172,41 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Personal Information Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <User className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-white/80">
+                    <User className="h-5 w-5 text-white/90" />
                     {t.clientInfo}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <User className="h-4 w-4" /> {t.name}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {selectedClient.name}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.birthDate}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {formatDate(selectedClient.dateOfBirth)}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Clock className="h-4 w-4" /> {t.ageCalculated}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {clientAge !== null ? clientAge : t.notSpecified}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <MapPin className="h-4 w-4" /> {t.address}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {selectedClient.address || t.notSpecified}
                     </p>
                   </div>
@@ -216,14 +216,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Contact Information Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Phone className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-white/80">
+                    <Phone className="h-5 w-5 text-white/90" />
                     {t.phoneNumber} & {t.email}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Phone className="h-4 w-4" /> {t.phone}
                     </Label>
                     <a
@@ -234,10 +234,10 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     </a>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Mail className="h-4 w-4" /> {t.email}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {selectedClient.email || t.notSpecified}
                     </p>
                   </div>
@@ -255,14 +255,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label className="text-sm text-white/50 flex items-center gap-1">
-                      <FileText className="h-4 w-4 text-white/50" /> {t.initialTreatment}
+                      <FileText className="h-4 w-4" /> {t.initialTreatment}
                     </Label>
                     <p className="text-base font-semibold text-white/70">
                       {selectedClient.treatment || t.notSpecified}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Clock className="h-4 w-4" /> {t.status}
                     </Label>
                     <Badge className={getStatusColor(selectedClient.status)}>
@@ -270,18 +270,18 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     </Badge>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.lastVisit}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {formatDate(selectedClient.lastVisit)}
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.nextAppointment}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {formatDate(selectedClient.nextAppointment)}
                     </p>
                   </div>
@@ -291,13 +291,13 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Additional Notes Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <FileText className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-white/80">
+                    <FileText className="h-5 w-5 text-white/90" />
                     {t.clientNotes}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-base font-semibold text-foreground">
+                  <p className="text-base font-semibold text-white/70">
                     {selectedClient.notes || t.notSpecified}
                   </p>
                 </CardContent>
@@ -306,8 +306,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Images Gallery Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <ImageIcon className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-white/80">
+                    <ImageIcon className="h-5 w-5 text-white/90" />
                     {t.uploadedImages}
                   </CardTitle>
                 </CardHeader>
@@ -350,11 +350,11 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     </div>
                   ) : (
                     <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
-                      <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground text-lg">
+                      <ImageIcon className="w-12 h-12 mx-auto text-white/50 mb-4" />
+                      <p className="text-white/50 text-lg">
                         {t.noImagesUploaded}
                       </p>
-                      <p className="text-muted-foreground/70 text-sm mt-2">
+                      <p className="text-white/70 text-sm mt-2">
                         Mijoz qo'shish vaqtida rasm yuklash mumkin
                       </p>
                     </div>
