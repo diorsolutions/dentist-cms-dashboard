@@ -63,8 +63,9 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-12 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
-          <div className="col-span-1"> {/* Removed pl-4 */}
+        <div className="grid grid-cols-14 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
+          <div className="col-span-1 pl-2">No.</div> {/* New 'No.' column */}
+          <div className="col-span-1">
             {selectedClients.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -82,14 +83,14 @@ const ClientTable: React.FC<ClientTableProps> = ({
               </div>
             )}
           </div>
-          <div className="col-span-2 pl-2"> {/* Changed px-2 to pl-2 */}
+          <div className="col-span-3 pl-2">
             <span className="font-medium">{t.name}</span>
           </div>
           <div className="col-span-2 px-2">{t.birthDate}</div>
           <div className="col-span-2 px-2">{t.lastVisit}</div>
           <div className="col-span-2 px-2">{t.nextAppointment}</div>
           <div className="col-span-2 px-2">{t.phone}</div>
-          <div className="col-span-1"> {/* Removed pr-4 */}
+          <div className="col-span-1 pr-4">
             {t.status}
           </div>
         </div>
@@ -99,12 +100,15 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-12 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group"
+              className="grid grid-cols-14 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group"
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
+              <div className="col-span-1 flex items-center pl-2"> {/* New 'No.' column content */}
+                <span className="text-sm text-muted-foreground">{index + 1}.</span>
+              </div>
               <div
-                className="col-span-1 flex items-center" // Removed pl-4
+                className="col-span-1 flex items-center"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Checkbox
@@ -120,7 +124,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   )}
                 />
               </div>
-              <div className="col-span-2 flex items-center pl-2"> {/* Changed px-2 to pl-2 */}
+              <div className="col-span-3 flex items-center pl-2">
                 <div>
                   <div className="text-lg font-semibold text-foreground">
                     {client.name}
@@ -153,7 +157,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
               <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
                 {client.phone}
               </div>
-              <div className="col-span-1 flex items-center"> {/* Removed pr-4 */}
+              <div className="col-span-1 flex items-center pr-4">
                 <Badge className={getStatusColor(client.status)}>
                   {t[client.status]}
                 </Badge>
