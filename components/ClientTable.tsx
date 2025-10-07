@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import type { Translations } from "@/types/translations";
+import { isPast, parseISO } from "date-fns"; // Import date-fns functions
 
 interface Client {
   id: number;
@@ -14,8 +15,8 @@ interface Client {
   name: string;
   phone: string;
   email: string;
-  lastVisit: string;
-  nextAppointment: string;
+  lastVisit: string | null; // Can be null if no visits
+  nextAppointment: string | null; // Can be null if no future appointments
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
@@ -41,7 +42,7 @@ interface ClientTableProps {
   handleSelectAll: (checked: boolean) => void;
   handleClientSelect: (clientId: number, checked: boolean) => void;
   openClientModal: (client: Client) => Promise<void>;
-  formatDate: (dateString: string) => string;
+  formatDate: (dateString: string | null) => string; // Updated type
   getStatusColor: (status: string) => string;
 }
 
@@ -118,7 +119,21 @@ const ClientTable: React.FC<ClientTableProps> = ({
                 {formatDate(client.lastVisit)}
               </div>
               <div className="col-span-2 flex items-center text-sm text-muted-foreground">
-                {formatDate(client.nextAppointment)}
+                {client.nextAppointment ? (
+                  <span
+                    className={
+                      isPast(parseISO(client.nextAppointment))
+                        ? "line-through text-red-500"
+                        : ""
+                    }
+                  >
+                    {formatDate(client.nextAppointment)}{" "}
+                    {isPast(parseISO(client.nextAppointment)) &&
+                      "(bo'lib o'tgan)"}
+                  </span>
+                ) : (
+                  t.notSpecified
+                )}
               </div>
               <div className="col-span-2 flex items-center text-sm text-muted-foreground">
                 {client.phone}

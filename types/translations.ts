@@ -46,7 +46,7 @@ export interface Translations {
   filterBy: string; // New
   filterByName: string; // New
   filterByPhone: string; // New
-  filterByEmail: string; // New
+  filterByEmail: "Email"; // New
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
 

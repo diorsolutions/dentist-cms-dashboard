@@ -31,8 +31,8 @@ interface Client {
   name: string;
   phone: string;
   email: string;
-  lastVisit: string;
-  nextAppointment: string;
+  lastVisit: string | null;
+  nextAppointment: string | null;
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
@@ -60,7 +60,7 @@ interface ClientDetailsModalProps {
   expandedTreatment: number | null;
   setExpandedTreatment: (id: number | null) => void;
   setIsAddTreatmentOpen: (isOpen: boolean) => void;
-  formatDate: (dateString: string) => string;
+  formatDate: (dateString: string | null) => string; // Updated type
   getStatusColor: (status: string) => string;
   setPreviewImage: (imageUrl: string | null) => void;
 }
@@ -152,7 +152,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     {t.age}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.age || t.ageRequired}
+                    {selectedClient.age || t.notSpecified}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -168,7 +168,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     {t.email}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.email || t.emailRequired}
+                    {selectedClient.email || t.notSpecified}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -176,7 +176,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     {t.address}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.address || t.addressRequired}
+                    {selectedClient.address || t.notSpecified}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -194,7 +194,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   {t.treatment}
                 </Label>
                 <p className="text-base font-medium text-foreground">
-                  {selectedClient.treatment || t.initialTreatmentRequired}
+                  {selectedClient.treatment || t.notSpecified}
                 </p>
               </div>
 
@@ -203,7 +203,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   {t.notes}
                 </Label>
                 <p className="text-base font-medium text-foreground">
-                  {selectedClient.notes || t.notesRequired}
+                  {selectedClient.notes || t.notSpecified}
                 </p>
               </div>
 
@@ -354,7 +354,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                               <div className="text-muted-foreground text-base">
                                 {treatment.nextVisitDate
                                   ? formatDate(treatment.nextVisitDate)
-                                  : "Belgilanmagan"}
+                                  : t.notSpecified}
                               </div>
                             </div>
                           </div>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import jsPDF from "jspdf";
 import { AlertCircle } from "lucide-react";
+import { isPast, parseISO } from "date-fns"; // Import date-fns functions
 
 import { useToast } from "@/hooks/use-toast";
 import { translations, type Translations } from "./types/translations";
@@ -26,7 +27,7 @@ import ClientDetailsModal from "@/components/ClientDetailsModal";
 import AddClientModal from "@/components/AddClientModal";
 import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
-import PaginationControls from "@/components/PaginationControls"; // New import
+import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
 
 // Types
@@ -51,8 +52,8 @@ interface Client {
   name: string;
   phone: string;
   email: string;
-  lastVisit: string;
-  nextAppointment: string;
+  lastVisit: string | null; // Can be null if no visits
+  nextAppointment: string | null; // Can be null if no future appointments
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
@@ -157,72 +158,6 @@ const DentalClinicDashboard = () => {
     setupUzbekLocale(); // Apply custom styles for date picker
   }, []);
 
-  const loadClients = async (page = currentPage, limit = clientsPerPage) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const params = {
-        page: String(page),
-        limit: String(limit),
-        search: searchTerm,
-        status: statusFilter,
-        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Adjust for backend field names
-        sortOrder: currentSortDirection,
-      };
-      const response = await ClientService.getAllClients(params);
-
-      if (response.success) {
-        const transformedClients = response.data.map((client: any) => ({
-          id: client._id,
-          _id: client._id,
-          name: `${client.firstName} ${client.lastName}`,
-          phone: client.phone,
-          email: client.email,
-          lastVisit: client.updatedAt
-            ? new Date(client.updatedAt).toISOString().split("T")[0]
-            : new Date().toISOString().split("T")[0],
-          nextAppointment: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
-          status: client.status,
-          treatment: client.initialTreatment,
-          notes: client.notes,
-          age: client.age,
-          address: client.address,
-          treatmentHistory: [],
-          uploadedImages: client.uploadedFiles?.images || [],
-          uploadedFiles: client.uploadedFiles || { images: [] },
-          images: client.images || [],
-          firstName: client.firstName,
-          lastName: client.lastName,
-        }));
-
-        setClients(transformedClients);
-        setTotalClientsEver(response.pagination.total);
-        setTotalPages(response.pagination.pages);
-        setCurrentPage(response.pagination.current);
-      } else {
-        setTotalClientsEver(0);
-        setClients([]);
-        setTotalPages(1);
-        setCurrentPage(1);
-      }
-    } catch (error) {
-      console.error("Error loading clients:", error);
-      setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
-      setTotalClientsEver(0);
-      setClients([]);
-      setTotalPages(1);
-      setCurrentPage(1);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadClients();
-  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Reload on filter/sort/page change
-
   const loadClientTreatments = async (clientId: string) => {
     try {
       const response = await TreatmentService.getClientTreatments(clientId);
@@ -255,6 +190,87 @@ const DentalClinicDashboard = () => {
       return [];
     }
   };
+
+  const loadClients = async (page = currentPage, limit = clientsPerPage) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params = {
+        page: String(page),
+        limit: String(limit),
+        search: searchTerm,
+        status: statusFilter,
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Adjust for backend field names
+        sortOrder: currentSortDirection,
+      };
+      const response = await ClientService.getAllClients(params);
+
+      if (response.success) {
+        const transformedClients = await Promise.all(
+          response.data.map(async (client: any) => {
+            const treatments = await loadClientTreatments(client._id);
+
+            // Determine last visit
+            const lastVisit = treatments.length > 0
+              ? treatments[0].date // Assuming treatments are sorted by date desc
+              : null;
+
+            // Determine next appointment
+            const futureTreatments = treatments.filter(
+              (t: TreatmentRecord) => t.nextVisitDate && !isPast(parseISO(t.nextVisitDate))
+            );
+            const nextAppointment = futureTreatments.length > 0
+              ? futureTreatments[0].nextVisitDate // Assuming treatments are sorted by date desc
+              : null;
+
+            return {
+              id: client._id,
+              _id: client._id,
+              name: `${client.firstName} ${client.lastName}`,
+              phone: client.phone,
+              email: client.email,
+              lastVisit: lastVisit,
+              nextAppointment: nextAppointment,
+              status: client.status,
+              treatment: client.initialTreatment,
+              notes: client.notes,
+              age: client.age,
+              address: client.address,
+              treatmentHistory: treatments, // Store full history for modal
+              uploadedImages: client.uploadedFiles?.images || [],
+              uploadedFiles: client.uploadedFiles || { images: [] },
+              images: client.images || [],
+              firstName: client.firstName,
+              lastName: client.lastName,
+            };
+          })
+        );
+
+        setClients(transformedClients);
+        setTotalClientsEver(response.pagination.total);
+        setTotalPages(response.pagination.pages);
+        setCurrentPage(response.pagination.current);
+      } else {
+        setTotalClientsEver(0);
+        setClients([]);
+        setTotalPages(1);
+        setCurrentPage(1);
+      }
+    } catch (error) {
+      console.error("Error loading clients:", error);
+      setError("Ma'lumotlarni yuklashda xatolik yuz berdi");
+      setTotalClientsEver(0);
+      setClients([]);
+      setTotalPages(1);
+      setCurrentPage(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadClients();
+  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Reload on filter/sort/page change
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -656,12 +672,13 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return t.notSpecified;
     try {
       return formatDateOriginal(dateString, language);
     } catch (error) {
       console.error("Error formatting date:", error);
-      return "N/A";
+      return t.notSpecified;
     }
   };
 
