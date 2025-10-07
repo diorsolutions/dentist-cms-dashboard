@@ -47,15 +47,6 @@ export function DatePicker({
           initialFocus
           locale={uzbekLocale}
           fromDate={new Date()} // Prevent selecting past dates
-          formatters={{
-            formatCaption: (date, options) => {
-              const y = date.getFullYear();
-              const m = options?.locale?.localize?.month(date.getMonth(), { width: 'long' });
-              return `${m} ${y}`;
-            },
-            formatWeekdayName: (day, options) => options?.locale?.localize?.weekday(day.getDay(), { width: 'short' }) || '',
-            formatMonthCaption: (date, options) => options?.locale?.localize?.month(date.getMonth(), { width: 'long' }) || '',
-          }}
           format={{
             day: (date) => format(date, "d", { locale: uzbekLocale }),
             monthCaption: (date) => format(date, "LLLL yyyy", { locale: uzbekLocale }),
