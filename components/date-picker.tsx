@@ -58,6 +58,7 @@ export function DatePicker({
           captionLayout={showDropdowns ? "dropdown" : "buttons"} // Conditionally show dropdowns
           fromYear={showDropdowns ? fromYear : undefined} // Set fromYear for dropdowns
           toYear={showDropdowns ? toYear : undefined}   // Set toYear for dropdowns
+          className={cn(showDropdowns && "day-picker-custom-dropdowns")} // Add custom class
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",

@@ -186,3 +186,29 @@
     page-break-after: always;
   }
 }
+
+/* Custom styles for react-day-picker dropdowns */
+.day-picker-custom-dropdowns .rdp-dropdown_month,
+.day-picker-custom-dropdowns .rdp-dropdown_year {
+  background-color: #020817; /* User requested background color */
+  color: white; /* User requested text color */
+  border: 1px solid hsl(var(--border)); /* Keep a consistent border */
+  border-radius: var(--radius); /* Use shadcn/ui border radius */
+  padding: 0.25rem 0.75rem; /* Adjust padding */
+  appearance: none; /* Remove default select arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  /* Custom arrow for select dropdowns */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1em;
+  padding-right: 2rem; /* Make space for the custom arrow */
+}
+
+.day-picker-custom-dropdowns .rdp-dropdown_month:focus,
+.day-picker-custom-dropdowns .rdp-dropdown_year:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--ring)); /* Focus ring */
+}
