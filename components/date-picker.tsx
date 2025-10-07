@@ -59,7 +59,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (
-            format(value, "dd/MM/yyyy", { locale: uzbekLocale })
+            format(value, "dd-MMMM, yyyy", { locale: uzbekLocale })
           ) : (
             <span>{placeholder}</span>
           )}
