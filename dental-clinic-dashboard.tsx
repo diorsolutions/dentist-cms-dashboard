@@ -98,7 +98,7 @@ interface FormErrors {
 }
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Added dateOfBirth
+type FilterAndSortField = "name" | "phone" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Removed email
 
 const DentalClinicDashboard = () => {
   const { theme, systemTheme } = useTheme();
@@ -332,9 +332,28 @@ const DentalClinicDashboard = () => {
   };
 
   const handleApplySearch = () => {
-    // This function is now primarily for non-phone fields where a button is clicked
-    // For phone fields, the debouncedSearchTerm useEffect handles it.
-    setAppliedSearchTerm(searchTerm);
+    if (currentFilterAndSortField === "phone") {
+      let cleanedSearchTerm = searchTerm.replace(/\D/g, ""); // Remove all non-digits
+
+      // Remove common prefixes if they exist at the beginning
+      if (cleanedSearchTerm.startsWith("998")) {
+        cleanedSearchTerm = cleanedSearchTerm.substring(3);
+      } else if (cleanedSearchTerm.startsWith("+998")) {
+        cleanedSearchTerm = cleanedSearchTerm.substring(4);
+      }
+
+      // Ensure it's at most 9 digits (the local number part)
+      if (cleanedSearchTerm.length > 9) {
+        cleanedSearchTerm = cleanedSearchTerm.slice(-9); // Take the last 9 digits
+      } else if (cleanedSearchTerm.length < 9 && cleanedSearchTerm.length > 0) {
+        // If less than 9 digits but not empty, pad with leading zeros for search if needed,
+        // or just use as is for partial search. For now, use as is.
+        // The backend regex search will handle partial matches.
+      }
+      setAppliedSearchTerm(cleanedSearchTerm);
+    } else {
+      setAppliedSearchTerm(searchTerm);
+    }
   };
 
   const handleFilterFieldChange = (field: FilterAndSortField) => {

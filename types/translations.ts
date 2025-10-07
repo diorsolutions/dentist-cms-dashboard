@@ -40,14 +40,12 @@ export interface Translations {
   searchBy: string; // New
   searchByName: string; // New
   searchByPhone: string; // New
-  searchByEmail: "Email"; // New
   searchByLastVisitDate: string; // New
   searchByNextAppointmentDate: string; // New
   searchByBirthDate: string; // New
   filterBy: string; // New
   filterByName: "Ism"; // New
   filterByPhone: "Telefon"; // New
-  filterByEmail: "Email"; // New
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
   filterByBirthDate: string; // New
@@ -78,6 +76,7 @@ export interface Translations {
   details: string;
   treatmentDescription: string; // New
   nextVisitNotes: string; // Existing, but ensure it's used correctly
+  nextVisitNotesLabel: string; // New label
 
   // Form validation
   required: string;
@@ -204,14 +203,12 @@ export const translations: Record<
     searchBy: "Qidirish bo'yicha",
     searchByName: "Ism bo'yicha qidirish...",
     searchByPhone: "Telefon raqami bo'yicha qidirish...",
-    searchByEmail: "Email bo'yicha qidirish...",
     searchByLastVisitDate: "Oxirgi tashrif sanasi bo'yicha qidirish (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Keyingi uchrashuv sanasi bo'yicha qidirish (YYYY-MM-DD)...",
     searchByBirthDate: "Tug'ilgan sana bo'yicha qidirish (YYYY-MM-DD)...", // New
     filterBy: "Qidirish/Saralash bo'yicha",
     filterByName: "Ism",
     filterByPhone: "Telefon",
-    filterByEmail: "Email",
     filterByLastVisit: "Oxirgi tashrif",
     filterByNextAppointment: "Keyingi uchrashuv",
     filterByBirthDate: "Tug'ilgan sana", // New
@@ -365,14 +362,12 @@ export const translations: Record<
     searchBy: "Қидириш бўйича",
     searchByName: "Исм бўйича қидириш...",
     searchByPhone: "Телефон рақами бўйича қидириш...",
-    searchByEmail: "Email бўйича қидириш...",
     searchByLastVisitDate: "Охирги ташриф санаси бўйича қидириш (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Кейинги учрашув санаси бўйича қидириш (YYYY-MM-DD)...",
     searchByBirthDate: "Туғилган сана бўйича қидириш (YYYY-MM-DD)...", // New
     filterBy: "Қидириш/Саралаш бўйича",
     filterByName: "Исм",
     filterByPhone: "Телефон",
-    filterByEmail: "Email",
     filterByLastVisit: "Охирги ташриф",
     filterByNextAppointment: "Кейинги учрашув",
     filterByBirthDate: "Туғилган сана", // New
@@ -526,14 +521,12 @@ export const translations: Record<
     searchBy: "Search by",
     searchByName: "Search by name...",
     searchByPhone: "Search by phone number...",
-    searchByEmail: "Search by email...",
     searchByLastVisitDate: "Search by last visit date (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Search by next appointment date (YYYY-MM-DD)...",
     searchByBirthDate: "Search by birth date (YYYY-MM-DD)...", // New
     filterBy: "Filter/Sort by",
     filterByName: "Name",
     filterByPhone: "Phone",
-    filterByEmail: "Email",
     filterByLastVisit: "Last Visit",
     filterByNextAppointment: "Next Appointment",
     filterByBirthDate: "Birth Date", // New

@@ -9,7 +9,7 @@ import { Search, Download, RotateCcw } from "lucide-react";
 import type { Translations } from "@/types/translations";
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth";
+type FilterAndSortField = "name" | "phone" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Removed email
 
 interface ClientFiltersProps {
   t: Translations;
@@ -92,8 +92,6 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
         return t.searchByName;
       case "phone":
         return t.searchByPhone; // This will not be used for the individual inputs
-      case "email":
-        return t.searchByEmail;
       case "lastVisit":
       case "nextAppointment":
       case "dateOfBirth":
@@ -151,7 +149,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             <SelectContent>
               <SelectItem value="name">{t.filterByName}</SelectItem>
               <SelectItem value="phone">{t.filterByPhone}</SelectItem>
-              <SelectItem value="email">{t.filterByEmail}</SelectItem>
+              {/* Removed email filter */}
               <SelectItem value="lastVisit">{t.filterByLastVisit}</SelectItem>
               <SelectItem value="nextAppointment">
                 {t.filterByNextAppointment}
