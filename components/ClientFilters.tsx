@@ -24,7 +24,7 @@ interface ClientFiltersProps {
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
   generatePDF: () => void;
-  setIsFilterChanging: (isChanging: boolean) => void; // New prop
+  // setIsFilterChanging: (isChanging: boolean) => void; // Removed
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -40,7 +40,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setStatusFilter,
   selectedClientCount,
   generatePDF,
-  setIsFilterChanging, // Destructure new prop
+  // setIsFilterChanging, // Removed
 }) => {
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -69,12 +69,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <Select
             value={currentFilterAndSortField}
             onValueChange={(value: FilterAndSortField) => {
-              setIsFilterChanging(true); // Set flag before changing search term
+              // setIsFilterChanging(true); // Removed
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               // When filter field changes, reset search term.
               // If new field is 'phone', set default '998'. Otherwise, empty string.
-              setSearchTerm(value === "phone" ? "998" : "");
+              setSearchTerm(value === "phone" ? "998" : ""); // Set to "998" without '+'
             }}
           >
             <SelectTrigger className="w-48">

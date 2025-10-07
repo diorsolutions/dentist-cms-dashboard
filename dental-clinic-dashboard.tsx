@@ -148,7 +148,6 @@ const DentalClinicDashboard = () => {
 
   const [totalClientsEver, setTotalClientsEver] = useState(0);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [isFilterChanging, setIsFilterChanging] = useState(false); // New state to prevent immediate search on filter change
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -277,24 +276,18 @@ const DentalClinicDashboard = () => {
 
   // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
-    if (isFilterChanging) {
-      setIsFilterChanging(false); // Reset the flag immediately
-      return; // Skip loading clients for this render cycle
-    }
+    // Condition to prevent API call:
+    // 1. If the current filter is 'phone' AND the debounced search term is exactly '+998'
+    const isDefaultPhoneSearch = currentFilterAndSortField === "phone" && debouncedSearchTerm === "+998";
 
-    // Prevent loading if the current filter is 'phone' and the debounced search term is exactly '998'.
-    const isPhoneFilterWithDefaultTerm =
-      currentFilterAndSortField === "phone" && debouncedSearchTerm === "998";
+    // 2. If the current filter is NOT 'phone' AND the debounced search term is empty
+    const isEmptySearchForNonPhoneFilter = currentFilterAndSortField !== "phone" && debouncedSearchTerm === "";
 
-    // Only load clients if it's not the default phone search,
-    // or if the search term is not empty (for other filters)
-    if (!isPhoneFilterWithDefaultTerm && debouncedSearchTerm !== "") {
-      loadClients();
-    } else if (currentFilterAndSortField !== "phone" && debouncedSearchTerm === "") {
-      // If filter is not phone and search term is empty, load all clients (e.g., after clearing search)
+    // Only load clients if neither of the above conditions are met.
+    if (!isDefaultPhoneSearch && !isEmptySearchForNonPhoneFilter) {
       loadClients();
     }
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language, isFilterChanging, currentFilterAndSortField]);
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, currentFilterAndSortField, currentSortDirection, language]);
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -356,7 +349,8 @@ const DentalClinicDashboard = () => {
       if (cleaned.length > 12) {
         cleaned = cleaned.substring(0, 12);
       }
-      setSearchTerm(cleaned);
+      // Prepend '+' for backend search as the backend expects '+998...'
+      setSearchTerm("+" + cleaned);
     } else {
       setSearchTerm(value);
     }
@@ -803,12 +797,11 @@ const DentalClinicDashboard = () => {
           setCurrentSortDirection={setCurrentSortDirection}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          handleSearchInputChange={handleSearchInputChange} // Pass the new handler
+          handleSearchInputChange={handleSearchInputChange}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           selectedClientCount={selectedClients.length}
           generatePDF={generatePDF}
-          setIsFilterChanging={setIsFilterChanging} // Pass the new setter
         />
 
         <ClientTable
@@ -860,7 +853,7 @@ const DentalClinicDashboard = () => {
         formatDate={formatDate}
         getStatusColor={getStatusColor}
         setPreviewImage={setPreviewImage}
-        loadingTreatments={loadingTreatments} // Pass loading state
+        loadingTreatments={loadingTreatments}
       />
 
       <AddClientModal
