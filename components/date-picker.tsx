@@ -82,15 +82,7 @@ export function DatePicker({
           )} // Add dark class here
           // Custom labels for accessibility
           labels={{
-            labelMonthDropdown: (month) => {
-              // Ensure 'month' is a valid Date object before formatting
-              if (!month || isNaN(month.getTime())) {
-                return "Invalid Date"; // Fallback for invalid date
-              }
-              const monthName = format(month, "LLLL", { locale: uzbekLocale });
-              const monthNumber = format(month, "MM", { locale: uzbekLocale });
-              return `${monthName}-(${monthNumber})`;
-            },
+            labelMonthDropdown: () => "Oy", // Fixed label for month dropdown
             labelYearDropdown: () => "Yilni tanlang",
             labelNext: () => "Keyingi oy",
             labelPrevious: () => "Oldingi oy",
