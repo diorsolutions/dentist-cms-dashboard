@@ -243,7 +243,7 @@ const DentalClinicDashboard = () => {
               treatment: client.initialTreatment,
               notes: client.notes,
               age: client.age,
-              dateOfBirth: client.dateOfBirth ? new Date(client.dateOfBirth).toISOString().split('T')[0] : null, // Map new field
+              dateOfBirth: client.dateOfBirth || null, // Changed this line
               address: client.address,
               treatmentHistory: clientTreatmentsCache.get(client._id) || [], // Use cached or empty
               uploadedImages: client.uploadedFiles?.images || [],
