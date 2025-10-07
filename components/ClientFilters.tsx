@@ -5,20 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import type { Translations } from "@/types/translations";
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Added dateOfBirth
+type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth";
 
 interface ClientFiltersProps {
   t: Translations;
   currentFilterAndSortField: FilterAndSortField;
   setCurrentFilterAndSortField: (field: FilterAndSortField) => void;
   currentSortDirection: SortDirection;
-  setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>; // Updated type here
+  setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  handleSearchInputChange: (value: string) => void; // New prop for input change handling
   statusFilter: string;
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
@@ -33,6 +34,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setCurrentSortDirection,
   searchTerm,
   setSearchTerm,
+  handleSearchInputChange, // Use this for the actual input onChange
   statusFilter,
   setStatusFilter,
   selectedClientCount,
@@ -50,14 +52,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
         return t.searchByLastVisitDate;
       case "nextAppointment":
         return t.searchByNextAppointmentDate;
-      case "dateOfBirth": // New placeholder
+      case "dateOfBirth":
         return t.searchByBirthDate;
       default:
         return t.searchPlaceholder;
     }
   };
-
-  // Removed handleSortToggle and getSortIconComponent as the button is being removed.
 
   return (
     <Card className="mb-6 animate-in fade-in-50 duration-300">
@@ -69,6 +69,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             onValueChange={(value: FilterAndSortField) => {
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
+              // When filter field changes, reset search term.
+              // If new field is 'phone', set default '+998'. Otherwise, empty string.
+              setSearchTerm(value === "phone" ? "+998" : "");
             }}
           >
             <SelectTrigger className="w-48">
@@ -82,11 +85,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               <SelectItem value="nextAppointment">
                 {t.filterByNextAppointment}
               </SelectItem>
-              <SelectItem value="dateOfBirth">{t.filterByBirthDate}</SelectItem> {/* New filter option */}
+              <SelectItem value="dateOfBirth">{t.filterByBirthDate}</SelectItem>
             </SelectContent>
           </Select>
-
-          {/* Sort Direction Toggle Button - REMOVED */}
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -104,9 +105,10 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
+              type={currentFilterAndSortField === "phone" ? "tel" : "text"} // Dynamic type
               placeholder={getPlaceholderText(currentFilterAndSortField)}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchInputChange(e.target.value)} // Use the new handler
               className="pl-10 w-full"
             />
           </div>

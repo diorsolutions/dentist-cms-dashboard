@@ -160,8 +160,6 @@ const DentalClinicDashboard = () => {
   // Debounced values for filters and sort
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const debouncedStatusFilter = useDebounce(statusFilter, 500);
-  // debouncedFilterAndSortField and debouncedSortDirection are not used as direct dependencies for loadClients
-  // They are passed directly to loadClients when it's called.
 
   // Client-side cache for treatment histories
   const [clientTreatmentsCache, setClientTreatmentsCache] = useState<Map<string, TreatmentRecord[]>>(new Map());
@@ -223,8 +221,8 @@ const DentalClinicDashboard = () => {
         limit: String(limit),
         search: debouncedSearchTerm,
         status: debouncedStatusFilter,
-        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Use current, not debounced
-        sortOrder: currentSortDirection, // Use current, not debounced
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
+        sortOrder: currentSortDirection,
       };
       const response = await ClientService.getAllClients(params);
 
@@ -279,7 +277,7 @@ const DentalClinicDashboard = () => {
   // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
     loadClients();
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]); // Removed debouncedFilterAndSortField, debouncedSortDirection
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]);
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -318,6 +316,34 @@ const DentalClinicDashboard = () => {
     setNewClient((prev) => ({ ...prev, phone: cleaned }));
     if (formErrors.phone && /^\+998\d{9}$/.test(cleaned)) {
       setFormErrors((prev) => ({ ...prev, phone: "" }));
+    }
+  };
+
+  // New handler for search input changes, including phone formatting
+  const handleSearchInputChange = (value: string) => {
+    if (currentFilterAndSortField === "phone") {
+      let cleaned = value.replace(/\D/g, ""); // Remove non-digits
+
+      // Ensure it starts with 998
+      if (!cleaned.startsWith("998")) {
+        cleaned = "998" + cleaned;
+      }
+
+      // Limit to 12 digits after the '+' (998 + 9 digits)
+      if (cleaned.length > 12) {
+        cleaned = cleaned.substring(0, 12);
+      }
+
+      // If the cleaned string is just "998" or empty, set to "+998" or empty
+      if (cleaned === "998") {
+        setSearchTerm("+998");
+      } else if (cleaned.length > 3) { // If more than just "998"
+        setSearchTerm("+" + cleaned);
+      } else { // If less than "998" (e.g., user backspaces past 998)
+        setSearchTerm("");
+      }
+    } else {
+      setSearchTerm(value);
     }
   };
 
@@ -376,14 +402,14 @@ const DentalClinicDashboard = () => {
     let xPos = startX;
     headers.forEach((header, index) => {
       const colWidth = colWidths[index];
-      const textX = xPos + colWidth / 2;
-      doc.text(header, textX, yPos, { align: "center" });
-      if (index < headers.length - 1) {
-        doc.line(xPos + colWidth, yPos - rowHeight + 2, xPos + colWidth, yPos + 2);
-      }
-      xPos += colWidth;
-    });
-    yPos += rowHeight;
+        const textX = xPos + colWidth / 2;
+        doc.text(header, textX, yPos, { align: "center" });
+        if (index < headers.length - 1) {
+          doc.line(xPos + colWidth, yPos - rowHeight + 2, xPos + colWidth, yPos + 2);
+        }
+        xPos += colWidth;
+      });
+      yPos += rowHeight;
 
     doc.setFont("helvetica", "normal");
     clientsWithTreatments.forEach((client, index) => {
@@ -757,15 +783,12 @@ const DentalClinicDashboard = () => {
         <ClientFilters
           t={t}
           currentFilterAndSortField={currentFilterAndSortField}
-          setCurrentFilterAndSortField={(field) => {
-            setCurrentFilterAndSortField(field);
-            setCurrentSortDirection("asc"); // Reset sort direction when field changes
-            setSearchTerm(""); // Clear search term to trigger new search with new filter type
-          }}
+          setCurrentFilterAndSortField={setCurrentFilterAndSortField}
           currentSortDirection={currentSortDirection}
           setCurrentSortDirection={setCurrentSortDirection}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
+          handleSearchInputChange={handleSearchInputChange} // Pass the new handler
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           selectedClientCount={selectedClients.length}
