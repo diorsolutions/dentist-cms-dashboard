@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react"; // Import useState and useEffect
+import React, { useState, useEffect, useRef } from "react"; // Import useRef
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,9 +51,29 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   const [localPhoneMiddle, setLocalPhoneMiddle] = useState(""); // e.g., 843
   const [localPhoneLast, setLocalPhoneLast] = useState(""); // e.g., 2324
 
-  // Effect to sync local phone parts with parent searchTerm when switching to phone filter
+  const isInternalChange = useRef(false); // Flag to track if searchTerm change originated from local phone inputs
+
+  // Effect to combine local phone parts and update parent searchTerm
   useEffect(() => {
     if (currentFilterAndSortField === "phone") {
+      const combinedPhone = `${localPhoneCode}${localPhoneMiddle}${localPhoneLast}`;
+      // Only update parent searchTerm if it's different to avoid unnecessary re-renders
+      if (combinedPhone !== searchTerm) {
+        isInternalChange.current = true; // Mark as internal change
+        handleSearchInputChange(combinedPhone);
+      }
+    }
+  }, [localPhoneCode, localPhoneMiddle, localPhoneLast, currentFilterAndSortField, handleSearchInputChange, searchTerm]);
+
+  // Effect to sync local phone parts with parent searchTerm when switching to phone filter
+  // OR when searchTerm changes externally (e.g., reset filters)
+  useEffect(() => {
+    if (currentFilterAndSortField === "phone") {
+      if (isInternalChange.current) {
+        isInternalChange.current = false; // Reset flag
+        return; // Skip parsing if change was internal
+      }
+
       const cleaned = searchTerm.replace(/\D/g, ''); // Remove non-digits
       setLocalPhoneCode(cleaned.substring(0, 2));
       setLocalPhoneMiddle(cleaned.substring(2, 5));
@@ -64,19 +84,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       setLocalPhoneMiddle("");
       setLocalPhoneLast("");
     }
-  }, [currentFilterAndSortField, searchTerm]);
-
-  // Effect to combine local phone parts and update parent searchTerm
-  useEffect(() => {
-    if (currentFilterAndSortField === "phone") {
-      const combinedPhone = `${localPhoneCode}${localPhoneMiddle}${localPhoneLast}`;
-      // Only update parent searchTerm if it's different to avoid unnecessary re-renders
-      if (combinedPhone !== searchTerm) {
-        handleSearchInputChange(combinedPhone);
-      }
-    }
-  }, [localPhoneCode, localPhoneMiddle, localPhoneLast, currentFilterAndSortField, handleSearchInputChange, searchTerm]);
-
+  }, [currentFilterAndSortField, searchTerm]); // searchTerm is still a dependency, but guarded by isInternalChange
 
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -118,7 +126,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && currentFilterAndSortField !== "phone") { // Only apply search on Enter for non-phone fields
       handleApplySearch();
     }
   };
