@@ -45,7 +45,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "name":
         return t.searchByName;
       case "phone":
-        return t.searchByPhone;
+        return "91 878 78 07"; // Updated placeholder for phone
       case "email":
         return t.searchByEmail;
       case "lastVisit":
@@ -69,9 +69,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             onValueChange={(value: FilterAndSortField) => {
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
-              // When filter field changes, reset search term.
-              // If new field is 'phone', set default '998'. Otherwise, empty string.
-              setSearchTerm(value === "phone" ? "998" : ""); // Set to "998" without '+'
+              setSearchTerm(""); // Always reset search term when filter field changes
             }}
           >
             <SelectTrigger className="w-48">
@@ -110,7 +108,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               value={searchTerm}
               onChange={(e) => handleSearchInputChange(e.target.value)}
               className="pl-10 w-full"
-              maxLength={currentFilterAndSortField === "phone" ? 13 : undefined} // Max 13 chars for phone (+998XXXXXXXXX)
+              maxLength={currentFilterAndSortField === "phone" ? 9 : undefined} // Max 9 chars for phone digits
             />
           </div>
 

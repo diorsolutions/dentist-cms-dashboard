@@ -216,10 +216,17 @@ const DentalClinicDashboard = () => {
     try {
       setLoading(true);
       setError(null);
+
+      let actualSearchTerm = debouncedSearchTerm;
+      // If phone filter is active and user has typed some digits, prepend '+998' for backend
+      if (currentFilterAndSortField === "phone" && debouncedSearchTerm.length > 0) {
+        actualSearchTerm = `+998${debouncedSearchTerm}`;
+      }
+
       const params = {
         page: String(page),
         limit: String(limit),
-        search: debouncedSearchTerm,
+        search: actualSearchTerm, // Use the constructed search term
         status: debouncedStatusFilter,
         sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
         sortOrder: currentSortDirection,
@@ -276,18 +283,16 @@ const DentalClinicDashboard = () => {
 
   useEffect(() => {
     // Condition to skip loading:
-    // If the filter is by phone AND the search term is ONLY the default "+998" prefix.
-    if (currentFilterAndSortField === "phone" && debouncedSearchTerm === "+998") {
-      console.log("Skipping loadClients: Phone filter with default '+998' term.");
-      // Optionally clear clients if this state is reached and no actual search is intended
-      setClients([]);
+    // If the filter is by phone AND the debounced search term is empty (no digits typed yet).
+    if (currentFilterAndSortField === "phone" && debouncedSearchTerm.length === 0) {
+      console.log("Skipping loadClients: Phone filter with empty search term.");
+      setClients([]); // Clear clients if no search is intended
       setTotalPages(1);
       setCurrentPage(1);
       return;
     }
 
-    // In all other cases (including empty search term for non-phone filters,
-    // or a non-empty search term for any filter), proceed to load clients.
+    // In all other cases, proceed to load clients.
     console.log("Proceeding to loadClients()...");
     loadClients();
   }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, currentFilterAndSortField, currentSortDirection, language]);
@@ -332,28 +337,14 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  // New handler for search input changes, including phone formatting
+  // New handler for search input changes, specifically for phone formatting
   const handleSearchInputChange = (value: string) => {
     if (currentFilterAndSortField === "phone") {
       let cleaned = value.replace(/\D/g, ""); // Remove non-digits
-
-      // If input is empty, reset searchTerm to empty
-      if (cleaned === "") {
-        setSearchTerm("");
-        return;
+      if (cleaned.length > 9) { // Limit to 9 digits for display
+        cleaned = cleaned.substring(0, 9);
       }
-
-      // Ensure it starts with "998"
-      if (!cleaned.startsWith("998")) {
-        cleaned = "998" + cleaned;
-      }
-
-      // Limit to 12 digits (998 + 9 digits)
-      if (cleaned.length > 12) {
-        cleaned = cleaned.substring(0, 12);
-      }
-      // Prepend '+' for backend search as the backend expects '+998...'
-      setSearchTerm("+" + cleaned);
+      setSearchTerm(cleaned); // Store only the 9 digits in state
     } else {
       setSearchTerm(value);
     }
