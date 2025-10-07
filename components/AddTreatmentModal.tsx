@@ -16,7 +16,7 @@ interface NewTreatmentState {
   treatmentType: string;
   description: string;
   notes: string;
-  nextVisitDate?: Date;
+  nextVisitDate?: Date; // Changed type to Date
   nextVisitNotes: string;
   images: File[] | null;
 }

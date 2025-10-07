@@ -46,6 +46,7 @@ export function DatePicker({
           onSelect={onChange}
           initialFocus
           locale={uzbekLocale}
+          fromDate={new Date()} // Prevent selecting past dates
           formatters={{
             formatCaption: (date, options) => {
               const y = date.getFullYear();
