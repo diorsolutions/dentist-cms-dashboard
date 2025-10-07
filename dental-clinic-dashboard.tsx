@@ -70,6 +70,7 @@ interface Client {
   };
   images?: string[];
   dateOfBirth?: string;
+  treatmentCount: number; // Added for optimized fetching
 }
 
 interface NewClientState {
@@ -219,45 +220,29 @@ const DentalClinicDashboard = () => {
       const response = await ClientService.getAllClients(params);
 
       if (response.success) {
-        const transformedClients = await Promise.all(
-          response.data.map(async (client: any) => {
-            const treatments = await loadClientTreatments(client._id);
-
-            // Determine last visit
-            const lastVisit = treatments.length > 0
-              ? treatments[0].treatmentDate // Assuming treatments are sorted by date desc
-              : null;
-
-            // Determine next appointment
-            const futureTreatments = treatments.filter(
-              (t: TreatmentRecord) => t.nextVisitDate && !isPast(parseISO(t.nextVisitDate))
-            );
-            const nextAppointment = futureTreats.length > 0
-              ? futureTreatments[0].nextVisitDate // Assuming treatments are sorted by date desc
-              : null;
-
+        const transformedClients = response.data.map((client: any) => {
             return {
               id: client._id,
               _id: client._id,
               name: `${client.firstName} ${client.lastName}`,
               phone: client.phone,
               email: client.email,
-              lastVisit: lastVisit,
-              nextAppointment: nextAppointment,
+              lastVisit: client.lastVisit, // Now directly from backend
+              nextAppointment: client.nextAppointment, // Now directly from backend
               status: client.status,
               treatment: client.initialTreatment,
               notes: client.notes,
               age: client.age,
               address: client.address,
-              treatmentHistory: treatments, // Store full history for modal
+              treatmentHistory: [], // Only load full history on demand
               uploadedImages: client.uploadedFiles?.images || [],
               uploadedFiles: client.uploadedFiles || { images: [] },
               images: client.images || [],
               firstName: client.firstName,
               lastName: client.lastName,
+              treatmentCount: client.treatmentCount || 0, // Now directly from backend
             };
-          })
-        );
+          });
 
         setClients(transformedClients);
         setTotalClientsEver(response.pagination.total);
@@ -402,7 +387,7 @@ const DentalClinicDashboard = () => {
       doc.setLineWidth(0.3);
       doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
 
-      const treatmentCount = client.treatmentHistory?.length || 0;
+      const treatmentCount = client.treatmentCount || 0; // Use treatmentCount from backend
       const rowData = [
         (index + 1).toString(),
         client.name.length > 20 ? client.name.substring(0, 20) + "..." : client.name,
@@ -428,13 +413,15 @@ const DentalClinicDashboard = () => {
   };
 
   const openClientModal = async (client: Client) => {
-    setSelectedClient(client);
-    setIsClientDetailsModalOpen(true);
-    setActiveTab("info");
+    // Ensure treatmentHistory is loaded when opening the modal
     if (client._id) {
       const treatments = await loadClientTreatments(client._id);
-      setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: treatments } : null));
+      setSelectedClient({ ...client, treatmentHistory: treatments });
+    } else {
+      setSelectedClient(client);
     }
+    setIsClientDetailsModalOpen(true);
+    setActiveTab("info");
   };
 
   const getStatusColor = (status: string) => {
@@ -660,8 +647,8 @@ const DentalClinicDashboard = () => {
         });
 
         if (selectedClient?._id) {
-          const updatedTreatments = await loadClientTreatments(selectedClient._id);
-          setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: updatedTreatments } : null));
+          const treatments = await loadClientTreatments(selectedClient._id);
+          setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: treatments } : null));
         }
 
         setNewTreatment({

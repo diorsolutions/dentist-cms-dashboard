@@ -17,50 +17,105 @@ router.get("/", optionalAuth, async (req, res) => {
       sortOrder = "desc",
     } = req.query;
 
-    let searchFilter = {};
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    let matchFilter = { isActive: true };
     if (search) {
-      searchFilter = {
-        $or: [
-          { firstName: { $regex: search, $options: "i" } },
-          { lastName: { $regex: search, $options: "i" } },
-          { phone: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-        ],
-      };
+      matchFilter.$or = [
+        { firstName: { $regex: search, $options: "i" } },
+        { lastName: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
     }
-
-    const statusFilter = {};
     if (status !== "all") {
-      statusFilter.status = status;
+      matchFilter.status = status;
     }
 
-    const filter = { ...searchFilter, ...statusFilter, isActive: true };
+    const sortStage = {};
+    // Map frontend sort fields to backend fields if necessary
+    let backendSortBy = sortBy;
+    if (sortBy === "name") {
+      backendSortBy = "firstName"; // Or 'lastName' depending on primary sort
+    } else if (sortBy === "lastVisit") {
+      backendSortBy = "lastVisit";
+    } else if (sortBy === "nextAppointment") {
+      backendSortBy = "nextAppointment";
+    }
+    sortStage[backendSortBy] = sortOrder === "desc" ? -1 : 1;
 
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === "desc" ? -1 : 1;
+    const pipeline = [
+      { $match: matchFilter },
+      {
+        $lookup: {
+          from: "treatments", // The name of the treatments collection
+          localField: "_id",
+          foreignField: "clientId",
+          as: "treatments",
+        },
+      },
+      {
+        $addFields: {
+          treatmentCount: { $size: "$treatments" },
+          lastVisit: { $max: "$treatments.treatmentDate" },
+          nextAppointment: {
+            $min: {
+              $filter: {
+                input: "$treatments.nextVisitDate",
+                as: "date",
+                cond: { $gte: ["$$date", new Date()] }, // Filter for future dates
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          // Exclude the full treatments array if not needed for the list view
+          treatments: 0,
+          // Include all other client fields
+          _id: 1,
+          firstName: 1,
+          lastName: 1,
+          phone: 1,
+          email: 1,
+          age: 1,
+          address: 1,
+          status: 1,
+          initialTreatment: 1,
+          notes: 1,
+          uploadedFiles: 1,
+          images: 1,
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          treatmentCount: 1,
+          lastVisit: 1,
+          nextAppointment: 1,
+        },
+      },
+      { $sort: sortStage },
+      { $skip: skip },
+      { $limit: limitNum },
+    ];
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const clients = await Client.aggregate(pipeline);
 
-    // Clients + treatment count
-    const clients = await Client.find(filter)
-      .sort(sortOptions)
-      .limit(parseInt(limit))
-      .skip(skip)
-      .populate("treatmentCount") // virtual field
-      .exec();
-
-    const total = await Client.countDocuments(filter);
+    // For total count, we need a separate aggregation or countDocuments with the same matchFilter
+    const total = await Client.countDocuments(matchFilter);
 
     res.json({
       success: true,
       data: clients,
       pagination: {
-        current: Number.parseInt(page),
-        limit: Number.parseInt(limit),
-        pages: Math.ceil(total / parseInt(limit)),
+        current: pageNum,
+        limit: limitNum,
+        pages: Math.ceil(total / limitNum),
         total,
-        hasNext: Number.parseInt(page) < Math.ceil(total / parseInt(limit)),
-        hasPrev: Number.parseInt(page) > 1,
+        hasNext: pageNum < Math.ceil(total / limitNum),
+        hasPrev: pageNum > 1,
       },
     });
   } catch (error) {
