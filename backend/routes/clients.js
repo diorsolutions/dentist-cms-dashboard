@@ -53,47 +53,56 @@ router.get("/", optionalAuth, async (req, res) => {
               },
             },
           },
-          // Convert dateOfBirth to ISO string for consistent searching/sorting
-          dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } },
-          // Convert lastVisit to ISO string for consistent searching
-          lastVisitString: { $dateToString: { format: "%Y-%m-%d", date: "$lastVisit" } }
         },
       },
     ];
 
     // Add dynamic search filter if search term is provided
     if (search) {
-      const searchRegex = { $regex: search, $options: "i" };
       let dynamicSearchFilter = {};
 
-      switch (searchField) {
-        case "name":
-          dynamicSearchFilter.fullName = searchRegex;
-          break;
-        case "phone":
-          dynamicSearchFilter.phone = searchRegex;
-          break;
-        case "lastVisit":
-          dynamicSearchFilter.lastVisitString = searchRegex; // Search on the string representation
-          break;
-        case "nextAppointment":
-          // Search on the ISO string representation of nextAppointment
-          dynamicSearchFilter.nextAppointment = searchRegex;
-          break;
-        case "dateOfBirth":
-          dynamicSearchFilter.dateOfBirthString = searchRegex;
-          break;
-        default:
-          // Fallback to searching across multiple fields if searchField is unknown or not provided
-          dynamicSearchFilter.$or = [
-            { firstName: searchRegex },
-            { lastName: searchRegex },
-            { phone: searchRegex },
-            { fullName: searchRegex }, // Include computed fullName
-            { dateOfBirthString: searchRegex }, // Include computed dateOfBirthString
-            { lastVisitString: searchRegex } // Include computed lastVisitString
-          ];
-          break;
+      if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
+        try {
+          const searchDate = new Date(search); // Parse the "yyyy-MM-dd" string from frontend
+          if (!isNaN(searchDate.getTime())) {
+            const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+            const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+
+            if (searchField === "lastVisit") {
+              dynamicSearchFilter.lastVisit = { $gte: startOfDay, $lt: endOfDay };
+            } else if (searchField === "nextAppointment") {
+              dynamicSearchFilter.nextAppointment = { $gte: startOfDay, $lt: endOfDay };
+            } else if (searchField === "dateOfBirth") {
+              dynamicSearchFilter.dateOfBirth = { $gte: startOfDay, $lt: endOfDay };
+            }
+          } else {
+            // If date is invalid, ensure no results for date search
+            dynamicSearchFilter[searchField] = null; // Match nothing or handle as appropriate
+          }
+        } catch (dateError) {
+          console.error("Error parsing date for filter:", dateError);
+          dynamicSearchFilter[searchField] = null; // Fallback to match nothing
+        }
+      } else {
+        // Existing regex logic for other fields
+        const searchRegex = { $regex: search, $options: "i" };
+        switch (searchField) {
+          case "name":
+            dynamicSearchFilter.fullName = searchRegex;
+            break;
+          case "phone":
+            dynamicSearchFilter.phone = searchRegex;
+            break;
+          default:
+            // Fallback to searching across multiple fields if searchField is unknown or not provided
+            dynamicSearchFilter.$or = [
+              { firstName: searchRegex },
+              { lastName: searchRegex },
+              { phone: searchRegex },
+              { fullName: searchRegex },
+            ];
+            break;
+        }
       }
       pipeline.push({ $match: dynamicSearchFilter });
     }
@@ -103,11 +112,9 @@ router.get("/", optionalAuth, async (req, res) => {
     let actualSortBy = sortBy;
     if (sortBy === "name") {
         actualSortBy = "fullName"; // Sort by computed fullName
-    } else if (sortBy === "dateOfBirth") {
-        actualSortBy = "dateOfBirthString"; // Sort by computed dateOfBirthString
-    } else if (sortBy === "lastVisit") {
-        actualSortBy = "lastVisitString"; // Sort by computed lastVisitString
     }
+    // For date fields, we sort by the actual Date object, not a string representation
+    // The frontend sends "lastVisit", "nextAppointment", "dateOfBirth" which are direct field names
     sortStage[actualSortBy] = sortOrder === "desc" ? -1 : 1;
     pipeline.push({ $sort: sortStage });
 
@@ -137,8 +144,6 @@ router.get("/", optionalAuth, async (req, res) => {
           lastVisit: 1,
           nextAppointment: 1,
           fullName: 1, // Keep fullName if it was used for sorting/searching
-          dateOfBirthString: 1, // Keep dateOfBirthString if it was used for sorting/searching
-          lastVisitString: 1 // Keep lastVisitString if it was used for sorting/searching
         },
     });
 
@@ -169,26 +174,44 @@ router.get("/", optionalAuth, async (req, res) => {
                         },
                     },
                 },
-                dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } },
-                lastVisitString: { $dateToString: { format: "%Y-%m-%d", date: "$lastVisit" } }
             },
         },
     ];
     if (search) {
-        const searchRegex = { $regex: search, $options: "i" };
         let dynamicSearchFilter = {};
-        switch (searchField) {
-            case "name": dynamicSearchFilter.fullName = searchRegex; break;
-            case "phone": dynamicSearchFilter.phone = searchRegex; break;
-            case "lastVisit": dynamicSearchFilter.lastVisitString = searchRegex; break;
-            case "nextAppointment": dynamicSearchFilter.nextAppointment = searchRegex; break;
-            case "dateOfBirth": dynamicSearchFilter.dateOfBirthString = searchRegex; break;
-            default:
-                dynamicSearchFilter.$or = [
-                    { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
-                    { fullName: searchRegex }, { dateOfBirthString: searchRegex }, { lastVisitString: searchRegex }
-                ];
-                break;
+        if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
+            try {
+                const searchDate = new Date(search);
+                if (!isNaN(searchDate.getTime())) {
+                    const startOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+                    const endOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+
+                    if (searchField === "lastVisit") {
+                        dynamicSearchFilter.lastVisit = { $gte: startOfDay, $lt: endOfDay };
+                    } else if (searchField === "nextAppointment") {
+                        dynamicSearchFilter.nextAppointment = { $gte: startOfDay, $lt: endOfDay };
+                    } else if (searchField === "dateOfBirth") {
+                        dynamicSearchFilter.dateOfBirth = { $gte: startOfDay, $lt: endOfDay };
+                    }
+                } else {
+                    dynamicSearchFilter[searchField] = null;
+                }
+            } catch (dateError) {
+                console.error("Error parsing date for filter in total count:", dateError);
+                dynamicSearchFilter[searchField] = null;
+            }
+        } else {
+            const searchRegex = { $regex: search, $options: "i" };
+            switch (searchField) {
+                case "name": dynamicSearchFilter.fullName = searchRegex; break;
+                case "phone": dynamicSearchFilter.phone = searchRegex; break;
+                default:
+                    dynamicSearchFilter.$or = [
+                        { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
+                        { fullName: searchRegex },
+                    ];
+                    break;
+            }
         }
         totalCountPipeline.push({ $match: dynamicSearchFilter });
     }
