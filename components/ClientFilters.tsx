@@ -16,7 +16,7 @@ interface ClientFiltersProps {
   currentFilterAndSortField: FilterAndSortField;
   setCurrentFilterAndSortField: (field: FilterAndSortField) => void;
   currentSortDirection: SortDirection;
-  setCurrentSortDirection: (direction: SortDirection) => void;
+  setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>; // Updated type here
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   statusFilter: string;
