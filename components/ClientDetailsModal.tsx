@@ -11,6 +11,7 @@ import { Plus, ChevronDown, ChevronRight, ImageIcon, ZoomIn, X, Loader2 } from "
 import UploadService from "@/services/uploadService";
 import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils";
+import { calculateAge } from "@/utils/date-formatter"; // Import calculateAge
 
 interface TreatmentRecord {
   _id?: string;
@@ -38,7 +39,7 @@ interface Client {
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
-  age: number;
+  age: number | null; // Age can be null if dateOfBirth is not set
   dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: TreatmentRecord[];
@@ -106,6 +107,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   setPreviewImage,
   loadingTreatments, // Use the new prop
 }) => {
+  const clientAge = selectedClient?.dateOfBirth ? calculateAge(selectedClient.dateOfBirth) : null;
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent
@@ -160,10 +163,10 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-muted-foreground">
-                    {t.age}
+                    {t.ageCalculated}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {selectedClient.age || t.notSpecified}
+                    {clientAge !== null ? `${clientAge} ${t.age}` : t.notSpecified}
                   </p>
                 </div>
                 <div className="space-y-2">

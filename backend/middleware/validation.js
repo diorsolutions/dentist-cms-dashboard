@@ -23,10 +23,6 @@ const validateClient = (req, res, next) => {
     email: Joi.string().email().allow("").optional().messages({
       "string.email": "Invalid email format",
     }),
-    age: Joi.number().integer().min(1).max(150).optional().messages({
-      "number.min": "Age must be at least 1",
-      "number.max": "Age cannot exceed 150",
-    }),
     dateOfBirth: Joi.date().iso().allow(null).optional().messages({ // New field validation
       "date.iso": "Invalid date of birth format (YYYY-MM-DD)",
     }),

@@ -8,12 +8,10 @@ export interface Translations {
   name: string;
   firstName: string;
   lastName: string;
-  age: string;
   phone: string;
   phoneNumber: string;
   email: string;
   address: string;
-  clientAge: string;
   clientAddress: string;
   clientNotes: string;
   initialTreatment: string;
@@ -47,8 +45,8 @@ export interface Translations {
   searchByNextAppointmentDate: string; // New
   searchByBirthDate: string; // New
   filterBy: string; // New
-  filterByName: string; // New
-  filterByPhone: string; // New
+  filterByName: "Ism"; // New
+  filterByPhone: "Telefon"; // New
   filterByEmail: "Email"; // New
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
@@ -71,10 +69,8 @@ export interface Translations {
 
   // Treatment specific
   visitTypeLabel: string; // Renamed from todayVisit
-  // treatmentCategoryLabel: string; // Removed
   nextVisitPlan: string;
   nextVisitDate: string;
-  // additionalNotes: string; // Removed
   doctor: string;
   cost: string;
   description: string;
@@ -86,14 +82,12 @@ export interface Translations {
   required: string;
   invalidPhone: string;
   invalidEmail: string;
-  invalidAge: string;
   invalidBirthDate: string; // New
   nameRequired: string;
   firstNameRequired: string;
   lastNameRequired: string;
   phoneRequired: string;
   emailRequired: string;
-  ageRequired: string;
   addressRequired: string;
   initialTreatmentRequired: string;
   notesRequired: string;
@@ -153,6 +147,7 @@ export interface Translations {
   nextVisitNotesLabel: string; // New label for next visit notes
   createdOn: string;
   notSpecified: string;
+  ageCalculated: string; // New translation for calculated age
 
   // Responsive labels
   clients: string;
@@ -176,12 +171,10 @@ export const translations: Record<
     name: "Ism",
     firstName: "Ism",
     lastName: "Familiya",
-    age: "Yosh",
     phone: "Telefon",
     phoneNumber: "Telefon raqami",
     email: "Email",
     address: "Manzil",
-    clientAge: "Mijoz yoshi",
     clientAddress: "Mijoz manzili",
     clientNotes: "Izohlar",
     initialTreatment: "Dastlabki muolaja",
@@ -239,10 +232,8 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Bugungi muolaja turi", // Updated
-    // treatmentCategoryLabel: "Muolaja kategoriyasi", // Removed
     nextVisitPlan: "Keyingi tashrif uchun reja",
     nextVisitDate: "Keyingi tashrif sanasi",
-    // additionalNotes: "Qo'shimcha izohlar", // Removed
     doctor: "Shifokor",
     cost: "Narx",
     description: "Tavsif",
@@ -255,14 +246,12 @@ export const translations: Record<
     required: "Majburiy maydon",
     invalidPhone: "Telefon raqami noto'g'ri formatda",
     invalidEmail: "Email manzili noto'g'ri formatda",
-    invalidAge: "Yosh 1 dan 150 gacha bo'lishi kerak",
     invalidBirthDate: "Tug'ilgan sana noto'g'ri formatda (YYYY-MM-DD)", // New
     nameRequired: "Siz ism kiritmagansiz",
     firstNameRequired: "Siz ism kiritmagansiz",
     lastNameRequired: "Siz familiya kiritmagansiz",
     phoneRequired: "Siz telefon raqami kiritmagansiz",
     emailRequired: "Siz email kiritmagansiz",
-    ageRequired: "Siz yosh kiritmagansiz",
     addressRequired: "Siz manzil kiritmagansiz",
     initialTreatmentRequired: "Siz dastlabki muolaja kiritmagansiz",
     notesRequired: "Siz izoh kiritmagansiz",
@@ -322,6 +311,7 @@ export const translations: Record<
     nextVisitNotesLabel: "Keyingi tashrif uchun izoh",
     createdOn: "Yaratilgan",
     notSpecified: "Belgilanmagan",
+    ageCalculated: "Yosh", // New translation for calculated age
 
     // Responsive labels
     clients: "Mijozlar",
@@ -341,12 +331,10 @@ export const translations: Record<
     name: "Исм",
     firstName: "Исм",
     lastName: "Фамилия",
-    age: "Ёш",
     phone: "Телефон",
     phoneNumber: "Телефон рақами",
     email: "Email",
     address: "Манзил",
-    clientAge: "Мижоз ёши",
     clientAddress: "Мижоз манзили",
     initialTreatment: "Дастлабки муолажа",
     clientNotes: "Изоҳлар",
@@ -404,10 +392,8 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Бугунги муолажа тури", // Updated
-    // treatmentCategoryLabel: "Муолажа категорияси", // Removed
     nextVisitPlan: "Кейинги ташриф учун режа",
     nextVisitDate: "Кейинги ташриф санаси",
-    // additionalNotes: "Қўшимча изоҳлар", // Removed
     doctor: "Шифокор",
     cost: "Нарх",
     description: "Тавсиф",
@@ -420,14 +406,12 @@ export const translations: Record<
     required: "Мажбурий майдон",
     invalidPhone: "Телефон рақами нотўғри форматда",
     invalidEmail: "Email манзили нотўғри форматда",
-    invalidAge: "Ёш 1 дан 150 гача бўлиши керак",
     invalidBirthDate: "Туғилган сана нотўғри форматда (YYYY-MM-DD)", // New
     nameRequired: "Сиз исм киритмагансиз",
     firstNameRequired: "Сиз исм киритмагансиз",
     lastNameRequired: "Сиз фамилия киритмагансиз",
     phoneRequired: "Сиз телефон рақами киритмагансиз",
     emailRequired: "Сиз email киритмагансиз",
-    ageRequired: "Сиз ёш киритмагансиз",
     addressRequired: "Сиз манзил киритмагансиз",
     initialTreatmentRequired: "Сиз дастлабки муолажа киритмагансиз",
     notesRequired: "Сиз изоҳ киритмагансиз",
@@ -487,6 +471,7 @@ export const translations: Record<
     nextVisitNotesLabel: "Кейинги ташриф учун изоҳ",
     createdOn: "Яратилган",
     notSpecified: "Белгиланмаган",
+    ageCalculated: "Ёш", // New translation for calculated age
 
     // Responsive labels
     clients: "Мижозлар",
@@ -506,12 +491,10 @@ export const translations: Record<
     name: "Name",
     firstName: "First Name",
     lastName: "Last Name",
-    age: "Age",
     phone: "Phone",
     phoneNumber: "Phone Number",
     email: "Email",
     address: "Address",
-    clientAge: "Client Age",
     clientAddress: "Client Address",
     clientNotes: "Notes",
     initialTreatment: "Initial Treatment",
@@ -569,10 +552,8 @@ export const translations: Record<
 
     // Treatment specific
     visitTypeLabel: "Today's Treatment Type", // Updated
-    // treatmentCategoryLabel: "Treatment Category", // Removed
     nextVisitPlan: "Next Visit Plan",
     nextVisitDate: "Next Visit Date",
-    // additionalNotes: "Additional Notes", // Removed
     doctor: "Doctor",
     cost: "Cost",
     description: "Description",
@@ -585,14 +566,12 @@ export const translations: Record<
     required: "Required field",
     invalidPhone: "Invalid phone format",
     invalidEmail: "Invalid email format",
-    invalidAge: "Age must be between 1 and 150",
     invalidBirthDate: "Invalid birth date format (YYYY-MM-DD)", // New
     nameRequired: "You haven't entered name",
     firstNameRequired: "You haven't entered first name",
     lastNameRequired: "You haven't entered last name",
     phoneRequired: "You haven't entered phone number",
     emailRequired: "You haven't entered email",
-    ageRequired: "You haven't entered age",
     addressRequired: "You haven't entered address",
     initialTreatmentRequired: "You haven't entered initial treatment",
     notesRequired: "You haven't entered notes",
@@ -652,6 +631,7 @@ export const translations: Record<
     nextVisitNotesLabel: "Next Visit Notes",
     createdOn: "Created On",
     notSpecified: "Not Specified",
+    ageCalculated: "Age", // New translation for calculated age
 
     // Responsive labels
     clients: "Clients",

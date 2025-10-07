@@ -26,11 +26,6 @@ const clientSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
     },
-    age: {
-      type: Number,
-      min: [1, "Age must be at least 1"],
-      max: [150, "Age cannot exceed 150"],
-    },
     dateOfBirth: { // New field for birth date
       type: Date,
       optional: true,
@@ -101,6 +96,19 @@ const clientSchema = new mongoose.Schema(
 clientSchema.virtual("fullName").get(function () {
   return `${this.firstName} ${this.lastName}`
 })
+
+clientSchema.virtual("age").get(function () {
+  if (!this.dateOfBirth) return null;
+  const today = new Date();
+  const birthDate = new Date(this.dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+});
+
 
 clientSchema.virtual("treatmentCount", {
   ref: "Treatment",

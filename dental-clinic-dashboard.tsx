@@ -13,6 +13,7 @@ import {
   formatDate as formatDateOriginal,
   getTodayForInput,
   uzbekLocale,
+  calculateAge, // Import calculateAge
 } from "./utils/date-formatter";
 import ClientService from "./services/clientService";
 import TreatmentService from "./services/treatmentService";
@@ -58,7 +59,7 @@ interface Client {
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
-  age: number;
+  age: number | null; // Age can be null if dateOfBirth is not set
   dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: TreatmentRecord[];
@@ -78,7 +79,6 @@ interface NewClientState {
   lastName: string;
   phone: string;
   email: string;
-  age: string;
   dateOfBirth?: Date; // New field
   address: string;
   treatment: string;
@@ -129,7 +129,6 @@ const DentalClinicDashboard = () => {
     lastName: "",
     phone: "",
     email: "",
-    age: "",
     dateOfBirth: undefined, // New field
     address: "",
     treatment: "",
@@ -242,7 +241,7 @@ const DentalClinicDashboard = () => {
               status: client.status,
               treatment: client.initialTreatment,
               notes: client.notes,
-              age: client.age,
+              age: client.age, // Now comes from virtual field
               dateOfBirth: client.dateOfBirth || null, 
               address: client.address,
               treatmentHistory: clientTreatmentsCache.get(client._id) || [], // Use cached or empty
@@ -295,10 +294,7 @@ const DentalClinicDashboard = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(newClient.email.trim())) errors.email = t.invalidEmail;
     }
-    if (newClient.age && newClient.age.trim()) {
-      const age = Number.parseInt(newClient.age);
-      if (isNaN(age) || age < 1 || age > 150) errors.age = t.invalidAge;
-    }
+    // Age validation removed as it's now derived
     if (newClient.dateOfBirth) {
       if (isNaN(newClient.dateOfBirth.getTime())) {
         errors.dateOfBirth = t.invalidBirthDate;
@@ -580,7 +576,6 @@ const DentalClinicDashboard = () => {
         lastName: newClient.lastName.trim(),
         phone: newClient.phone.trim(),
         email: newClient.email.trim() || undefined,
-        age: newClient.age ? Number.parseInt(newClient.age) : undefined,
         dateOfBirth: newClient.dateOfBirth ? newClient.dateOfBirth.toISOString() : undefined, // Send as ISO string
         address: newClient.address.trim() || undefined,
         initialTreatment: newClient.treatment.trim() || undefined,
@@ -621,7 +616,7 @@ const DentalClinicDashboard = () => {
         }
         await loadClients();
         setNewClient({
-          firstName: "", lastName: "", phone: "", email: "", age: "", dateOfBirth: undefined, address: "", treatment: "", notes: "",
+          firstName: "", lastName: "", phone: "", email: "", dateOfBirth: undefined, address: "", treatment: "", notes: "",
         });
         setUploadedImages([]);
         setFormErrors({});

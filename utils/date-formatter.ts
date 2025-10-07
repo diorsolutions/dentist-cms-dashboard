@@ -87,6 +87,29 @@ export const formatDateLong = (dateString: string, language = "latin"): string =
   }
 };
 
+// Function to calculate age from birth date
+export const calculateAge = (dateOfBirth: string | Date | null): number | null => {
+  if (!dateOfBirth) return null;
+
+  try {
+    const birthDate = typeof dateOfBirth === 'string' ? parseISO(dateOfBirth) : dateOfBirth;
+    if (isNaN(birthDate.getTime())) return null;
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  } catch (error) {
+    console.error("Error calculating age:", error);
+    return null;
+  }
+};
+
+
 // date-fns uzbek locale object for react-day-picker
 export { uz as uzbekLocale };
 

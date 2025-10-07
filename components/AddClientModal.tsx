@@ -16,7 +16,6 @@ interface NewClientState {
   lastName: string;
   phone: string;
   email: string;
-  age: string;
   dateOfBirth?: Date; // New field
   address: string;
   treatment: string;
@@ -74,7 +73,6 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
       lastName: "",
       phone: "",
       email: "",
-      age: "",
       dateOfBirth: undefined, // Reset new field
       address: "",
       treatment: "",
@@ -187,30 +185,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 </p>
               )}
             </div>
-            <div>
-              <Label htmlFor="age">{t.clientAge}</Label>
-              <Input
-                id="age"
-                type="number"
-                value={newClient.age}
-                onChange={(e) => {
-                  setNewClient((prev) => ({ ...prev, age: e.target.value }));
-                  if (formErrors.age) {
-                    setFormErrors((prev) => ({ ...prev, age: "" }));
-                  }
-                }}
-                placeholder="25"
-                min="1"
-                max="150"
-                className={formErrors.age ? "border-red-500" : ""}
-              />
-              {formErrors.age && (
-                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {formErrors.age}
-                </p>
-              )}
-            </div>
+            {/* Removed Age Input */}
             <div>
               <Label htmlFor="dateOfBirth">{t.birthDate}</Label>
               <DatePicker
