@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import type { Translations } from "@/types/translations";
 import { isPast, parseISO } from "date-fns"; // Import date-fns functions
+import { cn } from "@/lib/utils"; // Import cn utility
 
 interface Client {
   id: string; // Changed from number to string
@@ -84,10 +85,10 @@ const ClientTable: React.FC<ClientTableProps> = ({
           <div className="col-span-2">
             <span className="font-medium">{t.name}</span>
           </div>
-          <div className="col-span-2">{t.birthDate}</div> {/* New column */}
+          <div className="col-span-2">{t.birthDate}</div>
           <div className="col-span-2">{t.lastVisit}</div>
           <div className="col-span-2">{t.nextAppointment}</div>
-          <div className="col-span-2">{t.phone}</div> {/* Increased col-span */}
+          <div className="col-span-2">{t.phone}</div>
           <div className="col-span-1">{t.status}</div>
         </div>
 
@@ -96,7 +97,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-12 gap-4 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50"
+              className="grid grid-cols-12 gap-4 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group" // Added 'group' class
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
@@ -109,6 +110,12 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   onCheckedChange={(checked) =>
                     handleClientSelect(client.id, checked as boolean)
                   }
+                  className={cn(
+                    "transition-opacity duration-200",
+                    selectedClients.includes(client.id)
+                      ? "opacity-100"
+                      : "opacity-0 group-hover:opacity-100"
+                  )}
                 />
               </div>
               <div className="col-span-2 flex items-center">
@@ -141,7 +148,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground"> {/* Increased col-span */}
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
                 {client.phone}
               </div>
               <div className="col-span-1 flex items-center">
