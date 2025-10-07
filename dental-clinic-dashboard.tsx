@@ -324,12 +324,19 @@ const DentalClinicDashboard = () => {
   const handleApplySearch = () => {
     if (currentFilterAndSortField === "phone") {
       let cleanedSearchTerm = searchTerm.replace(/\D/g, ""); // Remove all non-digits
+
       // Remove common prefixes if they exist at the beginning
       if (cleanedSearchTerm.startsWith("998")) {
         cleanedSearchTerm = cleanedSearchTerm.substring(3);
+      } else if (cleanedSearchTerm.startsWith("+998")) {
+        cleanedSearchTerm = cleanedSearchTerm.substring(4);
       }
-      // No minLength check for phone search
-      // MaxLength check for phone search is also removed as per user request for flexibility
+
+      // Ensure it's at most 9 digits (the local number part)
+      if (cleanedSearchTerm.length > 9) {
+        cleanedSearchTerm = cleanedSearchTerm.slice(-9); // Take the last 9 digits
+      }
+      // No minLength check here, allow searching for partial numbers like "901"
       setAppliedSearchTerm(cleanedSearchTerm);
     } else {
       setAppliedSearchTerm(searchTerm);

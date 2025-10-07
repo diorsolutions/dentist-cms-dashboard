@@ -51,9 +51,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "email":
         return t.searchByEmail;
       case "lastVisit":
-        return t.searchByLastVisitDate;
       case "nextAppointment":
-        return t.searchByNextAppointmentDate;
       case "dateOfBirth":
         return t.searchByBirthDate;
       default:
@@ -75,7 +73,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   const getMaxLength = (field: FilterAndSortField): number | undefined => {
-    if (field === "phone") return 13; // +998XXXXXXXXX
+    if (field === "phone") return 9; // Only 9 digits for the local number part
     return undefined;
   };
 
