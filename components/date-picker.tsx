@@ -36,8 +36,10 @@ export function DatePicker({
   const { theme } = useTheme(); // Use the theme hook
   const [open, setOpen] = React.useState(false); // Popoverning ochiq holatini boshqarish uchun yangi holat
   const currentYear = new Date().getFullYear();
-  const fromYear = currentYear - 100; // Allow selecting up to 100 years in the past
-  const toYear = currentYear; // Up to the current year
+
+  // Refined year range logic
+  const fromYear = allowPastDates ? currentYear - 100 : currentYear;
+  const toYear = allowPastDates ? currentYear : currentYear + 10; // Allow 10 years into the future for non-past dates
 
   const handleDaySelect = (date?: Date) => {
     onChange(date); // Asl onChange funksiyasini chaqirish
@@ -81,6 +83,10 @@ export function DatePicker({
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: (month) => {
+              // Ensure 'month' is a valid Date object before formatting
+              if (!month || isNaN(month.getTime())) {
+                return "Invalid Date"; // Fallback for invalid date
+              }
               const monthName = format(month, "LLLL", { locale: uzbekLocale });
               const monthNumber = format(month, "MM", { locale: uzbekLocale });
               return `${monthName}-(${monthNumber})`;
