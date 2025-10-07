@@ -45,6 +45,8 @@ router.get("/", optionalAuth, async (req, res) => {
       backendSortBy = "nextAppointment";
     } else if (sortBy === "dateOfBirth") { // Handle new sort field
       backendSortBy = "dateOfBirth";
+    } else if (sortBy === "phone") { // Handle phone sort field
+      backendSortBy = "phone";
     }
     sortStage[backendSortBy] = sortOrder === "desc" ? -1 : 1;
 
