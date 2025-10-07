@@ -56,6 +56,21 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Custom styles for react-day-picker dropdowns in dark mode */
+    .day-picker-custom-dropdowns .rdp-dropdown_month,
+    .day-picker-custom-dropdowns .rdp-dropdown_year {
+      background-color: hsl(var(--popover)) !important; /* Force popover background */
+      color: hsl(var(--popover-foreground)) !important; /* Force popover foreground for text */
+    }
+
+    .day-picker-custom-dropdowns .rdp-dropdown_month option,
+    .day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
+    .day-picker-custom-dropdowns .rdp-dropdown_year option,
+    .day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
+      background-color: hsl(var(--popover)) !important; /* Force popover background */
+      color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
+    }
   }
 }
 
@@ -190,8 +205,8 @@
 /* Custom styles for react-day-picker dropdowns */
 .day-picker-custom-dropdowns .rdp-dropdown_month,
 .day-picker-custom-dropdowns .rdp-dropdown_year {
-  background-color: hsl(var(--popover)) !important; /* Force popover background */
-  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground for text */
+  background-color: hsl(var(--popover)); /* Use popover background for dropdown */
+  color: hsl(var(--popover-foreground)); /* Use popover foreground for text */
   border: 1px solid hsl(var(--border)); /* Keep a consistent border */
   border-radius: var(--radius); /* Use shadcn/ui border radius */
   padding: 0.25rem 0.75rem; /* Adjust padding */
@@ -211,13 +226,4 @@
 .day-picker-custom-dropdowns .rdp-dropdown_year:focus {
   outline: none;
   box-shadow: 0 0 0 2px hsl(var(--ring)); /* Focus ring */
-}
-
-/* Styles for the dropdown options themselves */
-.day-picker-custom-dropdowns .rdp-dropdown_month option,
-.day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
-.day-picker-custom-dropdowns .rdp-dropdown_year option,
-.day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
-  background-color: hsl(var(--popover)) !important; /* Force popover background */
-  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
 }
