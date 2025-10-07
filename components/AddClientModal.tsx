@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertCircle, ImageIcon, Loader2, X } from "lucide-react";
 import type { Translations } from "@/types/translations";
+import { cn } from "@/lib/utils"; // Import cn utility
 
 interface NewClientState {
   firstName: string;
@@ -83,12 +84,23 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
 
   return (
     <Dialog open={isAddClientOpen} onOpenChange={setIsAddClientOpen}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-300">
-        <DialogHeader>
+      <DialogContent
+        className={cn(
+          "max-h-[90vh] overflow-y-auto",
+          "sm:top-[50%] sm:translate-y-[-50%] top-0 translate-y-0",
+          "sm:max-w-2xl max-w-full",
+          "sm:rounded-lg rounded-none",
+          "sm:p-6 p-0",
+          "data-[state=open]:sm:slide-in-from-top-[48%] data-[state=open]:slide-in-from-bottom-full",
+          "data-[state=closed]:sm:slide-out-to-top-[48%] data-[state=closed]:slide-out-to-bottom-full",
+          "animate-in fade-in-0 zoom-in-95 duration-300"
+        )}
+      >
+        <DialogHeader className="pb-6 px-6 pt-6">
           <DialogTitle>{t.addNewClientTitle}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">{t.firstName} *</Label>
@@ -298,7 +310,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 px-6 py-4">
           <Button variant="outline" onClick={resetForm} disabled={isSubmitting}>
             {t.cancel}
           </Button>

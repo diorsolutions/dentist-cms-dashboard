@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Plus, ChevronDown, ChevronRight, ImageIcon, ZoomIn, X } from "lucide-react";
 import UploadService from "@/services/uploadService";
 import type { Translations } from "@/types/translations";
+import { cn } from "@/lib/utils"; // Import cn utility
 
 interface TreatmentRecord {
   id: number;
@@ -104,8 +105,21 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-300">
-        <DialogHeader className="pb-6">
+      <DialogContent
+        className={cn(
+          "max-h-[90vh] overflow-y-auto", // Keep max-h and overflow
+          // Override default centering for small screens
+          "sm:top-[50%] sm:translate-y-[-50%] top-0 translate-y-0", // Align to top on small screens
+          "sm:max-w-4xl max-w-full", // Full width on small screens, max-w-4xl on larger
+          "sm:rounded-lg rounded-none", // No rounded corners on small screens
+          "sm:p-6 p-0", // No padding on small screens, padding handled by internal elements
+          // Custom animations for small screens (slide from bottom)
+          "data-[state=open]:sm:slide-in-from-top-[48%] data-[state=open]:slide-in-from-bottom-full",
+          "data-[state=closed]:sm:slide-out-to-top-[48%] data-[state=closed]:slide-out-to-bottom-full",
+          "animate-in fade-in-0 zoom-in-95 duration-300" // Keep existing animations
+        )}
+      >
+        <DialogHeader className="pb-6 px-6 pt-6">
           <div>
             <DialogTitle className="text-2xl font-bold">
               {selectedClient?.name}
@@ -119,7 +133,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-6 h-101">
+            <TabsList className="grid w-full grid-cols-2 mb-6 h-101 px-6">
               <TabsTrigger
                 value="info"
                 className="transition-all duration-200 text-base py-3"
@@ -136,7 +150,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
             <TabsContent
               value="info"
-              className="space-y-6 mt-4 animate-in fade-in-50 duration-300"
+              className="space-y-6 mt-4 animate-in fade-in-50 duration-300 px-6"
             >
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -264,7 +278,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
             <TabsContent
               value="history"
-              className="space-y-6 mt-4 animate-in fade-in-50 duration-300"
+              className="space-y-6 mt-4 animate-in fade-in-50 duration-300 px-6"
             >
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold">
