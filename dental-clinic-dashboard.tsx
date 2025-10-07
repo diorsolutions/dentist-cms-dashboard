@@ -276,15 +276,14 @@ const DentalClinicDashboard = () => {
 
   // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
-    // Prevent initial search when 'phone' is selected and searchTerm is just '998'
-    const isDefaultPhoneSearch = currentFilterAndSortField === "phone" && debouncedSearchTerm === "998";
-    
-    // Only load clients if it's not the default phone search,
-    // or if the filter type is not 'phone' and the search term is not empty
-    if (!isDefaultPhoneSearch || (currentFilterAndSortField !== "phone" && debouncedSearchTerm !== "")) {
+    // Prevent loading if the current filter is 'phone' and the debounced search term is exactly '998'.
+    const isPhoneFilterWithDefaultTerm =
+      currentFilterAndSortField === "phone" && debouncedSearchTerm === "998";
+
+    if (!isPhoneFilterWithDefaultTerm) {
       loadClients();
     }
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language, currentFilterAndSortField]); // Added currentFilterAndSortField as dependency
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]); // Removed currentFilterAndSortField from dependencies
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -332,8 +331,12 @@ const DentalClinicDashboard = () => {
       let cleaned = value.replace(/\D/g, ""); // Remove non-digits
 
       // Ensure it starts with 998
-      if (!cleaned.startsWith("998")) {
+      if (!cleaned.startsWith("998") && cleaned.length > 0) {
         cleaned = "998" + cleaned;
+      } else if (cleaned.length === 0) {
+        // If user clears the input completely, reset to empty string
+        setSearchTerm("");
+        return;
       }
 
       // Limit to 12 digits (998 + 9 digits)
