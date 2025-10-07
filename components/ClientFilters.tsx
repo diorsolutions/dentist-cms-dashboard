@@ -18,7 +18,7 @@ interface ClientFiltersProps {
   currentSortDirection: SortDirection;
   setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
   searchTerm: string;
-  setSearchTerm: (term: string) => void;
+  setSearchTerm: (term: string) => void; // Correctly defined
   handleSearchInputChange: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
