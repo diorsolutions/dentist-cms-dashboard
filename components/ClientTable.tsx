@@ -65,23 +65,15 @@ const ClientTable: React.FC<ClientTableProps> = ({
         {/* Header */}
         <div className="grid grid-cols-12 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
           <div className="col-span-1">No.</div> {/* No. column */}
-          <div className="col-span-1"> {/* Checkbox column */}
-            {selectedClients.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="select-all"
-                  checked={
-                    selectedClients.length ===
-                      filteredAndSortedClients.length &&
-                    filteredAndSortedClients.length > 0
-                  }
-                  onCheckedChange={handleSelectAll}
-                />
-                <Label htmlFor="select-all" className="font-medium">
-                  ({selectedClients.length})
-                </Label>
-              </div>
-            )}
+          <div className="col-span-1"> {/* Checkbox column - made compact */}
+            <Checkbox
+              id="select-all"
+              checked={
+                selectedClients.length === filteredAndSortedClients.length &&
+                filteredAndSortedClients.length > 0
+              }
+              onCheckedChange={handleSelectAll}
+            />
           </div>
           <div className="col-span-3 pl-2"> {/* Name column with left padding */}
             <span className="font-medium">{t.name}</span>
@@ -108,7 +100,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                 <span className="text-sm text-muted-foreground">{index + 1}.</span>
               </div>
               <div
-                className="col-span-1 flex items-center"
+                className="col-span-1 flex items-center" // Checkbox column content - made compact
                 onClick={(e) => e.stopPropagation()}
               >
                 <Checkbox
