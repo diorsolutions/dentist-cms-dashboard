@@ -27,6 +27,9 @@ const validateClient = (req, res, next) => {
       "number.min": "Age must be at least 1",
       "number.max": "Age cannot exceed 150",
     }),
+    dateOfBirth: Joi.date().iso().allow(null).optional().messages({ // New field validation
+      "date.iso": "Invalid date of birth format (YYYY-MM-DD)",
+    }),
     address: Joi.string().trim().max(200).allow("").optional().messages({
       "string.max": "Address cannot exceed 200 characters",
     }),

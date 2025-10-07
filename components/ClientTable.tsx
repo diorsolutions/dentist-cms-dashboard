@@ -21,6 +21,7 @@ interface Client {
   treatment: string;
   notes: string;
   age: number;
+  dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: any[]; // Simplified for now
   uploadedImages?: string[];
@@ -31,7 +32,6 @@ interface Client {
   firstName?: string;
   lastName?: string;
   initialTreatment?: string;
-  dateOfBirth?: string;
 }
 
 interface ClientTableProps {

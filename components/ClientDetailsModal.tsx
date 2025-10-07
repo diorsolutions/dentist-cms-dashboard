@@ -39,6 +39,7 @@ interface Client {
   treatment: string;
   notes: string;
   age: number;
+  dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: TreatmentRecord[];
   uploadedImages?: string[];
@@ -49,7 +50,6 @@ interface Client {
   firstName?: string;
   lastName?: string;
   initialTreatment?: string;
-  dateOfBirth?: string;
 }
 
 interface ClientDetailsModalProps {
@@ -180,6 +180,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   </Label>
                   <p className="text-base font-medium text-foreground">
                     {selectedClient.email || t.notSpecified}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    {t.birthDate}
+                  </Label>
+                  <p className="text-base font-medium text-foreground">
+                    {formatDate(selectedClient.dateOfBirth)}
                   </p>
                 </div>
                 <div className="space-y-2">

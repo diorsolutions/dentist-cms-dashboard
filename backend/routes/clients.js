@@ -43,6 +43,8 @@ router.get("/", optionalAuth, async (req, res) => {
       backendSortBy = "lastVisit";
     } else if (sortBy === "nextAppointment") {
       backendSortBy = "nextAppointment";
+    } else if (sortBy === "dateOfBirth") { // Handle new sort field
+      backendSortBy = "dateOfBirth";
     }
     sortStage[backendSortBy] = sortOrder === "desc" ? -1 : 1;
 
@@ -81,6 +83,7 @@ router.get("/", optionalAuth, async (req, res) => {
           phone: 1,
           email: 1,
           age: 1,
+          dateOfBirth: 1, // Include new field
           address: 1,
           status: 1,
           initialTreatment: 1,

@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import jsPDF from "jspdf";
-import { AlertCircle, Loader2 } from "lucide-react"; // Added Loader2
+import { AlertCircle, Loader2 } from "lucide-react";
 import { isPast, parseISO } from "date-fns";
 
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +59,7 @@ interface Client {
   treatment: string;
   notes: string;
   age: number;
+  dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: TreatmentRecord[];
   uploadedImages?: string[];
@@ -69,7 +70,6 @@ interface Client {
     images?: string[];
   };
   images?: string[];
-  dateOfBirth?: string;
   treatmentCount: number;
 }
 
@@ -79,6 +79,7 @@ interface NewClientState {
   phone: string;
   email: string;
   age: string;
+  dateOfBirth?: Date; // New field
   address: string;
   treatment: string;
   notes: string;
@@ -97,7 +98,7 @@ interface FormErrors {
 }
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment";
+type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Added dateOfBirth
 
 const DentalClinicDashboard = () => {
   const { theme, systemTheme } = useTheme();
@@ -129,6 +130,7 @@ const DentalClinicDashboard = () => {
     phone: "",
     email: "",
     age: "",
+    dateOfBirth: undefined, // New field
     address: "",
     treatment: "",
     notes: "",
@@ -241,6 +243,7 @@ const DentalClinicDashboard = () => {
               treatment: client.initialTreatment,
               notes: client.notes,
               age: client.age,
+              dateOfBirth: client.dateOfBirth ? new Date(client.dateOfBirth).toISOString().split('T')[0] : null, // Map new field
               address: client.address,
               treatmentHistory: clientTreatmentsCache.get(client._id) || [], // Use cached or empty
               uploadedImages: client.uploadedFiles?.images || [],
@@ -295,6 +298,11 @@ const DentalClinicDashboard = () => {
     if (newClient.age && newClient.age.trim()) {
       const age = Number.parseInt(newClient.age);
       if (isNaN(age) || age < 1 || age > 150) errors.age = t.invalidAge;
+    }
+    if (newClient.dateOfBirth) {
+      if (isNaN(newClient.dateOfBirth.getTime())) {
+        errors.dateOfBirth = t.invalidBirthDate;
+      }
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -359,8 +367,8 @@ const DentalClinicDashboard = () => {
     const startX = 20;
     const tableWidth = 170;
     const rowHeight = 8;
-    const colWidths = [15, 50, 35, 25, 30, 15];
-    const headers = ["No.", "To'liq Ism", "Telefon", "Yosh", "Holat", "Muolaja"];
+    const colWidths = [10, 40, 30, 25, 30, 20, 15]; // Adjusted column widths for new field
+    const headers = ["No.", "To'liq Ism", "Telefon", "Tug'ilgan sana", "Holat", "Muolaja"]; // Updated headers
 
     doc.setFillColor(240, 240, 240);
     doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight, "F");
@@ -398,7 +406,7 @@ const DentalClinicDashboard = () => {
         (index + 1).toString(),
         client.name.length > 20 ? client.name.substring(0, 20) + "..." : client.name,
         client.phone,
-        client.age.toString(),
+        formatDate(client.dateOfBirth), // Display birth date
         t[client.status],
         treatmentCount.toString(),
       ];
@@ -573,6 +581,7 @@ const DentalClinicDashboard = () => {
         phone: newClient.phone.trim(),
         email: newClient.email.trim() || undefined,
         age: newClient.age ? Number.parseInt(newClient.age) : undefined,
+        dateOfBirth: newClient.dateOfBirth ? newClient.dateOfBirth.toISOString() : undefined, // Send as ISO string
         address: newClient.address.trim() || undefined,
         initialTreatment: newClient.treatment.trim() || undefined,
         notes: newClient.notes.trim() || undefined,
@@ -612,7 +621,7 @@ const DentalClinicDashboard = () => {
         }
         await loadClients();
         setNewClient({
-          firstName: "", lastName: "", phone: "", email: "", age: "", address: "", treatment: "", notes: "",
+          firstName: "", lastName: "", phone: "", email: "", age: "", dateOfBirth: undefined, address: "", treatment: "", notes: "",
         });
         setUploadedImages([]);
         setFormErrors({});

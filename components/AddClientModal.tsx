@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { AlertCircle, ImageIcon, Loader2, X } from "lucide-react";
 import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils"; // Import cn utility
+import { DatePicker } from "@/components/date-picker"; // Import the DatePicker component
 
 interface NewClientState {
   firstName: string;
@@ -16,6 +17,7 @@ interface NewClientState {
   phone: string;
   email: string;
   age: string;
+  dateOfBirth?: Date; // New field
   address: string;
   treatment: string;
   notes: string;
@@ -73,6 +75,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
       phone: "",
       email: "",
       age: "",
+      dateOfBirth: undefined, // Reset new field
       address: "",
       treatment: "",
       notes: "",
@@ -209,19 +212,40 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
               )}
             </div>
             <div>
-              <Label htmlFor="address">{t.clientAddress}</Label>
-              <Input
-                id="address"
-                value={newClient.address}
-                onChange={(e) =>
-                  setNewClient((prev) => ({
-                    ...prev,
-                    address: e.target.value,
-                  }))
-                }
-                placeholder={t.address}
+              <Label htmlFor="dateOfBirth">{t.birthDate}</Label>
+              <DatePicker
+                value={newClient.dateOfBirth}
+                onChange={(date) => {
+                  setNewClient((prev) => ({ ...prev, dateOfBirth: date }));
+                  if (formErrors.dateOfBirth) {
+                    setFormErrors((prev) => ({ ...prev, dateOfBirth: "" }));
+                  }
+                }}
+                placeholder={t.birthDate}
+                disabled={isSubmitting}
               />
+              {formErrors.dateOfBirth && (
+                <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {formErrors.dateOfBirth}
+                </p>
+              )}
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="address">{t.clientAddress}</Label>
+            <Input
+              id="address"
+              value={newClient.address}
+              onChange={(e) =>
+                setNewClient((prev) => ({
+                  ...prev,
+                  address: e.target.value,
+                }))
+              }
+              placeholder={t.address}
+            />
           </div>
 
           <div>

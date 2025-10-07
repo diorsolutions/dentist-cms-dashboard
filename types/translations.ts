@@ -17,6 +17,8 @@ export interface Translations {
   clientAddress: string;
   clientNotes: string;
   initialTreatment: string;
+  birthDate: string; // New
+  clientBirthDate: string; // New
 
   // Status and filters
   status: string;
@@ -43,12 +45,14 @@ export interface Translations {
   searchByEmail: "Email"; // New
   searchByLastVisitDate: string; // New
   searchByNextAppointmentDate: string; // New
+  searchByBirthDate: string; // New
   filterBy: string; // New
   filterByName: string; // New
   filterByPhone: string; // New
   filterByEmail: "Email"; // New
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
+  filterByBirthDate: string; // New
 
   // History and records
   noTreatmentHistory: string;
@@ -83,6 +87,7 @@ export interface Translations {
   invalidPhone: string;
   invalidEmail: string;
   invalidAge: string;
+  invalidBirthDate: string; // New
   nameRequired: string;
   firstNameRequired: string;
   lastNameRequired: string;
@@ -180,6 +185,8 @@ export const translations: Record<
     clientAddress: "Mijoz manzili",
     clientNotes: "Izohlar",
     initialTreatment: "Dastlabki muolaja",
+    birthDate: "Tug'ilgan sana", // New
+    clientBirthDate: "Mijoz tug'ilgan sanasi", // New
 
     // Status and filters
     status: "Holat",
@@ -206,12 +213,14 @@ export const translations: Record<
     searchByEmail: "Email bo'yicha qidirish...",
     searchByLastVisitDate: "Oxirgi tashrif sanasi bo'yicha qidirish (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Keyingi uchrashuv sanasi bo'yicha qidirish (YYYY-MM-DD)...",
+    searchByBirthDate: "Tug'ilgan sana bo'yicha qidirish (YYYY-MM-DD)...", // New
     filterBy: "Qidirish/Saralash bo'yicha",
     filterByName: "Ism",
     filterByPhone: "Telefon",
     filterByEmail: "Email",
     filterByLastVisit: "Oxirgi tashrif",
     filterByNextAppointment: "Keyingi uchrashuv",
+    filterByBirthDate: "Tug'ilgan sana", // New
 
     // History and records
     noTreatmentHistory: "Davolash tarixi yo'q",
@@ -247,6 +256,7 @@ export const translations: Record<
     invalidPhone: "Telefon raqami noto'g'ri formatda",
     invalidEmail: "Email manzili noto'g'ri formatda",
     invalidAge: "Yosh 1 dan 150 gacha bo'lishi kerak",
+    invalidBirthDate: "Tug'ilgan sana noto'g'ri formatda (YYYY-MM-DD)", // New
     nameRequired: "Siz ism kiritmagansiz",
     firstNameRequired: "Siz ism kiritmagansiz",
     lastNameRequired: "Siz familiya kiritmagansiz",
@@ -340,6 +350,8 @@ export const translations: Record<
     clientAddress: "Мижоз манзили",
     initialTreatment: "Дастлабки муолажа",
     clientNotes: "Изоҳлар",
+    birthDate: "Туғилган сана", // New
+    clientBirthDate: "Мижоз туғилган санаси", // New
 
     // Status and filters
     status: "Ҳолат",
@@ -366,12 +378,14 @@ export const translations: Record<
     searchByEmail: "Email бўйича қидириш...",
     searchByLastVisitDate: "Охирги ташриф санаси бўйича қидириш (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Кейинги учрашув санаси бўйича қидириш (YYYY-MM-DD)...",
+    searchByBirthDate: "Туғилган сана бўйича қидириш (YYYY-MM-DD)...", // New
     filterBy: "Қидириш/Саралаш бўйича",
     filterByName: "Исм",
     filterByPhone: "Телефон",
     filterByEmail: "Email",
     filterByLastVisit: "Охирги ташриф",
     filterByNextAppointment: "Кейинги учрашув",
+    filterByBirthDate: "Туғилган сана", // New
 
     // History and records
     noTreatmentHistory: "Даволаш тарихи йўқ",
@@ -407,6 +421,7 @@ export const translations: Record<
     invalidPhone: "Телефон рақами нотўғри форматда",
     invalidEmail: "Email манзили нотўғри форматда",
     invalidAge: "Ёш 1 дан 150 гача бўлиши керак",
+    invalidBirthDate: "Туғилган сана нотўғри форматда (YYYY-MM-DD)", // New
     nameRequired: "Сиз исм киритмагансиз",
     firstNameRequired: "Сиз исм киритмагансиз",
     lastNameRequired: "Сиз фамилия киритмагансиз",
@@ -500,6 +515,8 @@ export const translations: Record<
     clientAddress: "Client Address",
     clientNotes: "Notes",
     initialTreatment: "Initial Treatment",
+    birthDate: "Birth Date", // New
+    clientBirthDate: "Client Birth Date", // New
 
     // Status and filters
     status: "Status",
@@ -526,12 +543,14 @@ export const translations: Record<
     searchByEmail: "Search by email...",
     searchByLastVisitDate: "Search by last visit date (YYYY-MM-DD)...",
     searchByNextAppointmentDate: "Search by next appointment date (YYYY-MM-DD)...",
+    searchByBirthDate: "Search by birth date (YYYY-MM-DD)...", // New
     filterBy: "Filter/Sort by",
     filterByName: "Name",
     filterByPhone: "Phone",
     filterByEmail: "Email",
     filterByLastVisit: "Last Visit",
     filterByNextAppointment: "Next Appointment",
+    filterByBirthDate: "Birth Date", // New
 
     // History and records
     noTreatmentHistory: "No treatment history",
@@ -567,6 +586,7 @@ export const translations: Record<
     invalidPhone: "Invalid phone format",
     invalidEmail: "Invalid email format",
     invalidAge: "Age must be between 1 and 150",
+    invalidBirthDate: "Invalid birth date format (YYYY-MM-DD)", // New
     nameRequired: "You haven't entered name",
     firstNameRequired: "You haven't entered first name",
     lastNameRequired: "You haven't entered last name",

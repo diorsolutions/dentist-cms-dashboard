@@ -31,6 +31,10 @@ const clientSchema = new mongoose.Schema(
       min: [1, "Age must be at least 1"],
       max: [150, "Age cannot exceed 150"],
     },
+    dateOfBirth: { // New field for birth date
+      type: Date,
+      optional: true,
+    },
     address: {
       type: String,
       trim: true,
@@ -110,6 +114,7 @@ clientSchema.index({ firstName: 1, lastName: 1 })
 clientSchema.index({ email: 1 })
 clientSchema.index({ status: 1 })
 clientSchema.index({ createdAt: -1 })
+clientSchema.index({ dateOfBirth: 1 }); // Index for new field
 
 // Pre-save middleware to ensure uploadedFiles structure
 clientSchema.pre("save", function (next) {

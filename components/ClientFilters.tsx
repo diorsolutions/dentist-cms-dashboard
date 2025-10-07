@@ -9,7 +9,7 @@ import { Search, ChevronDown, ChevronUp, Download } from "lucide-react";
 import type { Translations } from "@/types/translations";
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment";
+type FilterAndSortField = "name" | "phone" | "email" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Added dateOfBirth
 
 interface ClientFiltersProps {
   t: Translations;
@@ -50,6 +50,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
         return t.searchByLastVisitDate;
       case "nextAppointment":
         return t.searchByNextAppointmentDate;
+      case "dateOfBirth": // New placeholder
+        return t.searchByBirthDate;
       default:
         return t.searchPlaceholder;
     }
@@ -90,6 +92,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               <SelectItem value="nextAppointment">
                 {t.filterByNextAppointment}
               </SelectItem>
+              <SelectItem value="dateOfBirth">{t.filterByBirthDate}</SelectItem> {/* New filter option */}
             </SelectContent>
           </Select>
 
