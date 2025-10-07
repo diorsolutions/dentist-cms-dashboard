@@ -166,7 +166,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                     {t.ageCalculated}
                   </Label>
                   <p className="text-base font-medium text-foreground">
-                    {clientAge !== null ? `${clientAge} ${t.age}` : t.notSpecified}
+                    {clientAge !== null ? clientAge : t.notSpecified}
                   </p>
                 </div>
                 <div className="space-y-2">
