@@ -49,7 +49,8 @@ router.get("/", optionalAuth, async (req, res) => {
               $filter: {
                 input: "$treatments.nextVisitDate",
                 as: "date",
-                cond: { $gte: ["$$date", new Date()] },
+                // IMPORTANT: Use current UTC date for comparison
+                cond: { $gte: ["$$date", new Date(new Date().toISOString())] },
               },
             },
           },
@@ -63,19 +64,25 @@ router.get("/", optionalAuth, async (req, res) => {
 
       if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
         try {
-          // Parse the "yyyy-MM-dd" string from frontend
-          const [year, month, day] = search.split('-').map(Number);
-          
-          // Construct UTC dates for the start and end of the selected day
-          const startOfDayUTC = new Date(Date.UTC(year, month - 1, day)); // month is 0-indexed
-          const endOfDayUTC = new Date(Date.UTC(year, month - 1, day + 1));
+          const searchDate = new Date(search); // e.g., "2023-10-26"
+          if (!isNaN(searchDate.getTime())) {
+            // Construct local date objects first, then convert to UTC ISO string
+            // This is often more reliable than Date.UTC() for day boundaries
+            const localStartOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+            const startOfDayUTC = new Date(localStartOfDay.toISOString());
+            
+            const localEndOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+            const endOfDayUTC = new Date(localEndOfDay.toISOString());
 
-          if (searchField === "lastVisit") {
-            dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-          } else if (searchField === "nextAppointment") {
-            dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-          } else if (searchField === "dateOfBirth") {
-            dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            if (searchField === "lastVisit") {
+              dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            } else if (searchField === "nextAppointment") {
+              dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            } else if (searchField === "dateOfBirth") {
+              dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            }
+          } else {
+            dynamicSearchFilter[searchField] = null;
           }
         } catch (dateError) {
           console.error("Error parsing date for filter:", dateError);
@@ -168,7 +175,7 @@ router.get("/", optionalAuth, async (req, res) => {
                         $filter: {
                             input: "$treatments.nextVisitDate",
                             as: "date",
-                            cond: { $gte: ["$$date", new Date()] },
+                            cond: { $gte: ["$$date", new Date(new Date().toISOString())] },
                         },
                     },
                 },
@@ -179,16 +186,23 @@ router.get("/", optionalAuth, async (req, res) => {
         let dynamicSearchFilter = {};
         if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
             try {
-                const [year, month, day] = search.split('-').map(Number);
-                const startOfDayUTC = new Date(Date.UTC(year, month - 1, day));
-                const endOfDayUTC = new Date(Date.UTC(year, month - 1, day + 1));
+                const searchDate = new Date(search);
+                if (!isNaN(searchDate.getTime())) {
+                    const localStartOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+                    const startOfDayUTC = new Date(localStartOfDay.toISOString());
+                    
+                    const localEndOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+                    const endOfDayUTC = new Date(localEndOfDay.toISOString());
 
-                if (searchField === "lastVisit") {
-                    dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-                } else if (searchField === "nextAppointment") {
-                    dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-                } else if (searchField === "dateOfBirth") {
-                    dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                    if (searchField === "lastVisit") {
+                        dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                    } else if (searchField === "nextAppointment") {
+                        dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                    } else if (searchField === "dateOfBirth") {
+                        dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+                    }
+                } else {
+                    dynamicSearchFilter[searchField] = null;
                 }
             } catch (dateError) {
                 console.error("Error parsing date for filter in total count:", dateError);
