@@ -247,17 +247,17 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Treatment Overview Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <Stethoscope className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xl text-white/80">
+                    <Stethoscope className="h-5 w-5 text-white/90" />
                     {t.treatment}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label className="text-sm text-muted-foreground flex items-center gap-1">
-                      <FileText className="h-4 w-4" /> {t.initialTreatment}
+                    <Label className="text-sm text-white/50 flex items-center gap-1">
+                      <FileText className="h-4 w-4 text-white/50" /> {t.initialTreatment}
                     </Label>
-                    <p className="text-base font-semibold text-foreground">
+                    <p className="text-base font-semibold text-white/70">
                       {selectedClient.treatment || t.notSpecified}
                     </p>
                   </div>
