@@ -40,7 +40,7 @@ export interface Translations {
   searchBy: string; // New
   searchByName: string; // New
   searchByPhone: string; // New
-  searchByEmail: string; // New
+  searchByEmail: "Email"; // New
   searchByLastVisitDate: string; // New
   searchByNextAppointmentDate: string; // New
   filterBy: string; // New
@@ -75,6 +75,8 @@ export interface Translations {
   cost: string;
   description: string;
   details: string;
+  treatmentDescription: string; // New
+  nextVisitNotes: string; // Existing, but ensure it's used correctly
 
   // Form validation
   required: string;
@@ -236,6 +238,8 @@ export const translations: Record<
     cost: "Narx",
     description: "Tavsif",
     details: "Tafsilotlar",
+    treatmentDescription: "Muolaja tavsifi", // New
+    nextVisitNotes: "Keyingi tashrif uchun izoh", // Existing, but ensure it's used correctly
 
     // Form validation
     required: "Majburiy maydon",
@@ -333,8 +337,8 @@ export const translations: Record<
     address: "Манзил",
     clientAge: "Мижоз ёши",
     clientAddress: "Мижоз манзили",
-    clientNotes: "Изоҳлар",
     initialTreatment: "Дастлабки муолажа",
+    clientNotes: "Изоҳлар",
 
     // Status and filters
     status: "Ҳолат",
@@ -393,6 +397,8 @@ export const translations: Record<
     cost: "Нарх",
     description: "Тавсиф",
     details: "Тафсилотлар",
+    treatmentDescription: "Муолажа тавсифи", // New
+    nextVisitNotes: "Кейинги ташриф учун изоҳ", // Existing, but ensure it's used correctly
 
     // Form validation
     required: "Мажбурий майдон",
@@ -550,6 +556,8 @@ export const translations: Record<
     cost: "Cost",
     description: "Description",
     details: "Details",
+    treatmentDescription: "Treatment Description", // New
+    nextVisitNotes: "Next Visit Notes", // Existing, but ensure it's used correctly
 
     // Form validation
     required: "Required field",

@@ -8,13 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import type { Translations } from "@/types/translations";
-import { cn } from "@/lib/utils"; // Import cn utility
+import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/date-picker"; // Import the new DatePicker
 
 interface NewTreatmentState {
-  visit: string;
-  treatment: string;
+  visitType: string;
+  treatmentType: string;
+  description: string;
   notes: string;
-  nextVisitDate: string;
+  nextVisitDate?: Date;
+  nextVisitNotes: string;
   images: File[] | null;
 }
 
@@ -27,7 +30,7 @@ interface AddTreatmentModalProps {
   handleAddTreatment: () => Promise<void>;
   loading: boolean;
   currentTheme: string | undefined;
-  getTodayForInput: () => string;
+  getTodayForInput: () => string; // Still needed for min date logic if we want to enforce it
 }
 
 const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
@@ -43,10 +46,12 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
 }) => {
   const resetForm = () => {
     setNewTreatment({
-      visit: "",
-      treatment: "",
+      visitType: "",
+      treatmentType: "",
+      description: "",
       notes: "",
-      nextVisitDate: "",
+      nextVisitDate: undefined,
+      nextVisitNotes: "",
       images: null,
     });
     setIsAddTreatmentOpen(false);
@@ -60,42 +65,58 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
         )}
       >
         <DialogHeader className="pb-6">
-          <DialogTitle>Yangi muolaja qo'shish</DialogTitle>
+          <DialogTitle>{t.addTreatment}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="visit">Bugungi tashrif *</Label>
+            <Label htmlFor="visitType">{t.todayVisit} *</Label>
             <Input
-              id="visit"
-              value={newTreatment.visit}
+              id="visitType"
+              value={newTreatment.visitType}
               onChange={(e) =>
                 setNewTreatment((prev) => ({
                   ...prev,
-                  visit: e.target.value,
+                  visitType: e.target.value,
                 }))
               }
-              placeholder="Bugun qanday muolaja qilindi?"
+              placeholder="Bugun qanday tashrif bo'ldi? (Masalan: Konsultatsiya, Tish olib tashlash)"
             />
           </div>
 
           <div>
-            <Label htmlFor="treatment">Keyingi tashrif uchun reja *</Label>
+            <Label htmlFor="treatmentType">{t.treatmentType} *</Label>
             <Input
-              id="treatment"
-              value={newTreatment.treatment}
+              id="treatmentType"
+              value={newTreatment.treatmentType}
               onChange={(e) =>
                 setNewTreatment((prev) => ({
                   ...prev,
-                  treatment: e.target.value,
+                  treatmentType: e.target.value,
                 }))
               }
-              placeholder="Keyingi safar nima qilish kerak?"
+              placeholder="Qanday muolaja qilindi? (Masalan: Karies davolash, Tish tozalash)"
             />
           </div>
 
           <div>
-            <Label htmlFor="notes">Qo'shimcha izohlar</Label>
+            <Label htmlFor="description">{t.treatmentDescription}</Label>
+            <Textarea
+              id="description"
+              value={newTreatment.description}
+              onChange={(e) =>
+                setNewTreatment((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Muolaja haqida qisqacha tavsif..."
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="notes">{t.additionalNotes}</Label>
             <Textarea
               id="notes"
               value={newTreatment.notes}
@@ -105,39 +126,49 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
                   notes: e.target.value,
                 }))
               }
-              placeholder="Batafsil izoh..."
+              placeholder="Qo'shimcha izohlar (masalan, ishlatilgan materiallar, bemorning reaksiyasi)..."
               rows={3}
             />
           </div>
 
           <div>
-            <Label htmlFor="nextVisitDate">Keyingi tashrif sanasi</Label>
-            <Input
-              id="nextVisitDate"
-              type="date"
+            <Label htmlFor="nextVisitDate">{t.nextVisitDate}</Label>
+            <DatePicker
               value={newTreatment.nextVisitDate}
-              min={getTodayForInput()}
-              lang="uz-UZ"
-              onChange={(e) =>
+              onChange={(date) =>
                 setNewTreatment((prev) => ({
                   ...prev,
-                  nextVisitDate: e.target.value,
+                  nextVisitDate: date,
                 }))
               }
-              placeholder="dd/mm/yyyy"
-              style={{
-                colorScheme: currentTheme === "dark" ? "dark" : "light",
-              }}
+              placeholder={t.nextVisitDate}
+              disabled={loading}
             />
             <p className="text-xs text-muted-foreground mt-1">
               Faqat bugun va bugundan keyingi sanalarni tanlash mumkin
             </p>
           </div>
+
+          <div>
+            <Label htmlFor="nextVisitNotes">{t.nextVisitNotes}</Label>
+            <Textarea
+              id="nextVisitNotes"
+              value={newTreatment.nextVisitNotes}
+              onChange={(e) =>
+                setNewTreatment((prev) => ({
+                  ...prev,
+                  nextVisitNotes: e.target.value,
+                }))
+              }
+              placeholder="Keyingi tashrif uchun reja yoki eslatmalar..."
+              rows={3}
+            />
+          </div>
         </div>
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={resetForm} disabled={loading}>
-            Bekor qilish
+            {t.cancel}
           </Button>
           <Button
             onClick={handleAddTreatment}
@@ -147,10 +178,10 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saqlanmoqda...
+                {t.saving}
               </>
             ) : (
-              "Saqlash"
+              t.save
             )}
           </Button>
         </DialogFooter>

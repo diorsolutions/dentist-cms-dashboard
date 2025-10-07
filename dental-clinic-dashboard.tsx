@@ -12,7 +12,7 @@ import { translations, type Translations } from "./types/translations";
 import {
   formatDate as formatDateOriginal,
   getTodayForInput,
-  setupUzbekLocale,
+  uzbekLocale, // Import uzbekLocale
 } from "./utils/date-formatter";
 import ClientService from "./services/clientService";
 import TreatmentService from "./services/treatmentService";
@@ -83,10 +83,12 @@ interface NewClientState {
 }
 
 interface NewTreatmentState {
-  visit: string;
-  treatment: string;
-  notes: string;
-  nextVisitDate: string;
+  visitType: string; // Changed from 'visit' to 'visitType'
+  treatmentType: string; // Changed from 'treatment' to 'treatmentType'
+  description: string; // New field
+  notes: string; // Notes for current treatment
+  nextVisitDate?: Date; // Changed type to Date
+  nextVisitNotes: string; // New field
   images: File[] | null;
 }
 
@@ -135,10 +137,12 @@ const DentalClinicDashboard = () => {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const [newTreatment, setNewTreatment] = useState<NewTreatmentState>({
-    visit: "",
-    treatment: "",
+    visitType: "",
+    treatmentType: "",
+    description: "",
     notes: "",
-    nextVisitDate: "",
+    nextVisitDate: undefined,
+    nextVisitNotes: "",
     images: null,
   });
 
@@ -155,7 +159,6 @@ const DentalClinicDashboard = () => {
 
   useEffect(() => {
     setMounted(true);
-    setupUzbekLocale(); // Apply custom styles for date picker
   }, []);
 
   const loadClientTreatments = async (clientId: string) => {
@@ -175,6 +178,8 @@ const DentalClinicDashboard = () => {
             description: treatment.description || treatment.visitType || "",
             details: treatment.notes || "",
             images: treatment.images || [],
+            visitType: treatment.visitType,
+            notes: treatment.notes,
             nextVisitDate: treatment.nextVisitDate
               ? new Date(treatment.nextVisitDate).toISOString().split("T")[0]
               : null,
@@ -615,10 +620,10 @@ const DentalClinicDashboard = () => {
   };
 
   const handleAddTreatment = async () => {
-    if (!newTreatment.visit || !newTreatment.treatment) {
+    if (!newTreatment.visitType || !newTreatment.treatmentType) {
       toast({
         title: "Xatolik",
-        description: "Bugungi tashrif va keyingi tashrif uchun reja to'ldirilishi kerak.",
+        description: "Bugungi tashrif va muolaja turi to'ldirilishi kerak.",
         variant: "destructive",
       });
       return;
@@ -628,12 +633,14 @@ const DentalClinicDashboard = () => {
       setLoading(true);
       const treatmentData = {
         clientId: selectedClient?._id,
-        visitType: newTreatment.visit,
-        treatmentType: newTreatment.treatment,
-        description: newTreatment.treatment,
-        notes: newTreatment.notes,
-        nextVisitDate: newTreatment.nextVisitDate ? new Date(newTreatment.nextVisitDate) : undefined,
-        nextVisitNotes: newTreatment.notes,
+        visitType: newTreatment.visitType,
+        treatmentType: newTreatment.treatmentType,
+        description: newTreatment.description || undefined,
+        notes: newTreatment.notes || undefined,
+        doctor: "Dr. Karimova", // Default doctor
+        cost: 0, // Default cost
+        nextVisitDate: newTreatment.nextVisitDate,
+        nextVisitNotes: newTreatment.nextVisitNotes || undefined,
       };
 
       const response = await TreatmentService.createTreatment(treatmentData);
@@ -650,7 +657,7 @@ const DentalClinicDashboard = () => {
         }
 
         setNewTreatment({
-          visit: "", treatment: "", notes: "", nextVisitDate: "", images: null,
+          visitType: "", treatmentType: "", description: "", notes: "", nextVisitDate: undefined, nextVisitNotes: "", images: null,
         });
         setIsAddTreatmentModalOpen(false);
       } else {
