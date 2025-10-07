@@ -18,7 +18,7 @@ interface ClientFiltersProps {
   currentSortDirection: SortDirection;
   setCurrentSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
   searchTerm: string;
-  setSearchTerm: (term: string) => void; // Correctly defined
+  setSearchTerm: (term: string) => void;
   handleSearchInputChange: (value: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
@@ -105,11 +105,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              type={currentFilterAndSortField === "phone" ? "tel" : "text"} // Dynamic type
+              type={currentFilterAndSortField === "phone" ? "tel" : "text"}
               placeholder={getPlaceholderText(currentFilterAndSortField)}
               value={searchTerm}
               onChange={(e) => handleSearchInputChange(e.target.value)}
               className="pl-10 w-full"
+              maxLength={currentFilterAndSortField === "phone" ? 13 : undefined} // Max 13 chars for phone (+998XXXXXXXXX)
             />
           </div>
 

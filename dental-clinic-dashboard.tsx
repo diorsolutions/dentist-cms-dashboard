@@ -757,7 +757,7 @@ const DentalClinicDashboard = () => {
   };
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
+    if (page >= 1 && page >= 1 && page <= totalPages) { // Corrected condition
       setCurrentPage(page);
     }
   };
