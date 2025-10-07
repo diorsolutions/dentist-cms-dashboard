@@ -275,19 +275,19 @@ const DentalClinicDashboard = () => {
   };
 
   useEffect(() => {
-    // Prevent API call if filter is 'phone' and search term is just the default prefix
+    // Condition to skip loading:
+    // If the filter is by phone AND the search term is ONLY the default "+998" prefix.
     if (currentFilterAndSortField === "phone" && debouncedSearchTerm === "+998") {
       console.log("Skipping loadClients: Phone filter with default '+998' term.");
+      // Optionally clear clients if this state is reached and no actual search is intended
+      setClients([]);
+      setTotalPages(1);
+      setCurrentPage(1);
       return;
     }
 
-    // Prevent API call if filter is NOT 'phone' and search term is empty
-    if (currentFilterAndSortField !== "phone" && debouncedSearchTerm === "") {
-      console.log("Skipping loadClients: Non-phone filter with empty search term.");
-      return;
-    }
-
-    // Otherwise, proceed to load clients
+    // In all other cases (including empty search term for non-phone filters,
+    // or a non-empty search term for any filter), proceed to load clients.
     console.log("Proceeding to loadClients()...");
     loadClients();
   }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, currentFilterAndSortField, currentSortDirection, language]);
@@ -757,7 +757,7 @@ const DentalClinicDashboard = () => {
   };
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page >= 1 && page <= totalPages) { // Corrected condition
+    if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
