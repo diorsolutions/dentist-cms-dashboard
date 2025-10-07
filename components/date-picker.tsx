@@ -80,7 +80,11 @@ export function DatePicker({
           )} // Add dark class here
           // Custom labels for accessibility
           labels={{
-            labelMonthDropdown: () => "Oyni tanlang",
+            labelMonthDropdown: (month) => {
+              const monthName = format(month, "LLLL", { locale: uzbekLocale });
+              const monthNumber = format(month, "MM", { locale: uzbekLocale });
+              return `${monthName}-(${monthNumber})`;
+            },
             labelYearDropdown: () => "Yilni tanlang",
             labelNext: () => "Keyingi oy",
             labelPrevious: () => "Oldingi oy",
