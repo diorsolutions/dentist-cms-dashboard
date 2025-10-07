@@ -295,8 +295,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   {selectedClient.treatmentHistory.map((treatment, index) => (
                     <Collapsible key={treatment.id} open={expandedTreatment === treatment.id}>
                       <CollapsibleTrigger
-                        className="flex items-center justify-between w-full p-5 border rounded-lg hover:bg-muted/50 transition-all duration-200 animate-in fade-in-50"
-                        style={{ animationDelay: `${index * 100}ms` }}
+                        className="flex items-center justify-between w-full p-5 border rounded-lg hover:bg-muted/50 transition-all duration-200"
                         onClick={() =>
                           setExpandedTreatment(
                             expandedTreatment === treatment.id
@@ -325,8 +324,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                           <ChevronRight className="h-5 w-5 transition-transform duration-200" />
                         )}
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="px-5 pb-5 animate-in fade-in-50 duration-200">
-                        <div className="space-y-4 pt-4 border-t">
+                      <CollapsibleContent className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                        <div className="px-5 pb-5 space-y-4 pt-4 border-t">
                           <div className="flex items-start gap-3">
                             <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
                             <div>
