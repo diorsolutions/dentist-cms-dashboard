@@ -20,7 +20,7 @@ interface Client {
   status: "inTreatment" | "completed";
   treatment: string;
   notes: string;
-  age: number;
+  age: number | null;
   dateOfBirth: string | null; // New field
   address: string;
   treatmentHistory: any[]; // Simplified for now
@@ -32,6 +32,7 @@ interface Client {
   firstName?: string;
   lastName?: string;
   initialTreatment?: string;
+  treatmentCount: number; // Add treatmentCount property
 }
 
 interface ClientTableProps {
@@ -68,7 +69,8 @@ const ClientTable: React.FC<ClientTableProps> = ({
                 <Checkbox
                   id="select-all"
                   checked={
-                    selectedClients.length === filteredAndSortedClients.length &&
+                    selectedClients.length ===
+                      filteredAndSortedClients.length &&
                     filteredAndSortedClients.length > 0
                   }
                   onCheckedChange={handleSelectAll}

@@ -30,12 +30,18 @@ export function DatePicker({
   showDropdowns = false, // Default to false (no dropdowns)
 }: DatePickerProps) {
   const { theme } = useTheme(); // Use the theme hook
+  const [open, setOpen] = React.useState(false); // Popoverning ochiq holatini boshqarish uchun yangi holat
   const currentYear = new Date().getFullYear();
   const fromYear = currentYear - 100; // Allow selecting up to 100 years in the past
   const toYear = currentYear; // Up to the current year
 
+  const handleDaySelect = (date?: Date) => {
+    onChange(date); // Asl onChange funksiyasini chaqirish
+    setOpen(false); // Sana tanlangandan so'ng popoverni yopish
+  };
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}> {/* Popoverga open va onOpenChange prop'larini berish */}
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -53,7 +59,7 @@ export function DatePicker({
         <DayPicker
           mode="single"
           selected={value}
-          onSelect={onChange}
+          onSelect={handleDaySelect} {/* Yangi handleDaySelect funksiyasini ishlatish */}
           initialFocus
           locale={uzbekLocale}
           fromDate={allowPastDates ? undefined : new Date()} // Conditionally allow past dates

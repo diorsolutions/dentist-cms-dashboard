@@ -140,7 +140,11 @@
 
 /* Gradient backgrounds */
 .gradient-bg {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary)) 100%
+  );
 }
 
 /* Status badges */
@@ -190,10 +194,8 @@
 /* Custom styles for react-day-picker dropdowns */
 .day-picker-custom-dropdowns .rdp-dropdown_month,
 .day-picker-custom-dropdowns .rdp-dropdown_year {
-  background-color: hsl(var(--popover)); /* Use popover background for dropdown */
-  color: hsl(var(--popover-foreground)); /* Use popover foreground for text */
-  border: 1px solid hsl(var(--border)); /* Keep a consistent border */
-  border-radius: var(--radius); /* Use shadcn/ui border radius */
+  background-color: initial; /* Use popover background for dropdown */
+  color: rgb(0, 255, 132) !important; /* Use popover foreground for text */
   padding: 0.25rem 0.75rem; /* Adjust padding */
   appearance: none; /* Remove default select arrow */
   -webkit-appearance: none;
@@ -206,18 +208,22 @@
   background-size: 1em;
   padding-right: 2rem; /* Make space for the custom arrow */
 }
-
-.day-picker-custom-dropdowns .rdp-dropdown_month:focus,
-.day-picker-custom-dropdowns .rdp-dropdown_year:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px hsl(var(--ring)); /* Focus ring */
+.day-picker-custom-dropdowns .rdp-dropdown_month>* {
+  background-color: rgb(23, 27, 27);
+  border: none !important;
 }
-
+.day-picker-custom-dropdowns .rdp-dropdown_month > *:hover,
+.day-picker-custom-dropdowns .rdp-dropdown_month > *:focus,
+.day-picker-custom-dropdowns .rdp-dropdown_month > *:active {
+  background-color: rgb(35, 40, 40) !important;
+  color: #00ffff !important; /* ixtiyoriy — hover paytida rang urg‘usi */
+  outline: none !important;
+}
 /* Styles for the dropdown options themselves */
 .dark .day-picker-custom-dropdowns .rdp-dropdown_month option,
 .dark .day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
 .dark .day-picker-custom-dropdowns .rdp-dropdown_year option,
 .dark .day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
-  background-color: hsl(var(--popover)) !important; /* Force popover background */
-  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
+  color: rgb(255, 255, 255) !important;
+  background-color: rgb(93, 92, 92) !important;
 }

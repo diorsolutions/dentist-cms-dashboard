@@ -3,7 +3,13 @@
 import React, { useState, useEffect, useRef } from "react"; // Import useRef
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Download, RotateCcw } from "lucide-react";
 import type { Translations } from "@/types/translations";
@@ -11,7 +17,12 @@ import { DatePicker } from "@/components/date-picker"; // Import DatePicker
 import { format } from "date-fns"; // Import format for date conversion
 
 type SortDirection = "asc" | "desc";
-type FilterAndSortField = "name" | "phone" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Removed email
+type FilterAndSortField =
+  | "name"
+  | "phone"
+  | "lastVisit"
+  | "nextAppointment"
+  | "dateOfBirth"; // Removed email
 
 interface ClientFiltersProps {
   t: Translations;
@@ -69,7 +80,14 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
         handleSearchInputChange(combinedPhone);
       }
     }
-  }, [localPhoneCode, localPhoneMiddle, localPhoneLast, currentFilterAndSortField, handleSearchInputChange, searchTerm]);
+  }, [
+    localPhoneCode,
+    localPhoneMiddle,
+    localPhoneLast,
+    currentFilterAndSortField,
+    handleSearchInputChange,
+    searchTerm,
+  ]);
 
   // Effect to sync local phone parts with parent searchTerm when switching to phone filter
   // OR when searchTerm changes externally (e.g., reset filters)
@@ -80,7 +98,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
         return; // Skip parsing if change was internal
       }
 
-      const cleaned = searchTerm.replace(/\D/g, ''); // Remove non-digits
+      const cleaned = searchTerm.replace(/\D/g, ""); // Remove non-digits
       setLocalPhoneCode(cleaned.substring(0, 2));
       setLocalPhoneMiddle(cleaned.substring(2, 5));
       setLocalPhoneLast(cleaned.substring(5, 9));
@@ -132,7 +150,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && currentFilterAndSortField !== "phone" && currentFilterAndSortField !== "lastVisit") { // Only apply search on Enter for non-live search fields
+    if (
+      e.key === "Enter" &&
+      currentFilterAndSortField !== "phone" &&
+      currentFilterAndSortField !== "lastVisit"
+    ) {
+      // Only apply search on Enter for non-live search fields
       handleApplySearch();
     }
   };
@@ -181,12 +204,18 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           {/* Search Input(s) */}
           {currentFilterAndSortField === "phone" ? (
             <div className="flex items-center gap-1 flex-1">
-              <span className="text-muted-foreground whitespace-nowrap">+998</span>
+              <span className="text-muted-foreground whitespace-nowrap">
+                +998
+              </span>
               <Input
                 type="tel"
                 placeholder="XX"
                 value={localPhoneCode}
-                onChange={(e) => setLocalPhoneCode(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                onChange={(e) =>
+                  setLocalPhoneCode(
+                    e.target.value.replace(/\D/g, "").slice(0, 2)
+                  )
+                }
                 maxLength={2}
                 className="w-16 text-center"
               />
@@ -194,7 +223,11 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 type="tel"
                 placeholder="XXX"
                 value={localPhoneMiddle}
-                onChange={(e) => setLocalPhoneMiddle(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onChange={(e) =>
+                  setLocalPhoneMiddle(
+                    e.target.value.replace(/\D/g, "").slice(0, 3)
+                  )
+                }
                 maxLength={3}
                 className="w-20 text-center"
               />
@@ -202,7 +235,11 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 type="tel"
                 placeholder="XXXX"
                 value={localPhoneLast}
-                onChange={(e) => setLocalPhoneLast(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                onChange={(e) =>
+                  setLocalPhoneLast(
+                    e.target.value.replace(/\D/g, "").slice(0, 4)
+                  )
+                }
                 maxLength={4}
                 className="w-24 text-center"
               />
@@ -215,7 +252,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                   setLastVisitFilterDate(date);
                   // When date is selected, update searchTerm to trigger debounced search
                   // This will update appliedSearchTerm in dashboard, triggering loadClients
-                  handleSearchInputChange(date ? format(date, "yyyy-MM-dd") : "");
+                  handleSearchInputChange(
+                    date ? format(date, "yyyy-MM-dd") : ""
+                  );
                 }}
                 placeholder={t.searchByLastVisitDate}
                 allowPastDates={true}
@@ -236,11 +275,13 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 minLength={getMinLength(currentFilterAndSortField)}
               />
               {/* Only show search button for non-live search fields */}
-              {currentFilterAndSortField !== "phone" && currentFilterAndSortField !== "lastVisit" && (
-                <Button onClick={handleApplySearch} className="shrink-0">
-                  {t.searchPlaceholder.replace("...", "")}
-                </Button>
-              )}
+              {currentFilterAndSortField === "name" ||
+                currentFilterAndSortField === "nextAppointment" ||
+                (currentFilterAndSortField === "dateOfBirth" && (
+                  <Button onClick={handleApplySearch} className="shrink-0">
+                    {t.searchPlaceholder.replace("...", "")}
+                  </Button>
+                ))}
             </div>
           )}
 

@@ -203,8 +203,8 @@ export const translations: Record<
     searchBy: "Qidirish bo'yicha",
     searchByName: "Ism bo'yicha qidirish...",
     searchByPhone: "Telefon raqami bo'yicha qidirish...",
-    searchByLastVisitDate: "Oxirgi tashrif sanasi bo'yicha qidirish (YYYY-MM-DD)...",
-    searchByNextAppointmentDate: "Keyingi uchrashuv sanasi bo'yicha qidirish (YYYY-MM-DD)...",
+    searchByLastVisitDate: "sanani tanlang",
+    searchByNextAppointmentDate: "sanani tanlang",
     searchByBirthDate: "Tug'ilgan sana bo'yicha qidirish (YYYY-MM-DD)...", // New
     filterBy: "Qidirish/Saralash bo'yicha",
     filterByName: "Ism",
@@ -362,8 +362,10 @@ export const translations: Record<
     searchBy: "Қидириш бўйича",
     searchByName: "Исм бўйича қидириш...",
     searchByPhone: "Телефон рақами бўйича қидириш...",
-    searchByLastVisitDate: "Охирги ташриф санаси бўйича қидириш (YYYY-MM-DD)...",
-    searchByNextAppointmentDate: "Кейинги учрашув санаси бўйича қидириш (YYYY-MM-DD)...",
+    searchByLastVisitDate:
+      "Охирги ташриф санаси бўйича қидириш (YYYY-MM-DD)...",
+    searchByNextAppointmentDate:
+      "Кейинги учрашув санаси бўйича қидириш (YYYY-MM-DD)...",
     searchByBirthDate: "Туғилган сана бўйича қидириш (YYYY-MM-DD)...", // New
     filterBy: "Қидириш/Саралаш бўйича",
     filterByName: "Исм",
@@ -522,7 +524,8 @@ export const translations: Record<
     searchByName: "Search by name...",
     searchByPhone: "Search by phone number...",
     searchByLastVisitDate: "Search by last visit date (YYYY-MM-DD)...",
-    searchByNextAppointmentDate: "Search by next appointment date (YYYY-MM-DD)...",
+    searchByNextAppointmentDate:
+      "Search by next appointment date (YYYY-MM-DD)...",
     searchByBirthDate: "Search by birth date (YYYY-MM-DD)...", // New
     filterBy: "Filter/Sort by",
     filterByName: "Name",
