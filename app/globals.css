@@ -190,8 +190,8 @@
 /* Custom styles for react-day-picker dropdowns */
 .day-picker-custom-dropdowns .rdp-dropdown_month,
 .day-picker-custom-dropdowns .rdp-dropdown_year {
-  background-color: hsl(var(--popover)); /* Use popover background for dropdown */
-  color: hsl(var(--popover-foreground)); /* Use popover foreground for text */
+  background-color: hsl(var(--popover)) !important; /* Force popover background */
+  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground for text */
   border: 1px solid hsl(var(--border)); /* Keep a consistent border */
   border-radius: var(--radius); /* Use shadcn/ui border radius */
   padding: 0.25rem 0.75rem; /* Adjust padding */
