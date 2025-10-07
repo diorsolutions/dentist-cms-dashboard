@@ -70,8 +70,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               // When filter field changes, reset search term.
-              // If new field is 'phone', set default '+998'. Otherwise, empty string.
-              setSearchTerm(value === "phone" ? "+998" : "");
+              // If new field is 'phone', set default '998'. Otherwise, empty string.
+              setSearchTerm(value === "phone" ? "998" : "");
             }}
           >
             <SelectTrigger className="w-48">

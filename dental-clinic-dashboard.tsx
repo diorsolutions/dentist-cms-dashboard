@@ -276,8 +276,15 @@ const DentalClinicDashboard = () => {
 
   // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
-    loadClients();
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]);
+    // Prevent initial search when 'phone' is selected and searchTerm is just '998'
+    const isDefaultPhoneSearch = currentFilterAndSortField === "phone" && debouncedSearchTerm === "998";
+    
+    // Only load clients if it's not the default phone search,
+    // or if the filter type is not 'phone' and the search term is not empty
+    if (!isDefaultPhoneSearch || (currentFilterAndSortField !== "phone" && debouncedSearchTerm !== "")) {
+      loadClients();
+    }
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language, currentFilterAndSortField]); // Added currentFilterAndSortField as dependency
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -329,19 +336,11 @@ const DentalClinicDashboard = () => {
         cleaned = "998" + cleaned;
       }
 
-      // Limit to 12 digits after the '+' (998 + 9 digits)
+      // Limit to 12 digits (998 + 9 digits)
       if (cleaned.length > 12) {
         cleaned = cleaned.substring(0, 12);
       }
-
-      // If the cleaned string is just "998" or empty, set to "+998" or empty
-      if (cleaned === "998") {
-        setSearchTerm("+998");
-      } else if (cleaned.length > 3) { // If more than just "998"
-        setSearchTerm("+" + cleaned);
-      } else { // If less than "998" (e.g., user backspaces past 998)
-        setSearchTerm("");
-      }
+      setSearchTerm(cleaned);
     } else {
       setSearchTerm(value);
     }
