@@ -160,8 +160,8 @@ const DentalClinicDashboard = () => {
   // Debounced values for filters and sort
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const debouncedStatusFilter = useDebounce(statusFilter, 500);
-  const debouncedFilterAndSortField = useDebounce(currentFilterAndSortField, 500);
-  const debouncedSortDirection = useDebounce(currentSortDirection, 500);
+  // debouncedFilterAndSortField and debouncedSortDirection are not used as direct dependencies for loadClients
+  // They are passed directly to loadClients when it's called.
 
   // Client-side cache for treatment histories
   const [clientTreatmentsCache, setClientTreatmentsCache] = useState<Map<string, TreatmentRecord[]>>(new Map());
@@ -223,8 +223,8 @@ const DentalClinicDashboard = () => {
         limit: String(limit),
         search: debouncedSearchTerm,
         status: debouncedStatusFilter,
-        sortBy: debouncedFilterAndSortField === "name" ? "firstName" : debouncedFilterAndSortField,
-        sortOrder: debouncedSortDirection,
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Use current, not debounced
+        sortOrder: currentSortDirection, // Use current, not debounced
       };
       const response = await ClientService.getAllClients(params);
 
@@ -276,9 +276,10 @@ const DentalClinicDashboard = () => {
     }
   };
 
+  // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
     loadClients();
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, debouncedFilterAndSortField, debouncedSortDirection, language]);
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, language]); // Removed debouncedFilterAndSortField, debouncedSortDirection
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -756,7 +757,11 @@ const DentalClinicDashboard = () => {
         <ClientFilters
           t={t}
           currentFilterAndSortField={currentFilterAndSortField}
-          setCurrentFilterAndSortField={setCurrentFilterAndSortField}
+          setCurrentFilterAndSortField={(field) => {
+            setCurrentFilterAndSortField(field);
+            setCurrentSortDirection("asc"); // Reset sort direction when field changes
+            setSearchTerm(""); // Clear search term to trigger new search with new filter type
+          }}
           currentSortDirection={currentSortDirection}
           setCurrentSortDirection={setCurrentSortDirection}
           searchTerm={searchTerm}
