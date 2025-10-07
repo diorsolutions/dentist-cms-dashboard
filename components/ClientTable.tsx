@@ -63,8 +63,8 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-1 p-4 border-b bg-muted/50 font-medium text-sm">
-          <div className="col-span-1">
+        <div className="grid grid-cols-12 p-4 border-b bg-muted/50 font-medium text-sm"> {/* Removed gap-1 */}
+          <div className="col-span-1 pl-4"> {/* Added pl-4 */}
             {selectedClients.length > 0 && (
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -82,14 +82,14 @@ const ClientTable: React.FC<ClientTableProps> = ({
               </div>
             )}
           </div>
-          <div className="col-span-2">
+          <div className="col-span-2 px-2"> {/* Added px-2 */}
             <span className="font-medium">{t.name}</span>
           </div>
-          <div className="col-span-2">{t.birthDate}</div>
-          <div className="col-span-2">{t.lastVisit}</div>
-          <div className="col-span-2">{t.nextAppointment}</div>
-          <div className="col-span-2">{t.phone}</div>
-          <div className="col-span-1">{t.status}</div>
+          <div className="col-span-2 px-2">{t.birthDate}</div> {/* Added px-2 */}
+          <div className="col-span-2 px-2">{t.lastVisit}</div> {/* Added px-2 */}
+          <div className="col-span-2 px-2">{t.nextAppointment}</div> {/* Added px-2 */}
+          <div className="col-span-2 px-2">{t.phone}</div> {/* Added px-2 */}
+          <div className="col-span-1 pr-4">{t.status}</div> {/* Added pr-4 */}
         </div>
 
         {/* Client Rows */}
@@ -97,12 +97,12 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-12 gap-1 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group" // Added 'group' class
+              className="grid grid-cols-12 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group" // Removed gap-1
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
               <div
-                className="col-span-1 flex items-center"
+                className="col-span-1 flex items-center pl-4" // Added pl-4
                 onClick={(e) => e.stopPropagation()}
               >
                 <Checkbox
@@ -118,20 +118,20 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   )}
                 />
               </div>
-              <div className="col-span-2 flex items-center">
+              <div className="col-span-2 flex items-center px-2"> {/* Added px-2 */}
                 <div>
                   <div className="text-lg font-semibold text-foreground">
                     {client.name}
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Added px-2 */}
                 {formatDate(client.dateOfBirth)}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Added px-2 */}
                 {formatDate(client.lastVisit)}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Added px-2 */}
                 {client.nextAppointment ? (
                   <span
                     className={
@@ -148,10 +148,10 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Added px-2 */}
                 {client.phone}
               </div>
-              <div className="col-span-1 flex items-center">
+              <div className="col-span-1 flex items-center pr-4"> {/* Added pr-4 */}
                 <Badge className={getStatusColor(client.status)}>
                   {t[client.status]}
                 </Badge>
