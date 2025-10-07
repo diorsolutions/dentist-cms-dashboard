@@ -81,12 +81,13 @@ const ClientTable: React.FC<ClientTableProps> = ({
               </div>
             )}
           </div>
-          <div className="col-span-3">
+          <div className="col-span-2">
             <span className="font-medium">{t.name}</span>
           </div>
+          <div className="col-span-2">{t.birthDate}</div> {/* New column */}
           <div className="col-span-2">{t.lastVisit}</div>
           <div className="col-span-2">{t.nextAppointment}</div>
-          <div className="col-span-2">{t.phone}</div>
+          <div className="col-span-1">{t.phone}</div>
           <div className="col-span-1">{t.status}</div>
         </div>
 
@@ -110,12 +111,15 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   }
                 />
               </div>
-              <div className="col-span-3 flex items-center">
+              <div className="col-span-2 flex items-center">
                 <div>
                   <div className="text-lg font-semibold text-foreground">
                     {client.name}
                   </div>
                 </div>
+              </div>
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+                {formatDate(client.dateOfBirth)}
               </div>
               <div className="col-span-2 flex items-center text-sm text-muted-foreground">
                 {formatDate(client.lastVisit)}
@@ -137,7 +141,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+              <div className="col-span-1 flex items-center text-sm text-muted-foreground">
                 {client.phone}
               </div>
               <div className="col-span-1 flex items-center">
