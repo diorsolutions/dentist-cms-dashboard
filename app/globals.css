@@ -215,7 +215,9 @@
 
 /* Styles for the dropdown options themselves */
 .day-picker-custom-dropdowns .rdp-dropdown_month option,
-.day-picker-custom-dropdowns .rdp-dropdown_year option {
-  background-color: hsl(var(--popover)); /* Use popover background for dropdown options */
-  color: hsl(var(--popover-foreground)); /* Use popover foreground for text */
+.day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
+.day-picker-custom-dropdowns .rdp-dropdown_year option,
+.day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
+  background-color: hsl(var(--popover)) !important; /* Force popover background */
+  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
 }
