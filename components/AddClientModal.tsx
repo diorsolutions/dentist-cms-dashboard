@@ -223,6 +223,8 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
                 }}
                 placeholder={t.birthDate}
                 disabled={isSubmitting}
+                allowPastDates={true} // Allow selecting past dates
+                showDropdowns={true} // Show year and month dropdowns
               />
               {formErrors.dateOfBirth && (
                 <p className="text-sm text-red-500 mt-1 flex items-center gap-1">

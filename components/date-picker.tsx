@@ -16,6 +16,8 @@ interface DatePickerProps {
   onChange: (date?: Date) => void;
   placeholder?: string;
   disabled?: boolean;
+  allowPastDates?: boolean; // New prop
+  showDropdowns?: boolean; // New prop
 }
 
 export function DatePicker({
@@ -23,6 +25,8 @@ export function DatePicker({
   onChange,
   placeholder = "Sanani tanlang",
   disabled = false,
+  allowPastDates = false, // Default to false (restrict past dates)
+  showDropdowns = false, // Default to false (no dropdowns)
 }: DatePickerProps) {
   return (
     <Popover>
@@ -46,7 +50,8 @@ export function DatePicker({
           onSelect={onChange}
           initialFocus
           locale={uzbekLocale}
-          fromDate={new Date()} // Prevent selecting past dates
+          fromDate={allowPastDates ? undefined : new Date()} // Conditionally allow past dates
+          captionLayout={showDropdowns ? "dropdown" : "buttons"} // Conditionally show dropdowns
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",
