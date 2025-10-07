@@ -335,8 +335,11 @@ const DentalClinicDashboard = () => {
       // Ensure it's at most 9 digits (the local number part)
       if (cleanedSearchTerm.length > 9) {
         cleanedSearchTerm = cleanedSearchTerm.slice(-9); // Take the last 9 digits
+      } else if (cleanedSearchTerm.length < 9 && cleanedSearchTerm.length > 0) {
+        // If less than 9 digits but not empty, pad with leading zeros for search if needed,
+        // or just use as is for partial search. For now, use as is.
+        // The backend regex search will handle partial matches.
       }
-      // No minLength check here, allow searching for partial numbers like "901"
       setAppliedSearchTerm(cleanedSearchTerm);
     } else {
       setAppliedSearchTerm(searchTerm);
