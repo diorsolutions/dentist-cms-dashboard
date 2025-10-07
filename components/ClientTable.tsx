@@ -10,7 +10,7 @@ import type { Translations } from "@/types/translations";
 import { isPast, parseISO } from "date-fns"; // Import date-fns functions
 
 interface Client {
-  id: number;
+  id: string; // Changed from number to string
   _id?: string;
   name: string;
   phone: string;
@@ -38,9 +38,9 @@ interface ClientTableProps {
   t: Translations;
   filteredAndSortedClients: Client[];
   loading: boolean;
-  selectedClients: number[];
+  selectedClients: string[]; // Changed from number[] to string[]
   handleSelectAll: (checked: boolean) => void;
-  handleClientSelect: (clientId: number, checked: boolean) => void;
+  handleClientSelect: (clientId: string, checked: boolean) => void; // Changed clientId type
   openClientModal: (client: Client) => Promise<void>;
   formatDate: (dateString: string | null) => string; // Updated type
   getStatusColor: (status: string) => string;

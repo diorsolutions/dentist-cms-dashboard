@@ -70,7 +70,7 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="visitType">{t.todayVisit} *</Label>
+            <Label htmlFor="visitType">{t.visitTypeLabel} *</Label>
             <Input
               id="visitType"
               value={newTreatment.visitType}
@@ -85,7 +85,7 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="treatmentType">{t.treatmentType} *</Label>
+            <Label htmlFor="treatmentType">{t.treatmentCategoryLabel} *</Label>
             <Input
               id="treatmentType"
               value={newTreatment.treatmentType}
@@ -150,7 +150,7 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="nextVisitNotes">{t.nextVisitNotes}</Label>
+            <Label htmlFor="nextVisitNotes">{t.nextVisitNotesLabel}</Label>
             <Textarea
               id="nextVisitNotes"
               value={newTreatment.nextVisitNotes}

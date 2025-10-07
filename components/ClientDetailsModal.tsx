@@ -13,22 +13,23 @@ import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils"; // Import cn utility
 
 interface TreatmentRecord {
-  id: number;
-  date: string;
+  _id?: string;
+  id: string; // Changed from number to string
+  treatmentDate: string; // Renamed from 'date' for clarity
+  visitType: string;
   treatmentType: string;
   doctor: string;
   cost: number;
-  description: string;
-  details: string;
+  description: string; // Description of the treatment itself
+  notes: string; // General notes for this treatment
+  nextVisitDate: string | null;
+  nextVisitNotes: string; // Specific notes for the next visit
   images?: string[];
-  visitType?: string;
-  notes?: string;
-  nextVisitDate?: string | null;
 }
 
 interface Client {
   _id?: string;
-  id: number;
+  id: string; // Changed from number to string
   name: string;
   phone: string;
   email: string;
@@ -58,8 +59,8 @@ interface ClientDetailsModalProps {
   selectedClient: Client | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  expandedTreatment: number | null;
-  setExpandedTreatment: (id: number | null) => void;
+  expandedTreatment: string | null; // Changed from number to string
+  setExpandedTreatment: (id: string | null) => void; // Changed id type
   setIsAddTreatmentOpen: (isOpen: boolean) => void;
   formatDate: (dateString: string | null) => string; // Updated type
   getStatusColor: (status: string) => string;
@@ -196,7 +197,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">
-                  {t.treatment}
+                  {t.initialTreatment}
                 </Label>
                 <p className="text-base font-medium text-foreground">
                   {selectedClient.treatment || t.notSpecified}
@@ -205,7 +206,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">
-                  {t.notes}
+                  {t.clientNotes}
                 </Label>
                 <p className="text-base font-medium text-foreground">
                   {selectedClient.notes || t.notSpecified}
@@ -215,7 +216,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               {/* Enhanced Images Gallery Section */}
               <div className="space-y-4">
                 <Label className="text-lg font-semibold text-foreground">
-                  Yuklangan rasmlar
+                  {t.uploadedImages}
                 </Label>
                 {selectedClient.uploadedFiles?.images &&
                 selectedClient.uploadedFiles.images.length > 0 ? (
@@ -257,7 +258,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
                     <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                     <p className="text-muted-foreground text-lg">
-                      Rasm yuklanmagan
+                      {t.noImagesUploaded}
                     </p>
                     <p className="text-muted-foreground/70 text-sm mt-2">
                       Mijoz qo'shish vaqtida rasm yuklash mumkin
@@ -281,7 +282,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                 >
                   <Plus className="h-4 w-4" />
-                  Yangi muolaja qo'shish
+                  {t.addTreatment}
                 </Button>
               </div>
 
@@ -292,7 +293,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               ) : (
                 <div className="space-y-4">
                   {selectedClient.treatmentHistory.map((treatment, index) => (
-                    <Collapsible key={treatment.id}>
+                    <Collapsible key={treatment.id} open={expandedTreatment === treatment.id}>
                       <CollapsibleTrigger
                         className="flex items-center justify-between w-full p-5 border rounded-lg hover:bg-muted/50 transition-all duration-200 animate-in fade-in-50"
                         style={{ animationDelay: `${index * 100}ms` }}
@@ -311,10 +312,10 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                           </div>
                           <div className="text-left">
                             <div className="text-base font-medium text-foreground">
-                              {formatDate(treatment.date)}
+                              {formatDate(treatment.treatmentDate)}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              Oxirgi tashrif
+                              {t.lastVisit}
                             </div>
                           </div>
                         </div>
@@ -327,28 +328,56 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       <CollapsibleContent className="px-5 pb-5 animate-in fade-in-50 duration-200">
                         <div className="space-y-4 pt-4 border-t">
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
+                            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 flex-shrink-0"></div>
                             <div>
                               <span className="font-medium text-base">
-                                Olingan muolaja:
+                                {t.visitTypeLabel}:
                               </span>
                               <div className="text-muted-foreground text-base">
-                                {treatment.treatmentType}
+                                {treatment.visitType || t.notSpecified}
                               </div>
                             </div>
                           </div>
 
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
+                            <div className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></div>
                             <div>
                               <span className="font-medium text-base">
-                                Keyingi tashrif uchun izoh:
+                                {t.treatmentCategoryLabel}:
                               </span>
                               <div className="text-muted-foreground text-base">
-                                {treatment.details}
+                                {treatment.treatmentType || t.notSpecified}
                               </div>
                             </div>
                           </div>
+
+                          {treatment.description && (
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
+                              <div>
+                                <span className="font-medium text-base">
+                                  {t.treatmentDescription}:
+                                </span>
+                                <div className="text-muted-foreground text-base">
+                                  {treatment.description}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {treatment.notes && (
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></div>
+                              <div>
+                                <span className="font-medium text-base">
+                                  {t.additionalNotes}:
+                                </span>
+                                <div className="text-muted-foreground text-base">
+                                  {treatment.notes}
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
                           <div className="flex items-start gap-3">
                             <div className="w-2 h-2 rounded-full bg-purple-500 mt-2 flex-shrink-0"></div>
@@ -363,12 +392,26 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                               </div>
                             </div>
                           </div>
+
+                          {treatment.nextVisitNotes && (
+                            <div className="flex items-start gap-3">
+                              <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0"></div>
+                              <div>
+                                <span className="font-medium text-base">
+                                  {t.nextVisitNotesLabel}:
+                                </span>
+                                <div className="text-muted-foreground text-base">
+                                  {treatment.nextVisitNotes}
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                         <div className="mt-4 pt-4 border-t">
                           <div className="text-sm text-muted-foreground flex items-center gap-2">
                             <span>
-                              Yaratilgan: {formatDate(treatment.date)}
+                              {t.createdOn}: {formatDate(treatment.treatmentDate)}
                             </span>
                           </div>
                         </div>

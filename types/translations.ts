@@ -66,11 +66,11 @@ export interface Translations {
   noImagesUploaded: string;
 
   // Treatment specific
-  todayVisit: string;
+  visitTypeLabel: string; // Renamed from todayVisit
+  treatmentCategoryLabel: string; // Renamed from treatmentType
   nextVisitPlan: string;
   nextVisitDate: string;
   additionalNotes: string;
-  treatmentType: string;
   doctor: string;
   cost: string;
   description: string;
@@ -145,7 +145,7 @@ export interface Translations {
   // Treatment details
   visitNumber: string;
   treatmentReceived: string;
-  nextVisitNotes: string;
+  nextVisitNotesLabel: string; // New label for next visit notes
   createdOn: string;
   notSpecified: string;
 
@@ -229,17 +229,18 @@ export const translations: Record<
     noImagesUploaded: "Rasm yuklanmagan",
 
     // Treatment specific
-    todayVisit: "Bugungi tashrif",
+    visitTypeLabel: "Bugungi muolaja turi", // Updated
+    treatmentCategoryLabel: "Muolaja kategoriyasi", // Updated
     nextVisitPlan: "Keyingi tashrif uchun reja",
     nextVisitDate: "Keyingi tashrif sanasi",
     additionalNotes: "Qo'shimcha izohlar",
-    treatmentType: "Muolaja turi",
     doctor: "Shifokor",
     cost: "Narx",
     description: "Tavsif",
     details: "Tafsilotlar",
     treatmentDescription: "Muolaja tavsifi", // New
     nextVisitNotes: "Keyingi tashrif uchun izoh", // Existing, but ensure it's used correctly
+    nextVisitNotesLabel: "Keyingi tashrif uchun izoh", // New label
 
     // Form validation
     required: "Majburiy maydon",
@@ -308,7 +309,7 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Tashrif raqami",
     treatmentReceived: "Olingan muolaja",
-    nextVisitNotes: "Keyingi tashrif uchun izoh",
+    nextVisitNotesLabel: "Keyingi tashrif uchun izoh",
     createdOn: "Yaratilgan",
     notSpecified: "Belgilanmagan",
 
@@ -388,17 +389,18 @@ export const translations: Record<
     noImagesUploaded: "Расм юкланмаган",
 
     // Treatment specific
-    todayVisit: "Бугунги ташриф",
+    visitTypeLabel: "Бугунги муолажа тури", // Updated
+    treatmentCategoryLabel: "Муолажа категорияси", // Updated
     nextVisitPlan: "Кейинги ташриф учун режа",
     nextVisitDate: "Кейинги ташриф санаси",
     additionalNotes: "Қўшимча изоҳлар",
-    treatmentType: "Муолажа тури",
     doctor: "Шифокор",
     cost: "Нарх",
     description: "Тавсиф",
     details: "Тафсилотлар",
     treatmentDescription: "Муолажа тавсифи", // New
     nextVisitNotes: "Кейинги ташриф учун изоҳ", // Existing, but ensure it's used correctly
+    nextVisitNotesLabel: "Кейинги ташриф учун изоҳ", // New label
 
     // Form validation
     required: "Мажбурий майдон",
@@ -467,7 +469,7 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Ташриф рақами",
     treatmentReceived: "Олинган муолажа",
-    nextVisitNotes: "Кейинги ташриф учун изоҳ",
+    nextVisitNotesLabel: "Кейинги ташриф учун изоҳ",
     createdOn: "Яратилган",
     notSpecified: "Белгиланмаган",
 
@@ -547,17 +549,18 @@ export const translations: Record<
     noImagesUploaded: "No images uploaded",
 
     // Treatment specific
-    todayVisit: "Today's Visit",
+    visitTypeLabel: "Today's Treatment Type", // Updated
+    treatmentCategoryLabel: "Treatment Category", // Updated
     nextVisitPlan: "Next Visit Plan",
     nextVisitDate: "Next Visit Date",
     additionalNotes: "Additional Notes",
-    treatmentType: "Treatment Type",
     doctor: "Doctor",
     cost: "Cost",
     description: "Description",
     details: "Details",
     treatmentDescription: "Treatment Description", // New
     nextVisitNotes: "Next Visit Notes", // Existing, but ensure it's used correctly
+    nextVisitNotesLabel: "Next Visit Notes", // New label
 
     // Form validation
     required: "Required field",
@@ -626,7 +629,7 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Visit Number",
     treatmentReceived: "Treatment Received",
-    nextVisitNotes: "Next Visit Notes",
+    nextVisitNotesLabel: "Next Visit Notes",
     createdOn: "Created On",
     notSpecified: "Not Specified",
 

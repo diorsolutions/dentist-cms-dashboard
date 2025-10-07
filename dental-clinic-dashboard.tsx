@@ -33,30 +33,30 @@ import { Button } from "@/components/ui/button";
 // Types
 interface TreatmentRecord {
   _id?: string;
-  id: number;
-  date: string;
+  id: string; // Changed from number to string
+  treatmentDate: string; // Renamed from 'date' for clarity
+  visitType: string;
   treatmentType: string;
   doctor: string;
   cost: number;
-  description: string;
-  details: string;
+  description: string; // Description of the treatment itself
+  notes: string; // General notes for this treatment
+  nextVisitDate: string | null;
+  nextVisitNotes: string; // Specific notes for the next visit
   images?: string[];
-  visitType?: string;
-  notes?: string;
-  nextVisitDate?: string | null;
 }
 
 interface Client {
   _id?: string;
-  id: number;
+  id: string; // Changed from number to string
   name: string;
   phone: string;
   email: string;
   lastVisit: string | null; // Can be null if no visits
   nextAppointment: string | null; // Can be null if no future appointments
   status: "inTreatment" | "completed";
-  treatment: string;
-  notes: string;
+  treatment: string; // This is initialTreatment
+  notes: string; // This is initial notes
   age: number;
   address: string;
   treatmentHistory: TreatmentRecord[];
@@ -106,7 +106,7 @@ const DentalClinicDashboard = () => {
   const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState<"latin" | "cyrillic">("latin");
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedClients, setSelectedClients] = useState<number[]>([]);
+  const [selectedClients, setSelectedClients] = useState<string[]>([]); // Changed from number[] to string[]
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(false);
@@ -118,7 +118,7 @@ const DentalClinicDashboard = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
-  const [expandedTreatment, setExpandedTreatment] = useState<number | null>(null);
+  const [expandedTreatment, setExpandedTreatment] = useState<string | null>(null); // Changed from number to string
   const [isAddTreatmentModalOpen, setIsAddTreatmentModalOpen] = useState(false);
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
 
@@ -169,24 +169,24 @@ const DentalClinicDashboard = () => {
           .map((treatment: any) => ({
             id: treatment._id,
             _id: treatment._id,
-            date: treatment.treatmentDate
+            treatmentDate: treatment.treatmentDate
               ? new Date(treatment.treatmentDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
+            visitType: treatment.visitType,
             treatmentType: treatment.treatmentType,
             doctor: treatment.doctor,
             cost: treatment.cost || 0,
-            description: treatment.description || treatment.visitType || "",
-            details: treatment.notes || "",
-            images: treatment.images || [],
-            visitType: treatment.visitType,
-            notes: treatment.notes,
+            description: treatment.description || "",
+            notes: treatment.notes || "",
             nextVisitDate: treatment.nextVisitDate
               ? new Date(treatment.nextVisitDate).toISOString().split("T")[0]
               : null,
+            nextVisitNotes: treatment.nextVisitNotes || "",
+            images: treatment.images || [],
           }))
           .sort(
-            (a: any, b: any) =>
-              new Date(b.date).getTime() - new Date(a.date).getTime()
+            (a: TreatmentRecord, b: TreatmentRecord) =>
+              new Date(b.treatmentDate).getTime() - new Date(a.treatmentDate).getTime()
           );
       }
       return [];
@@ -217,7 +217,7 @@ const DentalClinicDashboard = () => {
 
             // Determine last visit
             const lastVisit = treatments.length > 0
-              ? treatments[0].date // Assuming treatments are sorted by date desc
+              ? treatments[0].treatmentDate // Assuming treatments are sorted by date desc
               : null;
 
             // Determine next appointment
@@ -304,7 +304,7 @@ const DentalClinicDashboard = () => {
     if (cleaned.startsWith("998")) {
       cleaned = "+" + cleaned;
     } else if (!cleaned.startsWith("+998") && cleaned.length > 0) {
-      cleaned = "+998" + cleaned;
+      cleaned = "+" + "998" + cleaned; // Ensure +998 prefix
     }
     if (cleaned.length > 13) {
       cleaned = cleaned.substring(0, 13);
@@ -327,7 +327,7 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const handleClientSelect = (clientId: number, checked: boolean) => {
+  const handleClientSelect = (clientId: string, checked: boolean) => { // Changed clientId type
     if (checked) {
       setSelectedClients((prev) => [...prev, clientId]);
     } else {
