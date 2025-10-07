@@ -63,7 +63,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
+        <div className="grid grid-cols-12 gap-2 p-4 border-b bg-muted/50 font-medium text-sm">
           <div className="col-span-1">
             {selectedClients.length > 0 && (
               <div className="flex items-center space-x-2">
@@ -97,7 +97,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-12 gap-4 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group" // Added 'group' class
+              className="grid grid-cols-12 gap-2 p-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group" // Added 'group' class
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
