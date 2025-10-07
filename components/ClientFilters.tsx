@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react"; // Import useState and useEffect
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Download, RotateCcw } from "lucide-react"; // Import RotateCcw icon
+import { Search, Download, RotateCcw } from "lucide-react";
 import type { Translations } from "@/types/translations";
 
 type SortDirection = "asc" | "desc";
@@ -24,9 +24,9 @@ interface ClientFiltersProps {
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
   generatePDF: () => void;
-  handleApplySearch: () => void; // New prop for triggering search
-  onResetFilters: () => void; // New prop for resetting all filters
-  isFilterActive: boolean; // New prop to indicate if any filter is active
+  handleApplySearch: () => void;
+  onResetFilters: () => void;
+  isFilterActive: boolean;
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -42,16 +42,48 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setStatusFilter,
   selectedClientCount,
   generatePDF,
-  handleApplySearch, // Destructure new prop
-  onResetFilters, // Destructure new prop
-  isFilterActive, // Destructure new prop
+  handleApplySearch,
+  onResetFilters,
+  isFilterActive,
 }) => {
+  // Local state for phone number parts
+  const [localPhoneCode, setLocalPhoneCode] = useState(""); // e.g., 91
+  const [localPhoneMiddle, setLocalPhoneMiddle] = useState(""); // e.g., 843
+  const [localPhoneLast, setLocalPhoneLast] = useState(""); // e.g., 2324
+
+  // Effect to sync local phone parts with parent searchTerm when switching to phone filter
+  useEffect(() => {
+    if (currentFilterAndSortField === "phone") {
+      const cleaned = searchTerm.replace(/\D/g, ''); // Remove non-digits
+      setLocalPhoneCode(cleaned.substring(0, 2));
+      setLocalPhoneMiddle(cleaned.substring(2, 5));
+      setLocalPhoneLast(cleaned.substring(5, 9));
+    } else {
+      // Clear local phone parts when switching away from phone filter
+      setLocalPhoneCode("");
+      setLocalPhoneMiddle("");
+      setLocalPhoneLast("");
+    }
+  }, [currentFilterAndSortField, searchTerm]);
+
+  // Effect to combine local phone parts and update parent searchTerm
+  useEffect(() => {
+    if (currentFilterAndSortField === "phone") {
+      const combinedPhone = `${localPhoneCode}${localPhoneMiddle}${localPhoneLast}`;
+      // Only update parent searchTerm if it's different to avoid unnecessary re-renders
+      if (combinedPhone !== searchTerm) {
+        handleSearchInputChange(combinedPhone);
+      }
+    }
+  }, [localPhoneCode, localPhoneMiddle, localPhoneLast, currentFilterAndSortField, handleSearchInputChange, searchTerm]);
+
+
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
       case "name":
         return t.searchByName;
       case "phone":
-        return t.searchByPhone;
+        return t.searchByPhone; // This will not be used for the individual inputs
       case "email":
         return t.searchByEmail;
       case "lastVisit":
@@ -66,23 +98,22 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   const getInputType = (field: FilterAndSortField): string => {
     switch (field) {
       case "phone":
-        return "tel"; // Use 'tel' for phone numbers, it allows '+' and numbers
+        return "tel";
       case "lastVisit":
       case "nextAppointment":
       case "dateOfBirth":
-        return "text"; // Date inputs are handled as text for search
+        return "text";
       default:
         return "text";
     }
   };
 
   const getMaxLength = (field: FilterAndSortField): number | undefined => {
-    if (field === "phone") return 13; // +998XXXXXXXXX
+    if (field === "phone") return 13;
     return undefined;
   };
 
   const getMinLength = (field: FilterAndSortField): number | undefined => {
-    // Removed minLength for phone as per user request
     return undefined;
   };
 
@@ -102,8 +133,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             onValueChange={(value: FilterAndSortField) => {
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
-              setSearchTerm(""); // Clear input field
-              // Removed handleApplySearch() here to prevent immediate request
+              setSearchTerm(""); // Clear input field in parent
+              handleApplySearch(); // Trigger immediate search with empty term
             }}
           >
             <SelectTrigger className="w-48">
@@ -133,23 +164,53 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             </SelectContent>
           </Select>
 
-          {/* Search Input */}
-          <div className="relative flex-1 flex items-center gap-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type={getInputType(currentFilterAndSortField)}
-              placeholder={getPlaceholderText(currentFilterAndSortField)}
-              value={searchTerm}
-              onChange={(e) => handleSearchInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="pl-10 w-full"
-              maxLength={getMaxLength(currentFilterAndSortField)}
-              minLength={getMinLength(currentFilterAndSortField)}
-            />
-            <Button onClick={handleApplySearch} className="shrink-0">
-              {t.searchPlaceholder.replace("...", "")}
-            </Button>
-          </div>
+          {/* Search Input(s) */}
+          {currentFilterAndSortField === "phone" ? (
+            <div className="flex items-center gap-1 flex-1">
+              <span className="text-muted-foreground whitespace-nowrap">+998</span>
+              <Input
+                type="tel"
+                placeholder="XX"
+                value={localPhoneCode}
+                onChange={(e) => setLocalPhoneCode(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                maxLength={2}
+                className="w-16 text-center"
+              />
+              <Input
+                type="tel"
+                placeholder="XXX"
+                value={localPhoneMiddle}
+                onChange={(e) => setLocalPhoneMiddle(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                maxLength={3}
+                className="w-20 text-center"
+              />
+              <Input
+                type="tel"
+                placeholder="XXXX"
+                value={localPhoneLast}
+                onChange={(e) => setLocalPhoneLast(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                maxLength={4}
+                className="w-24 text-center"
+              />
+            </div>
+          ) : (
+            <div className="relative flex-1 flex items-center gap-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type={getInputType(currentFilterAndSortField)}
+                placeholder={getPlaceholderText(currentFilterAndSortField)}
+                value={searchTerm}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="pl-10 w-full"
+                maxLength={getMaxLength(currentFilterAndSortField)}
+                minLength={getMinLength(currentFilterAndSortField)}
+              />
+              <Button onClick={handleApplySearch} className="shrink-0">
+                {t.searchPlaceholder.replace("...", "")}
+              </Button>
+            </div>
+          )}
 
           {/* PDF Download */}
           {selectedClientCount > 0 && (

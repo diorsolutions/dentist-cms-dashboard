@@ -18,6 +18,7 @@ import {
 import ClientService from "./services/clientService";
 import TreatmentService from "./services/treatmentService";
 import UploadService from "./services/uploadService";
+import { useDebounce } from "@/hooks/use-debounce"; // Import useDebounce
 
 // Import new components
 import DashboardHeader from "@/components/DashboardHeader";
@@ -30,7 +31,6 @@ import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
-// Removed useDebounce import
 
 // Types
 interface TreatmentRecord {
@@ -161,6 +161,9 @@ const DentalClinicDashboard = () => {
   // Client-side cache for treatment histories
   const [clientTreatmentsCache, setClientTreatmentsCache] = useState<Map<string, TreatmentRecord[]>>(new Map());
 
+  // Debounce the searchTerm for live search
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -273,9 +276,16 @@ const DentalClinicDashboard = () => {
     }
   }, [currentPage, appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language, clientTreatmentsCache]);
 
+  // Effect to trigger client loading when appliedSearchTerm or other filters change
   useEffect(() => {
     loadClients();
-  }, [loadClients]); // Depend on the memoized loadClients
+  }, [loadClients]);
+
+  // Effect to update appliedSearchTerm when debouncedSearchTerm changes
+  useEffect(() => {
+    setAppliedSearchTerm(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
+
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -322,35 +332,16 @@ const DentalClinicDashboard = () => {
   };
 
   const handleApplySearch = () => {
-    if (currentFilterAndSortField === "phone") {
-      let cleanedSearchTerm = searchTerm.replace(/\D/g, ""); // Remove all non-digits
-
-      // Remove common prefixes if they exist at the beginning
-      if (cleanedSearchTerm.startsWith("998")) {
-        cleanedSearchTerm = cleanedSearchTerm.substring(3);
-      } else if (cleanedSearchTerm.startsWith("+998")) {
-        cleanedSearchTerm = cleanedSearchTerm.substring(4);
-      }
-
-      // Ensure it's at most 9 digits (the local number part)
-      if (cleanedSearchTerm.length > 9) {
-        cleanedSearchTerm = cleanedSearchTerm.slice(-9); // Take the last 9 digits
-      } else if (cleanedSearchTerm.length < 9 && cleanedSearchTerm.length > 0) {
-        // If less than 9 digits but not empty, pad with leading zeros for search if needed,
-        // or just use as is for partial search. For now, use as is.
-        // The backend regex search will handle partial matches.
-      }
-      setAppliedSearchTerm(cleanedSearchTerm);
-    } else {
-      setAppliedSearchTerm(searchTerm);
-    }
+    // This function is now primarily for non-phone fields where a button is clicked
+    // For phone fields, the debouncedSearchTerm useEffect handles it.
+    setAppliedSearchTerm(searchTerm);
   };
 
   const handleFilterFieldChange = (field: FilterAndSortField) => {
     setCurrentFilterAndSortField(field);
     setCurrentSortDirection("asc"); // Reset sort direction when field changes
     setSearchTerm(""); // Clear input field
-    setAppliedSearchTerm(""); // Clear applied search term, this will trigger loadClients with empty search
+    setAppliedSearchTerm(""); // Clear applied search term immediately
   };
 
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
@@ -759,13 +750,11 @@ const DentalClinicDashboard = () => {
   // Function to reset all filters
   const resetAllFilters = useCallback(() => {
     setSearchTerm("");
-    setAppliedSearchTerm("");
+    setAppliedSearchTerm(""); // Clear applied search term
     setStatusFilter("all");
     setCurrentFilterAndSortField("name");
     setCurrentSortDirection("asc");
     setCurrentPage(1);
-    // No need to call loadClients here, as changing appliedSearchTerm, statusFilter, etc.
-    // will trigger the useEffect that calls loadClients.
   }, []);
 
   // Determine if any filter is active
