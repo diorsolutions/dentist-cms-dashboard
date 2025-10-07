@@ -80,7 +80,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   const getMinLength = (field: FilterAndSortField): number | undefined => {
-    if (field === "phone") return 3; // Allow partial input like "+998"
+    // Removed minLength for phone as per user request
     return undefined;
   };
 

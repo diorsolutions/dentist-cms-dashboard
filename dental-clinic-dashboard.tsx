@@ -323,19 +323,17 @@ const DentalClinicDashboard = () => {
 
   const handleApplySearch = () => {
     if (currentFilterAndSortField === "phone") {
-      const phoneRegex = /^\+998\d{9}$/;
-      if (searchTerm.length > 0 && (searchTerm.length < 3 || searchTerm.length > 13 || !phoneRegex.test(searchTerm))) {
-        toast({
-          title: "Xatolik",
-          description: "Telefon raqami noto'g'ri formatda. (+998XXXXXXXXX)",
-          variant: "destructive",
-        });
-        // Do not update appliedSearchTerm, keep previous valid search or empty
-        setAppliedSearchTerm(""); // Clear applied search if invalid
-        return;
+      let cleanedSearchTerm = searchTerm.replace(/\D/g, ""); // Remove all non-digits
+      // Remove common prefixes if they exist at the beginning
+      if (cleanedSearchTerm.startsWith("998")) {
+        cleanedSearchTerm = cleanedSearchTerm.substring(3);
       }
+      // No minLength check for phone search
+      // MaxLength check for phone search is also removed as per user request for flexibility
+      setAppliedSearchTerm(cleanedSearchTerm);
+    } else {
+      setAppliedSearchTerm(searchTerm);
     }
-    setAppliedSearchTerm(searchTerm);
   };
 
   const handleFilterFieldChange = (field: FilterAndSortField) => {
