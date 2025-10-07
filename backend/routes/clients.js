@@ -105,8 +105,11 @@ router.get("/", optionalAuth, async (req, res) => {
 
     const clients = await Client.aggregate(pipeline);
 
-    // For total count, we need a separate aggregation or countDocuments with the same matchFilter
+    // For total count of currently filtered/active clients (for pagination)
     const total = await Client.countDocuments(matchFilter);
+
+    // For total clients ever created (regardless of active status)
+    const totalClientsOverall = await Client.countDocuments({}); // This is the new count
 
     res.json({
       success: true,
@@ -115,10 +118,11 @@ router.get("/", optionalAuth, async (req, res) => {
         current: pageNum,
         limit: limitNum,
         pages: Math.ceil(total / limitNum),
-        total,
+        total, // This is the count for the current view
         hasNext: pageNum < Math.ceil(total / limitNum),
         hasPrev: pageNum > 1,
       },
+      totalClientsOverall: totalClientsOverall, // Add the new overall count here
     });
   } catch (error) {
     console.error("Get clients error:", error);

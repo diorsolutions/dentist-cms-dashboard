@@ -255,7 +255,7 @@ const DentalClinicDashboard = () => {
           });
 
         setClients(transformedClients);
-        setTotalClientsEver(response.pagination.total);
+        setTotalClientsEver(response.totalClientsOverall); // Use the new field for overall count
         setTotalPages(response.pagination.pages);
         setCurrentPage(response.pagination.current);
       } else {
