@@ -123,37 +123,7 @@ interface Stats {
   monthlyRevenue: number;
 }
 
-// Keep only 1 example client
-// const initialClients: Client[] = [
-//   {
-//     id: 1,
-//     name: "Ahmadjon Karimov",
-//     phone: "+998901234567",
-//     email: "ahmad@example.com",
-//     lastVisit: "2024-01-15",
-//     nextAppointment: "2024-01-22",
-//     status: "inTreatment",
-//     treatment: "Tish to'ldirish",
-//     notes: "Yuqori jag'da 3 ta tish davolash kerak",
-//     age: 35,
-//     address: "Toshkent, Yunusobod tumani",
-//     treatmentHistory: [
-//       {
-//         id: 1,
-//         date: "2024-01-15",
-//         treatmentType: "Tish to'ldirish",
-//         doctor: "Dr. Karimova",
-//         cost: 150000,
-//         description: "Yuqori jag'dagi tish to'ldirildi",
-//         details:
-//           "Karies tozalandi, kompozit material bilan to'ldirildi. Bemor og'riq hissi yo'q deb bildirdi.",
-//         images: [],
-//       },
-//     ],
-//   },
-// ];
-
-type SortState = "none" | "asc" | "desc";
+type SortDirection = "asc" | "desc"; // Simplified from SortState
 
 const DentalClinicDashboard = () => {
   const { theme, setTheme, systemTheme } = useTheme();
@@ -168,12 +138,12 @@ const DentalClinicDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Sorting states
-  const [nameSortState, setNameSortState] = useState<SortState>("none");
-  const [lastVisitSortState, setLastVisitSortState] =
-    useState<SortState>("none");
-  const [nextAppointmentSortState, setNextAppointmentSortState] =
-    useState<SortState>("none");
+  // New states for combined filter/sort
+  const [currentFilterAndSortField, setCurrentFilterAndSortField] = useState<
+    "name" | "phone" | "email" | "lastVisit" | "nextAppointment"
+  >("name");
+  const [currentSortDirection, setCurrentSortDirection] =
+    useState<SortDirection>("asc");
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -184,8 +154,6 @@ const DentalClinicDashboard = () => {
   );
   const [isAddTreatmentOpen, setIsAddTreatmentOpen] = useState(false);
   const [isClientInfoOpen, setIsClientInfoOpen] = useState(false);
-  const [sortField, setSortField] = useState<keyof Client>("firstName");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [stats, setStats] = useState<Stats>({
     totalClients: 0,
@@ -406,67 +374,86 @@ const DentalClinicDashboard = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Reset other sorts when one is activated
-  const resetOtherSorts = (except: string) => {
-    if (except !== "name") setNameSortState("none");
-    if (except !== "lastVisit") setLastVisitSortState("none");
-    if (except !== "nextAppointment") setNextAppointmentSortState("none");
+  // Function to get placeholder text based on selected search type
+  const getPlaceholderText = (
+    field: typeof currentFilterAndSortField
+  ): string => {
+    switch (field) {
+      case "name":
+        return t.searchByName;
+      case "phone":
+        return t.searchByPhone;
+      case "email":
+        return t.searchByEmail;
+      case "lastVisit":
+        return t.searchByLastVisitDate;
+      case "nextAppointment":
+        return t.searchByNextAppointmentDate;
+      default:
+        return t.searchPlaceholder;
+    }
   };
 
-  const handleNameSort = () => {
-    resetOtherSorts("name");
-    setNameSortState((prev) =>
-      prev === "none" ? "asc" : prev === "asc" ? "desc" : "none"
-    );
+  // Function to toggle sort direction
+  const handleSortToggle = () => {
+    setCurrentSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
-  const handleLastVisitSort = () => {
-    resetOtherSorts("lastVisit");
-    setLastVisitSortState((prev) =>
-      prev === "none" ? "asc" : prev === "asc" ? "desc" : "none"
-    );
-  };
-
-  const handleNextAppointmentSort = () => {
-    resetOtherSorts("nextAppointment");
-    setNextAppointmentSortState((prev) =>
-      prev === "none" ? "asc" : prev === "asc" ? "desc" : "none"
+  // Function to get sort icon component
+  const getSortIconComponent = (direction: SortDirection) => {
+    return direction === "asc" ? (
+      <ChevronUp className="w-4 h-4" />
+    ) : (
+      <ChevronDown className="w-4 h-4" />
     );
   };
 
   // Filter and sort clients
   const filteredAndSortedClients = useMemo(() => {
-    const filtered = clients.filter((client) => {
-      const matchesSearch =
-        searchTerm === "" ||
-        client.name.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
-        client.phone.startsWith(searchTerm) ||
-        client.email.toLowerCase().startsWith(searchTerm.toLowerCase());
-
+    let filtered = clients.filter((client) => {
       const matchesStatus =
         statusFilter === "all" || client.status === statusFilter;
+      if (searchTerm === "") return matchesStatus;
+
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      let matchesSearch = false;
+
+      // Determine which field to search based on currentFilterAndSortField
+      const clientValue = client[currentFilterAndSortField];
+
+      if (typeof clientValue === "string") {
+        matchesSearch = clientValue.toLowerCase().includes(lowerCaseSearchTerm);
+      } else if (typeof clientValue === "number") {
+        matchesSearch = clientValue.toString().includes(searchTerm); // Search numbers as strings
+      }
 
       return matchesSearch && matchesStatus;
     });
 
-    // Apply sorting
-    if (nameSortState !== "none") {
+    // Apply sorting based on currentFilterAndSortField and currentSortDirection
+    if (currentSortDirection !== "none") {
       filtered.sort((a, b) => {
-        const comparison = a.name.localeCompare(b.name);
-        return nameSortState === "asc" ? comparison : -comparison;
-      });
-    } else if (lastVisitSortState !== "none") {
-      filtered.sort((a, b) => {
-        const comparison =
-          new Date(a.lastVisit).getTime() - new Date(b.lastVisit).getTime();
-        return lastVisitSortState === "asc" ? comparison : -comparison;
-      });
-    } else if (nextAppointmentSortState !== "none") {
-      filtered.sort((a, b) => {
-        const comparison =
-          new Date(a.nextAppointment).getTime() -
-          new Date(b.nextAppointment).getTime();
-        return nextAppointmentSortState === "asc" ? comparison : -comparison;
+        let comparison = 0;
+        const fieldA = a[currentFilterAndSortField];
+        const fieldB = b[currentFilterAndSortField];
+
+        if (
+          currentFilterAndSortField === "lastVisit" ||
+          currentFilterAndSortField === "nextAppointment"
+        ) {
+          // Handle date sorting
+          const dateA = new Date(fieldA as string).getTime();
+          const dateB = new Date(fieldB as string).getTime();
+          comparison = dateA - dateB;
+        } else if (typeof fieldA === "string" && typeof fieldB === "string") {
+          // Handle string sorting
+          comparison = fieldA.localeCompare(fieldB);
+        } else if (typeof fieldA === "number" && typeof fieldB === "number") {
+          // Handle number sorting (e.g., age)
+          comparison = fieldA - fieldB;
+        }
+
+        return currentSortDirection === "asc" ? comparison : -comparison;
       });
     }
 
@@ -475,9 +462,8 @@ const DentalClinicDashboard = () => {
     clients,
     searchTerm,
     statusFilter,
-    nameSortState,
-    lastVisitSortState,
-    nextAppointmentSortState,
+    currentFilterAndSortField,
+    currentSortDirection,
   ]);
 
   const handleSelectAll = (checked: boolean) => {
@@ -670,12 +656,6 @@ const DentalClinicDashboard = () => {
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
     }
-  };
-
-  const getSortIcon = (sortState: SortState) => {
-    if (sortState === "asc") return "↑";
-    if (sortState === "desc") return "↓";
-    return "↕";
   };
 
   const markAsCompleted = async () => {
@@ -960,28 +940,9 @@ const DentalClinicDashboard = () => {
   // Get current theme for proper icon display
   const currentTheme = theme === "system" ? systemTheme : theme;
 
-  const handleSort = (field: keyof Client) => {
-    if (sortField === field) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-
   const handleClientClick = (client: Client) => {
     setSelectedClient(client);
     setIsClientDetailsOpen(true);
-  };
-
-  const SortIcon = ({ field }: { field: keyof Client }) => {
-    if (sortField !== field)
-      return <ChevronDown className="w-4 h-4 opacity-30" />;
-    return sortDirection === "asc" ? (
-      <ChevronUp className="w-4 h-4" />
-    ) : (
-      <ChevronDown className="w-4 h-4" />
-    );
   };
 
   const exportToPDF = () => {
@@ -1214,31 +1175,38 @@ const DentalClinicDashboard = () => {
         <Card className="mb-6 animate-in fade-in-50 duration-300">
           <CardContent className="p-4">
             <div className="w-full flex items-center gap-4">
-              {/* Column Filters */}
+              {/* New Select for Search/Sort Field */}
+              <Select
+                value={currentFilterAndSortField}
+                onValueChange={(value: typeof currentFilterAndSortField) => {
+                  setCurrentFilterAndSortField(value);
+                  setCurrentSortDirection("asc"); // Reset sort direction when field changes
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder={t.filterBy} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">{t.filterByName}</SelectItem>
+                  <SelectItem value="phone">{t.filterByPhone}</SelectItem>
+                  <SelectItem value="email">{t.filterByEmail}</SelectItem>
+                  <SelectItem value="lastVisit">{t.filterByLastVisit}</SelectItem>
+                  <SelectItem value="nextAppointment">
+                    {t.filterByNextAppointment}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Sort Direction Toggle Button */}
               <Button
                 variant="outline"
-                onClick={handleNameSort}
+                onClick={handleSortToggle}
                 className="flex items-center gap-2 bg-transparent"
               >
-                {t.name} {getSortIcon(nameSortState)}
+                {getSortIconComponent(currentSortDirection)}
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={handleLastVisitSort}
-                className="flex items-center gap-2 bg-transparent"
-              >
-                {t.lastVisit} {getSortIcon(lastVisitSortState)}
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={handleNextAppointmentSort}
-                className="flex items-center gap-2 bg-transparent"
-              >
-                {t.nextAppointment} {getSortIcon(nextAppointmentSortState)}
-              </Button>
-
+              {/* Status Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder={t.status} />
@@ -1250,11 +1218,11 @@ const DentalClinicDashboard = () => {
                 </SelectContent>
               </Select>
 
-              {/* Search - moved to end */}
+              {/* Search Input */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={t.searchPlaceholder}
+                  placeholder={getPlaceholderText(currentFilterAndSortField)}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-full"
@@ -1278,7 +1246,7 @@ const DentalClinicDashboard = () => {
         {/* Client List */}
         <Card className="animate-in fade-in-50 duration-500">
           <CardContent className="p-0">
-            {/* Header - removed ID column */}
+            {/* Header - removed ID column and individual sort buttons */}
             <div className="grid grid-cols-11 gap-4 p-4 border-b bg-muted/50 font-medium text-sm">
               <div className="col-span-1">
                 {selectedClients.length > 0 && (
@@ -1299,12 +1267,7 @@ const DentalClinicDashboard = () => {
                 )}
               </div>
               <div className="col-span-3">
-                <Button
-                  variant="ghost"
-                  className="h-auto cursor-default p-0 font-medium"
-                >
-                  {t.name}
-                </Button>
+                <span className="font-medium">{t.name}</span>
               </div>
               <div className="col-span-2">{t.lastVisit}</div>
               <div className="col-span-2">{t.nextAppointment}</div>

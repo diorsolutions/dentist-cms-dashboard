@@ -36,7 +36,19 @@ export interface Translations {
   save: string;
   cancel: string;
   downloadPDF: string;
-  searchPlaceholder: string;
+  searchPlaceholder: string; // Existing
+  searchBy: string; // New
+  searchByName: string; // New
+  searchByPhone: string; // New
+  searchByEmail: string; // New
+  searchByLastVisitDate: string; // New
+  searchByNextAppointmentDate: string; // New
+  filterBy: string; // New
+  filterByName: string; // New
+  filterByPhone: string; // New
+  filterByEmail: string; // New
+  filterByLastVisit: string; // New
+  filterByNextAppointment: string; // New
 
   // History and records
   noTreatmentHistory: string;
@@ -186,6 +198,18 @@ export const translations: Record<
     cancel: "Bekor qilish",
     downloadPDF: "PDF yuklab olish",
     searchPlaceholder: "Mijoz qidirish...",
+    searchBy: "Qidirish bo'yicha",
+    searchByName: "Ism bo'yicha qidirish...",
+    searchByPhone: "Telefon raqami bo'yicha qidirish...",
+    searchByEmail: "Email bo'yicha qidirish...",
+    searchByLastVisitDate: "Oxirgi tashrif sanasi bo'yicha qidirish (YYYY-MM-DD)...",
+    searchByNextAppointmentDate: "Keyingi uchrashuv sanasi bo'yicha qidirish (YYYY-MM-DD)...",
+    filterBy: "Qidirish/Saralash bo'yicha",
+    filterByName: "Ism",
+    filterByPhone: "Telefon",
+    filterByEmail: "Email",
+    filterByLastVisit: "Oxirgi tashrif",
+    filterByNextAppointment: "Keyingi uchrashuv",
 
     // History and records
     noTreatmentHistory: "Davolash tarixi yo'q",
@@ -331,6 +355,18 @@ export const translations: Record<
     cancel: "Бекор қилиш",
     downloadPDF: "PDF юклаб олиш",
     searchPlaceholder: "Мижоз қидириш...",
+    searchBy: "Қидириш бўйича",
+    searchByName: "Исм бўйича қидириш...",
+    searchByPhone: "Телефон рақами бўйича қидириш...",
+    searchByEmail: "Email бўйича қидириш...",
+    searchByLastVisitDate: "Охирги ташриф санаси бўйича қидириш (YYYY-MM-DD)...",
+    searchByNextAppointmentDate: "Кейинги учрашув санаси бўйича қидириш (YYYY-MM-DD)...",
+    filterBy: "Қидириш/Саралаш бўйича",
+    filterByName: "Исм",
+    filterByPhone: "Телефон",
+    filterByEmail: "Email",
+    filterByLastVisit: "Охирги ташриф",
+    filterByNextAppointment: "Кейинги учрашув",
 
     // History and records
     noTreatmentHistory: "Даволаш тарихи йўқ",
@@ -476,6 +512,18 @@ export const translations: Record<
     cancel: "Cancel",
     downloadPDF: "Download PDF",
     searchPlaceholder: "Search clients...",
+    searchBy: "Search by",
+    searchByName: "Search by name...",
+    searchByPhone: "Search by phone number...",
+    searchByEmail: "Search by email...",
+    searchByLastVisitDate: "Search by last visit date (YYYY-MM-DD)...",
+    searchByNextAppointmentDate: "Search by next appointment date (YYYY-MM-DD)...",
+    filterBy: "Filter/Sort by",
+    filterByName: "Name",
+    filterByPhone: "Phone",
+    filterByEmail: "Email",
+    filterByLastVisit: "Last Visit",
+    filterByNextAppointment: "Next Appointment",
 
     // History and records
     noTreatmentHistory: "No treatment history",
