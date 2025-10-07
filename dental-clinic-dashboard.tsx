@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import jsPDF from "jspdf";
@@ -108,15 +108,14 @@ const DentalClinicDashboard = () => {
   const [language, setLanguage] = useState<"latin" | "cyrillic">("latin");
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // For input field value
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For actual API calls
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [currentFilterAndSortField, setCurrentFilterAndSortField] = useState<FilterAndSortField>("name");
   const [currentSortDirection, setCurrentSortDirection] = useState<SortDirection>("asc");
-
-  // Removed debounced states as per user request
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
@@ -210,7 +209,7 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const loadClients = async (page = currentPage, limit = clientsPerPage) => {
+  const loadClients = useCallback(async (page = currentPage, limit = clientsPerPage) => {
     try {
       setLoading(true);
       setError(null);
@@ -218,11 +217,11 @@ const DentalClinicDashboard = () => {
       const params = {
         page: String(page),
         limit: String(limit),
-        search: searchTerm, // Use direct searchTerm
-        status: statusFilter, // Use direct statusFilter
-        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField, // Backend will use this for sorting
+        search: appliedSearchTerm, // Use appliedSearchTerm for API calls
+        status: statusFilter,
+        sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
         sortOrder: currentSortDirection,
-        searchField: currentFilterAndSortField, // New parameter to tell backend which field to search
+        searchField: currentFilterAndSortField,
       };
       const response = await ClientService.getAllClients(params);
 
@@ -239,7 +238,7 @@ const DentalClinicDashboard = () => {
               status: client.status,
               treatment: client.initialTreatment,
               notes: client.notes,
-              age: client.dateOfBirth ? calculateAge(client.dateOfBirth) : null, // Calculate age on frontend
+              age: client.dateOfBirth ? calculateAge(client.dateOfBirth) : null,
               dateOfBirth: client.dateOfBirth || null,
               address: client.address,
               treatmentHistory: clientTreatmentsCache.get(client._id) || [],
@@ -272,11 +271,11 @@ const DentalClinicDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language, clientTreatmentsCache]);
 
   useEffect(() => {
     loadClients();
-  }, [currentPage, searchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language]); // Depend on direct states
+  }, [loadClients]); // Depend on the memoized loadClients
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -320,6 +319,30 @@ const DentalClinicDashboard = () => {
   // Generic handler for search input changes
   const handleSearchInputChange = (value: string) => {
     setSearchTerm(value);
+  };
+
+  const handleApplySearch = () => {
+    if (currentFilterAndSortField === "phone") {
+      const phoneRegex = /^\+998\d{9}$/;
+      if (searchTerm.length > 0 && (searchTerm.length < 3 || searchTerm.length > 13 || !phoneRegex.test(searchTerm))) {
+        toast({
+          title: "Xatolik",
+          description: "Telefon raqami noto'g'ri formatda. (+998XXXXXXXXX)",
+          variant: "destructive",
+        });
+        // Do not update appliedSearchTerm, keep previous valid search or empty
+        setAppliedSearchTerm(""); // Clear applied search if invalid
+        return;
+      }
+    }
+    setAppliedSearchTerm(searchTerm);
+  };
+
+  const handleFilterFieldChange = (field: FilterAndSortField) => {
+    setCurrentFilterAndSortField(field);
+    setCurrentSortDirection("asc"); // Reset sort direction when field changes
+    setSearchTerm(""); // Clear input field
+    setAppliedSearchTerm(""); // Clear applied search term, this will trigger loadClients with empty search
   };
 
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
@@ -411,7 +434,7 @@ const DentalClinicDashboard = () => {
 
       xPos = startX;
       rowData.forEach((data, colIndex) => {
-        const colWidth = colWidths[colIndex]; // Corrected from colColWidths
+        const colWidth = colWidths[colIndex];
         const textX = xPos + colWidth / 2;
         doc.text(data, textX, yPos, { align: "center" });
         if (colIndex < rowData.length - 1) {
@@ -758,7 +781,7 @@ const DentalClinicDashboard = () => {
         <ClientFilters
           t={t}
           currentFilterAndSortField={currentFilterAndSortField}
-          setCurrentFilterAndSortField={setCurrentFilterAndSortField}
+          setCurrentFilterAndSortField={handleFilterFieldChange} // Use new handler
           currentSortDirection={currentSortDirection}
           setCurrentSortDirection={setCurrentSortDirection}
           searchTerm={searchTerm}
@@ -768,6 +791,7 @@ const DentalClinicDashboard = () => {
           setStatusFilter={setStatusFilter}
           selectedClientCount={selectedClients.length}
           generatePDF={generatePDF}
+          handleApplySearch={handleApplySearch} // Pass new handler
         />
 
         <ClientTable

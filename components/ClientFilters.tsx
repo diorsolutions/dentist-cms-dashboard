@@ -24,6 +24,7 @@ interface ClientFiltersProps {
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
   generatePDF: () => void;
+  handleApplySearch: () => void; // New prop for triggering search
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -39,6 +40,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setStatusFilter,
   selectedClientCount,
   generatePDF,
+  handleApplySearch, // Destructure new prop
 }) => {
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -59,6 +61,35 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
     }
   };
 
+  const getInputType = (field: FilterAndSortField): string => {
+    switch (field) {
+      case "phone":
+        return "tel"; // Use 'tel' for phone numbers, it allows '+' and numbers
+      case "lastVisit":
+      case "nextAppointment":
+      case "dateOfBirth":
+        return "text"; // Date inputs are handled as text for search
+      default:
+        return "text";
+    }
+  };
+
+  const getMaxLength = (field: FilterAndSortField): number | undefined => {
+    if (field === "phone") return 13; // +998XXXXXXXXX
+    return undefined;
+  };
+
+  const getMinLength = (field: FilterAndSortField): number | undefined => {
+    if (field === "phone") return 3; // Allow partial input like "+998"
+    return undefined;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleApplySearch();
+    }
+  };
+
   return (
     <Card className="mb-6 animate-in fade-in-50 duration-300">
       <CardContent className="p-4">
@@ -69,7 +100,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             onValueChange={(value: FilterAndSortField) => {
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
-              setSearchTerm(""); // Always reset search term when filter field changes
+              setSearchTerm(""); // Clear input field
+              handleApplySearch(); // Trigger search with empty term to reset filter
             }}
           >
             <SelectTrigger className="w-48">
@@ -100,16 +132,21 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           </Select>
 
           {/* Search Input */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <div className="relative flex-1 flex items-center gap-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              type="text" // Make type generic
+              type={getInputType(currentFilterAndSortField)}
               placeholder={getPlaceholderText(currentFilterAndSortField)}
               value={searchTerm}
               onChange={(e) => handleSearchInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="pl-10 w-full"
-              // Removed maxLength for phone, as it's now handled generically
+              maxLength={getMaxLength(currentFilterAndSortField)}
+              minLength={getMinLength(currentFilterAndSortField)}
             />
+            <Button onClick={handleApplySearch} className="shrink-0">
+              {t.searchPlaceholder.replace("...", "")}
+            </Button>
           </div>
 
           {/* PDF Download */}
