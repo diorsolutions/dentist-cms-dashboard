@@ -56,46 +56,6 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-
-    /* Custom styles for react-day-picker dropdowns in dark mode */
-    .day-picker-custom-dropdowns .rdp-dropdown_month,
-    .day-picker-custom-dropdowns .rdp-dropdown_year {
-      background-color: hsl(var(--popover)) !important; /* Force popover background */
-      color: hsl(var(--popover-foreground)) !important; /* Force popover foreground for text */
-      border-color: hsl(var(--border)) !important; /* Ensure border color is also dark-mode friendly */
-    }
-
-    /* Styles for the dropdown options themselves */
-    .day-picker-custom-dropdowns .rdp-dropdown_month option,
-    .day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
-    .day-picker-custom-dropdowns .rdp-dropdown_year option,
-    .day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
-      background-color: hsl(var(--popover)) !important; /* Force popover background */
-      color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
-    }
-
-    /* Attempt to style hovered/selected options in the native dropdown */
-    .day-picker-custom-dropdowns .rdp-dropdown_month option:hover,
-    .day-picker-custom-dropdowns .rdp-dropdown_year option:hover {
-      background-color: hsl(var(--accent)) !important; /* Use accent for hover */
-      color: hsl(var(--accent-foreground)) !important;
-    }
-
-    .day-picker-custom-dropdowns .rdp-dropdown_month option:checked,
-    .day-picker-custom-dropdowns .rdp-dropdown_year option:checked {
-      background-color: hsl(var(--primary)) !important; /* Use primary for selected */
-      color: hsl(var(--primary-foreground)) !important;
-    }
-
-    /* Also try to target the select element when it's open/focused */
-    .day-picker-custom-dropdowns .rdp-dropdown_month:focus,
-    .day-picker-custom-dropdowns .rdp-dropdown_month:active,
-    .day-picker-custom-dropdowns .rdp-dropdown_year:focus,
-    .day-picker-custom-dropdowns .rdp-dropdown_year:active {
-      background-color: hsl(var(--popover)) !important;
-      color: hsl(var(--popover-foreground)) !important;
-      border-color: hsl(var(--ring)) !important; /* Add a focus border */
-    }
   }
 }
 
@@ -251,4 +211,13 @@
 .day-picker-custom-dropdowns .rdp-dropdown_year:focus {
   outline: none;
   box-shadow: 0 0 0 2px hsl(var(--ring)); /* Focus ring */
+}
+
+/* Styles for the dropdown options themselves */
+.dark .day-picker-custom-dropdowns .rdp-dropdown_month option,
+.dark .day-picker-custom-dropdowns .rdp-dropdown_month optgroup,
+.dark .day-picker-custom-dropdowns .rdp-dropdown_year option,
+.dark .day-picker-custom-dropdowns .rdp-dropdown_year optgroup {
+  background-color: hsl(var(--popover)) !important; /* Force popover background */
+  color: hsl(var(--popover-foreground)) !important; /* Force popover foreground text */
 }

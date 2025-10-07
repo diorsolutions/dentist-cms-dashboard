@@ -6,6 +6,7 @@ import { uz as uzbekLocale } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css"; // Import default styles
+import { useTheme } from "next-themes"; // Import useTheme
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export function DatePicker({
   allowPastDates = false, // Default to false (restrict past dates)
   showDropdowns = false, // Default to false (no dropdowns)
 }: DatePickerProps) {
+  const { theme } = useTheme(); // Use the theme hook
   const currentYear = new Date().getFullYear();
   const fromYear = currentYear - 100; // Allow selecting up to 100 years in the past
   const toYear = currentYear; // Up to the current year
@@ -58,7 +60,7 @@ export function DatePicker({
           captionLayout={showDropdowns ? "dropdown" : "buttons"} // Conditionally show dropdowns
           fromYear={showDropdowns ? fromYear : undefined} // Set fromYear for dropdowns
           toYear={showDropdowns ? toYear : undefined}   // Set toYear for dropdowns
-          className={cn(showDropdowns && "day-picker-custom-dropdowns")} // Add custom class
+          className={cn(showDropdowns && "day-picker-custom-dropdowns", theme === "dark" && "dark")} // Add dark class here
           // Custom labels for accessibility
           labels={{
             labelMonthDropdown: () => "Oyni tanlang",
