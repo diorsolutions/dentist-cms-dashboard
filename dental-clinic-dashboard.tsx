@@ -274,19 +274,22 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  // This useEffect now only reacts to changes that should trigger a data fetch
   useEffect(() => {
-    // Condition to prevent API call:
-    // 1. If the current filter is 'phone' AND the debounced search term is exactly '+998'
-    const isDefaultPhoneSearch = currentFilterAndSortField === "phone" && debouncedSearchTerm === "+998";
-
-    // 2. If the current filter is NOT 'phone' AND the debounced search term is empty
-    const isEmptySearchForNonPhoneFilter = currentFilterAndSortField !== "phone" && debouncedSearchTerm === "";
-
-    // Only load clients if neither of the above conditions are met.
-    if (!isDefaultPhoneSearch && !isEmptySearchForNonPhoneFilter) {
-      loadClients();
+    // Prevent API call if filter is 'phone' and search term is just the default prefix
+    if (currentFilterAndSortField === "phone" && debouncedSearchTerm === "+998") {
+      console.log("Skipping loadClients: Phone filter with default '+998' term.");
+      return;
     }
+
+    // Prevent API call if filter is NOT 'phone' and search term is empty
+    if (currentFilterAndSortField !== "phone" && debouncedSearchTerm === "") {
+      console.log("Skipping loadClients: Non-phone filter with empty search term.");
+      return;
+    }
+
+    // Otherwise, proceed to load clients
+    console.log("Proceeding to loadClients()...");
+    loadClients();
   }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, currentFilterAndSortField, currentSortDirection, language]);
 
   const validateForm = () => {

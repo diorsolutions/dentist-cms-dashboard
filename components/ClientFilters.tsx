@@ -24,7 +24,6 @@ interface ClientFiltersProps {
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
   generatePDF: () => void;
-  // setIsFilterChanging: (isChanging: boolean) => void; // Removed
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -40,7 +39,6 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   setStatusFilter,
   selectedClientCount,
   generatePDF,
-  // setIsFilterChanging, // Removed
 }) => {
   const getPlaceholderText = (field: FilterAndSortField): string => {
     switch (field) {
@@ -69,7 +67,6 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
           <Select
             value={currentFilterAndSortField}
             onValueChange={(value: FilterAndSortField) => {
-              // setIsFilterChanging(true); // Removed
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               // When filter field changes, reset search term.
