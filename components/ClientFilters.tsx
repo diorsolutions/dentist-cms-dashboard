@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Download, RotateCcw } from "lucide-react";
 import type { Translations } from "@/types/translations";
+import { DatePicker } from "@/components/date-picker"; // Import DatePicker
+import { format } from "date-fns"; // Import format for date conversion
 
 type SortDirection = "asc" | "desc";
 type FilterAndSortField = "name" | "phone" | "lastVisit" | "nextAppointment" | "dateOfBirth"; // Removed email
@@ -27,6 +29,8 @@ interface ClientFiltersProps {
   handleApplySearch: () => void;
   onResetFilters: () => void;
   isFilterActive: boolean;
+  lastVisitFilterDate: Date | undefined; // New prop
+  setLastVisitFilterDate: (date: Date | undefined) => void; // New prop
 }
 
 const ClientFilters: React.FC<ClientFiltersProps> = ({
@@ -45,6 +49,8 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   handleApplySearch,
   onResetFilters,
   isFilterActive,
+  lastVisitFilterDate, // Destructure new prop
+  setLastVisitFilterDate, // Destructure new prop
 }) => {
   // Local state for phone number parts
   const [localPhoneCode, setLocalPhoneCode] = useState(""); // e.g., 91
@@ -93,6 +99,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "phone":
         return t.searchByPhone; // This will not be used for the individual inputs
       case "lastVisit":
+        return t.searchByLastVisitDate; // Use specific placeholder for date picker
       case "nextAppointment":
       case "dateOfBirth":
         return t.searchByBirthDate;
@@ -106,6 +113,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
       case "phone":
         return "tel";
       case "lastVisit":
+        return "text"; // DatePicker handles the input, but type is text for consistency
       case "nextAppointment":
       case "dateOfBirth":
         return "text";
@@ -124,7 +132,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && currentFilterAndSortField !== "phone") { // Only apply search on Enter for non-phone fields
+    if (e.key === "Enter" && currentFilterAndSortField !== "phone" && currentFilterAndSortField !== "lastVisit") { // Only apply search on Enter for non-live search fields
       handleApplySearch();
     }
   };
@@ -140,6 +148,7 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               setCurrentFilterAndSortField(value);
               setCurrentSortDirection("asc"); // Reset sort direction when field changes
               setSearchTerm(""); // Clear input field in parent
+              setLastVisitFilterDate(undefined); // Clear date picker value
               handleApplySearch(); // Trigger immediate search with empty term
             }}
           >
@@ -149,7 +158,6 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
             <SelectContent>
               <SelectItem value="name">{t.filterByName}</SelectItem>
               <SelectItem value="phone">{t.filterByPhone}</SelectItem>
-              {/* Removed email filter */}
               <SelectItem value="lastVisit">{t.filterByLastVisit}</SelectItem>
               <SelectItem value="nextAppointment">
                 {t.filterByNextAppointment}
@@ -199,6 +207,21 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 className="w-24 text-center"
               />
             </div>
+          ) : currentFilterAndSortField === "lastVisit" ? (
+            <div className="flex-1">
+              <DatePicker
+                value={lastVisitFilterDate}
+                onChange={(date) => {
+                  setLastVisitFilterDate(date);
+                  // When date is selected, update searchTerm to trigger debounced search
+                  // This will update appliedSearchTerm in dashboard, triggering loadClients
+                  handleSearchInputChange(date ? format(date, "yyyy-MM-dd") : "");
+                }}
+                placeholder={t.searchByLastVisitDate}
+                allowPastDates={true}
+                showDropdowns={true}
+              />
+            </div>
           ) : (
             <div className="relative flex-1 flex items-center gap-2">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -212,9 +235,12 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
                 maxLength={getMaxLength(currentFilterAndSortField)}
                 minLength={getMinLength(currentFilterAndSortField)}
               />
-              <Button onClick={handleApplySearch} className="shrink-0">
-                {t.searchPlaceholder.replace("...", "")}
-              </Button>
+              {/* Only show search button for non-live search fields */}
+              {currentFilterAndSortField !== "phone" && currentFilterAndSortField !== "lastVisit" && (
+                <Button onClick={handleApplySearch} className="shrink-0">
+                  {t.searchPlaceholder.replace("...", "")}
+                </Button>
+              )}
             </div>
           )}
 

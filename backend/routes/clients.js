@@ -54,7 +54,9 @@ router.get("/", optionalAuth, async (req, res) => {
             },
           },
           // Convert dateOfBirth to ISO string for consistent searching/sorting
-          dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } }
+          dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } },
+          // Convert lastVisit to ISO string for consistent searching
+          lastVisitString: { $dateToString: { format: "%Y-%m-%d", date: "$lastVisit" } }
         },
       },
     ];
@@ -71,12 +73,8 @@ router.get("/", optionalAuth, async (req, res) => {
         case "phone":
           dynamicSearchFilter.phone = searchRegex;
           break;
-        case "email":
-          dynamicSearchFilter.email = searchRegex;
-          break;
         case "lastVisit":
-          // Search on the ISO string representation of lastVisit
-          dynamicSearchFilter.lastVisit = searchRegex;
+          dynamicSearchFilter.lastVisitString = searchRegex; // Search on the string representation
           break;
         case "nextAppointment":
           // Search on the ISO string representation of nextAppointment
@@ -91,9 +89,9 @@ router.get("/", optionalAuth, async (req, res) => {
             { firstName: searchRegex },
             { lastName: searchRegex },
             { phone: searchRegex },
-            { email: searchRegex },
             { fullName: searchRegex }, // Include computed fullName
-            { dateOfBirthString: searchRegex } // Include computed dateOfBirthString
+            { dateOfBirthString: searchRegex }, // Include computed dateOfBirthString
+            { lastVisitString: searchRegex } // Include computed lastVisitString
           ];
           break;
       }
@@ -107,6 +105,8 @@ router.get("/", optionalAuth, async (req, res) => {
         actualSortBy = "fullName"; // Sort by computed fullName
     } else if (sortBy === "dateOfBirth") {
         actualSortBy = "dateOfBirthString"; // Sort by computed dateOfBirthString
+    } else if (sortBy === "lastVisit") {
+        actualSortBy = "lastVisitString"; // Sort by computed lastVisitString
     }
     sortStage[actualSortBy] = sortOrder === "desc" ? -1 : 1;
     pipeline.push({ $sort: sortStage });
@@ -137,7 +137,8 @@ router.get("/", optionalAuth, async (req, res) => {
           lastVisit: 1,
           nextAppointment: 1,
           fullName: 1, // Keep fullName if it was used for sorting/searching
-          dateOfBirthString: 1 // Keep dateOfBirthString if it was used for sorting/searching
+          dateOfBirthString: 1, // Keep dateOfBirthString if it was used for sorting/searching
+          lastVisitString: 1 // Keep lastVisitString if it was used for sorting/searching
         },
     });
 
@@ -168,7 +169,8 @@ router.get("/", optionalAuth, async (req, res) => {
                         },
                     },
                 },
-                dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } }
+                dateOfBirthString: { $dateToString: { format: "%Y-%m-%d", date: "$dateOfBirth" } },
+                lastVisitString: { $dateToString: { format: "%Y-%m-%d", date: "$lastVisit" } }
             },
         },
     ];
@@ -178,14 +180,13 @@ router.get("/", optionalAuth, async (req, res) => {
         switch (searchField) {
             case "name": dynamicSearchFilter.fullName = searchRegex; break;
             case "phone": dynamicSearchFilter.phone = searchRegex; break;
-            case "email": dynamicSearchFilter.email = searchRegex; break;
-            case "lastVisit": dynamicSearchFilter.lastVisit = searchRegex; break;
+            case "lastVisit": dynamicSearchFilter.lastVisitString = searchRegex; break;
             case "nextAppointment": dynamicSearchFilter.nextAppointment = searchRegex; break;
             case "dateOfBirth": dynamicSearchFilter.dateOfBirthString = searchRegex; break;
             default:
                 dynamicSearchFilter.$or = [
                     { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
-                    { email: searchRegex }, { fullName: searchRegex }, { dateOfBirthString: searchRegex }
+                    { fullName: searchRegex }, { dateOfBirthString: searchRegex }, { lastVisitString: searchRegex }
                 ];
                 break;
         }

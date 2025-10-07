@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import jsPDF from "jspdf";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { isPast, parseISO } from "date-fns";
+import { isPast, parseISO, format } from "date-fns"; // Import format
 
 import { useToast } from "@/hooks/use-toast";
 import { translations, type Translations } from "./types/translations";
@@ -155,6 +155,9 @@ const DentalClinicDashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const clientsPerPage = 30;
 
+  // New state for last visit date filter
+  const [lastVisitFilterDate, setLastVisitFilterDate] = useState<Date | undefined>(undefined);
+
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
 
@@ -217,14 +220,25 @@ const DentalClinicDashboard = () => {
     setError(null);
 
     try {
+      let searchParam = appliedSearchTerm; // This comes from debouncedSearchTerm
+      let searchFieldParam = currentFilterAndSortField;
+
+      // Override searchParam and searchFieldParam if a date filter is active
+      if (currentFilterAndSortField === "lastVisit" && lastVisitFilterDate) {
+          searchParam = format(lastVisitFilterDate, "yyyy-MM-dd");
+          searchFieldParam = "lastVisit";
+      }
+      // Note: For phone, appliedSearchTerm already contains the combined phone number.
+      // The backend handles the "+998" prefix removal for phone search.
+
       const params = {
         page: String(page),
         limit: String(limit),
-        search: appliedSearchTerm, // Use appliedSearchTerm for API calls
+        search: searchParam,
         status: statusFilter,
         sortBy: currentFilterAndSortField === "name" ? "firstName" : currentFilterAndSortField,
         sortOrder: currentSortDirection,
-        searchField: currentFilterAndSortField,
+        searchField: searchFieldParam,
       };
       const response = await ClientService.getAllClients(params);
 
@@ -274,7 +288,7 @@ const DentalClinicDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language, clientTreatmentsCache]);
+  }, [currentPage, appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, language, clientTreatmentsCache, lastVisitFilterDate]);
 
   // Effect to trigger client loading when appliedSearchTerm or other filters change
   useEffect(() => {
@@ -332,28 +346,9 @@ const DentalClinicDashboard = () => {
   };
 
   const handleApplySearch = () => {
-    if (currentFilterAndSortField === "phone") {
-      let cleanedSearchTerm = searchTerm.replace(/\D/g, ""); // Remove all non-digits
-
-      // Remove common prefixes if they exist at the beginning
-      if (cleanedSearchTerm.startsWith("998")) {
-        cleanedSearchTerm = cleanedSearchTerm.substring(3);
-      } else if (cleanedSearchTerm.startsWith("+998")) {
-        cleanedSearchTerm = cleanedSearchTerm.substring(4);
-      }
-
-      // Ensure it's at most 9 digits (the local number part)
-      if (cleanedSearchTerm.length > 9) {
-        cleanedSearchTerm = cleanedSearchTerm.slice(-9); // Take the last 9 digits
-      } else if (cleanedSearchTerm.length < 9 && cleanedSearchTerm.length > 0) {
-        // If less than 9 digits but not empty, pad with leading zeros for search if needed,
-        // or just use as is for partial search. For now, use as is.
-        // The backend regex search will handle partial matches.
-      }
-      setAppliedSearchTerm(cleanedSearchTerm);
-    } else {
-      setAppliedSearchTerm(searchTerm);
-    }
+    // This function is now primarily for non-phone/non-date fields where a button is clicked
+    // For phone and date fields, the debouncedSearchTerm useEffect or direct state update handles it.
+    setAppliedSearchTerm(searchTerm);
   };
 
   const handleFilterFieldChange = (field: FilterAndSortField) => {
@@ -361,6 +356,7 @@ const DentalClinicDashboard = () => {
     setCurrentSortDirection("asc"); // Reset sort direction when field changes
     setSearchTerm(""); // Clear input field
     setAppliedSearchTerm(""); // Clear applied search term immediately
+    setLastVisitFilterDate(undefined); // Clear date picker value when changing filter field
   };
 
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
@@ -773,6 +769,7 @@ const DentalClinicDashboard = () => {
     setStatusFilter("all");
     setCurrentFilterAndSortField("name");
     setCurrentSortDirection("asc");
+    setLastVisitFilterDate(undefined); // Clear last visit filter date
     setCurrentPage(1);
   }, []);
 
@@ -783,9 +780,10 @@ const DentalClinicDashboard = () => {
       statusFilter !== "all" ||
       currentFilterAndSortField !== "name" ||
       currentSortDirection !== "asc" ||
+      lastVisitFilterDate !== undefined || // Add this
       currentPage !== 1
     );
-  }, [appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, currentPage]);
+  }, [appliedSearchTerm, statusFilter, currentFilterAndSortField, currentSortDirection, lastVisitFilterDate, currentPage]);
 
 
   if (!mounted) {
@@ -834,6 +832,8 @@ const DentalClinicDashboard = () => {
           handleApplySearch={handleApplySearch} // Pass new handler
           onResetFilters={resetAllFilters} // Pass reset function
           isFilterActive={isFilterActive} // Pass filter active status
+          lastVisitFilterDate={lastVisitFilterDate} // Pass new prop
+          setLastVisitFilterDate={setLastVisitFilterDate} // Pass new prop
         />
 
         <ClientTable
