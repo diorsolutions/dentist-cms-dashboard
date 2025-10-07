@@ -4,15 +4,15 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import jsPDF from "jspdf";
-import { AlertCircle } from "lucide-react";
-import { isPast, parseISO } from "date-fns"; // Import date-fns functions
+import { AlertCircle, Loader2 } from "lucide-react"; // Added Loader2
+import { isPast, parseISO } from "date-fns";
 
 import { useToast } from "@/hooks/use-toast";
 import { translations, type Translations } from "./types/translations";
 import {
   formatDate as formatDateOriginal,
   getTodayForInput,
-  uzbekLocale, // Import uzbekLocale
+  uzbekLocale,
 } from "./utils/date-formatter";
 import ClientService from "./services/clientService";
 import TreatmentService from "./services/treatmentService";
@@ -29,35 +29,35 @@ import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/use-debounce"; // Import useDebounce
+import { useDebounce } from "@/hooks/use-debounce";
 
 // Types
 interface TreatmentRecord {
   _id?: string;
-  id: string; // Changed from number to string
-  treatmentDate: string; // Renamed from 'date' for clarity
+  id: string;
+  treatmentDate: string;
   visitType: string;
   treatmentType: string;
   doctor: string;
   cost: number;
-  description: string; // Description of the treatment itself
-  notes: string; // General notes for this treatment
+  description: string;
+  notes: string;
   nextVisitDate: string | null;
-  nextVisitNotes: string; // Specific notes for the next visit
+  nextVisitNotes: string;
   images?: string[];
 }
 
 interface Client {
   _id?: string;
-  id: string; // Changed from number to string
+  id: string;
   name: string;
   phone: string;
   email: string;
-  lastVisit: string | null; // Can be null if no visits
-  nextAppointment: string | null; // Can be null if no future appointments
+  lastVisit: string | null;
+  nextAppointment: string | null;
   status: "inTreatment" | "completed";
-  treatment: string; // This is initialTreatment
-  notes: string; // This is initial notes
+  treatment: string;
+  notes: string;
   age: number;
   address: string;
   treatmentHistory: TreatmentRecord[];
@@ -70,7 +70,7 @@ interface Client {
   };
   images?: string[];
   dateOfBirth?: string;
-  treatmentCount: number; // Added for optimized fetching
+  treatmentCount: number;
 }
 
 interface NewClientState {
@@ -86,10 +86,8 @@ interface NewClientState {
 
 interface NewTreatmentState {
   visitType: string;
-  // treatmentType: string; // Removed
   description: string;
-  // notes: string; // Removed
-  nextVisitDate?: Date; // Changed type to Date
+  nextVisitDate?: Date;
   nextVisitNotes: string;
   images: File[] | null;
 }
@@ -108,7 +106,7 @@ const DentalClinicDashboard = () => {
   const [mounted, setMounted] = useState(false);
   const [language, setLanguage] = useState<"latin" | "cyrillic">("latin");
   const [clients, setClients] = useState<Client[]>([]);
-  const [selectedClients, setSelectedClients] = useState<string[]>([]); // Changed from number[] to string[]
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(false);
@@ -120,9 +118,10 @@ const DentalClinicDashboard = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
-  const [expandedTreatment, setExpandedTreatment] = useState<string | null>(null); // Changed from number to string
+  const [expandedTreatment, setExpandedTreatment] = useState<string | null>(null);
   const [isAddTreatmentModalOpen, setIsAddTreatmentModalOpen] = useState(false);
   const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const [loadingTreatments, setLoadingTreatments] = useState(false); // New state for treatment loading
 
   const [newClient, setNewClient] = useState<NewClientState>({
     firstName: "",
@@ -140,9 +139,7 @@ const DentalClinicDashboard = () => {
 
   const [newTreatment, setNewTreatment] = useState<NewTreatmentState>({
     visitType: "",
-    // treatmentType: "", // Removed
     description: "",
-    // notes: "", // Removed
     nextVisitDate: undefined,
     nextVisitNotes: "",
     images: null,
@@ -154,7 +151,7 @@ const DentalClinicDashboard = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const clientsPerPage = 30; // Defined as 30 in backend
+  const clientsPerPage = 30;
 
   const t: Translations = translations[language];
   const currentTheme = theme === "system" ? systemTheme : theme;
@@ -165,16 +162,24 @@ const DentalClinicDashboard = () => {
   const debouncedFilterAndSortField = useDebounce(currentFilterAndSortField, 500);
   const debouncedSortDirection = useDebounce(currentSortDirection, 500);
 
+  // Client-side cache for treatment histories
+  const [clientTreatmentsCache, setClientTreatmentsCache] = useState<Map<string, TreatmentRecord[]>>(new Map());
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const loadClientTreatments = async (clientId: string) => {
+  const loadClientTreatments = async (clientId: string, forceRefresh = false): Promise<TreatmentRecord[]> => {
+    if (!forceRefresh && clientTreatmentsCache.has(clientId)) {
+      console.log(`Treatments for client ${clientId} found in cache.`);
+      return clientTreatmentsCache.get(clientId)!;
+    }
+
     try {
+      console.log(`Fetching treatments for client ${clientId} from API.`);
       const response = await TreatmentService.getClientTreatments(clientId);
       if (response.success) {
-        return response.data
+        const treatments = response.data
           .map((treatment: any) => ({
             id: treatment._id,
             _id: treatment._id,
@@ -197,11 +202,14 @@ const DentalClinicDashboard = () => {
             (a: TreatmentRecord, b: TreatmentRecord) =>
               new Date(b.treatmentDate).getTime() - new Date(a.treatmentDate).getTime()
           );
+
+        setClientTreatmentsCache(prev => new Map(prev).set(clientId, treatments));
+        return treatments;
       }
       return [];
     } catch (error) {
       console.error("Error loading treatments:", error);
-      return [];
+      throw error;
     }
   };
 
@@ -214,7 +222,7 @@ const DentalClinicDashboard = () => {
         limit: String(limit),
         search: debouncedSearchTerm,
         status: debouncedStatusFilter,
-        sortBy: debouncedFilterAndSortField === "name" ? "firstName" : debouncedFilterAndSortField, // Adjust for backend field names
+        sortBy: debouncedFilterAndSortField === "name" ? "firstName" : debouncedFilterAndSortField,
         sortOrder: debouncedSortDirection,
       };
       const response = await ClientService.getAllClients(params);
@@ -227,20 +235,20 @@ const DentalClinicDashboard = () => {
               name: `${client.firstName} ${client.lastName}`,
               phone: client.phone,
               email: client.email,
-              lastVisit: client.lastVisit, // Now directly from backend
-              nextAppointment: client.nextAppointment, // Now directly from backend
+              lastVisit: client.lastVisit,
+              nextAppointment: client.nextAppointment,
               status: client.status,
               treatment: client.initialTreatment,
               notes: client.notes,
               age: client.age,
               address: client.address,
-              treatmentHistory: [], // Only load full history on demand
+              treatmentHistory: clientTreatmentsCache.get(client._id) || [], // Use cached or empty
               uploadedImages: client.uploadedFiles?.images || [],
               uploadedFiles: client.uploadedFiles || { images: [] },
               images: client.images || [],
               firstName: client.firstName,
               lastName: client.lastName,
-              treatmentCount: client.treatmentCount || 0, // Now directly from backend
+              treatmentCount: client.treatmentCount || 0,
             };
           });
 
@@ -268,7 +276,7 @@ const DentalClinicDashboard = () => {
 
   useEffect(() => {
     loadClients();
-  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, debouncedFilterAndSortField, debouncedSortDirection, language]); // Reload on debounced filter/sort/page change
+  }, [currentPage, debouncedSearchTerm, debouncedStatusFilter, debouncedFilterAndSortField, debouncedSortDirection, language]);
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -297,7 +305,7 @@ const DentalClinicDashboard = () => {
     if (cleaned.startsWith("998")) {
       cleaned = "+" + cleaned;
     } else if (!cleaned.startsWith("+998") && cleaned.length > 0) {
-      cleaned = "+" + "998" + cleaned; // Ensure +998 prefix
+      cleaned = "+" + "998" + cleaned;
     }
     if (cleaned.length > 13) {
       cleaned = cleaned.substring(0, 13);
@@ -308,8 +316,6 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  // The filteredAndSortedClients memo now just uses the `clients` state directly
-  // because `loadClients` already fetches the filtered, sorted, and paginated data.
   const filteredAndSortedClients = useMemo(() => clients, [clients]);
 
   const handleSelectAll = (checked: boolean) => {
@@ -320,7 +326,7 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const handleClientSelect = (clientId: string, checked: boolean) => { // Changed clientId type
+  const handleClientSelect = (clientId: string, checked: boolean) => {
     if (checked) {
       setSelectedClients((prev) => [...prev, clientId]);
     } else {
@@ -387,7 +393,7 @@ const DentalClinicDashboard = () => {
       doc.setLineWidth(0.3);
       doc.rect(startX, yPos - rowHeight + 2, tableWidth, rowHeight);
 
-      const treatmentCount = client.treatmentCount || 0; // Use treatmentCount from backend
+      const treatmentCount = client.treatmentCount || 0;
       const rowData = [
         (index + 1).toString(),
         client.name.length > 20 ? client.name.substring(0, 20) + "..." : client.name,
@@ -413,15 +419,27 @@ const DentalClinicDashboard = () => {
   };
 
   const openClientModal = async (client: Client) => {
-    // Ensure treatmentHistory is loaded when opening the modal
-    if (client._id) {
-      const treatments = await loadClientTreatments(client._id);
-      setSelectedClient({ ...client, treatmentHistory: treatments });
-    } else {
-      setSelectedClient(client);
-    }
+    setSelectedClient(client); // Set client info immediately
     setIsClientDetailsModalOpen(true);
-    setActiveTab("info");
+    setActiveTab("info"); // Default to info tab
+
+    // Load treatments in the background
+    if (client._id) {
+      setLoadingTreatments(true); // Start loading indicator
+      try {
+        const treatments = await loadClientTreatments(client._id);
+        setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: treatments } : null));
+      } catch (error) {
+        console.error("Error loading treatments for modal:", error);
+        toast({
+          title: "Xatolik",
+          description: "Mijoz muolaja tarixini yuklashda xatolik yuz berdi.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingTreatments(false); // Stop loading indicator
+      }
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -445,6 +463,8 @@ const DentalClinicDashboard = () => {
 
       if (selectedClientIds.length > 0) {
         await ClientService.bulkUpdateStatus(selectedClientIds as string[], "completed");
+        // Invalidate cache for updated clients
+        selectedClientIds.forEach(id => clientTreatmentsCache.delete(id as string));
         await loadClients();
         toast({
           title: "Muvaffaqiyat",
@@ -475,6 +495,8 @@ const DentalClinicDashboard = () => {
 
       if (selectedClientIds.length > 0) {
         await ClientService.bulkDelete(selectedClientIds as string[]);
+        // Invalidate cache for deleted clients
+        selectedClientIds.forEach(id => clientTreatmentsCache.delete(id as string));
         await loadClients();
         toast({
           title: "Muvaffaqiyat",
@@ -513,6 +535,8 @@ const DentalClinicDashboard = () => {
             selectedClientIds as string[],
             "inTreatment"
           );
+          // Invalidate cache for updated clients
+          selectedClientIds.forEach(id => clientTreatmentsCache.delete(id as string));
           await loadClients();
           toast({
             title: "Muvaffaqiyat",
@@ -615,7 +639,7 @@ const DentalClinicDashboard = () => {
   };
 
   const handleAddTreatment = async () => {
-    if (!newTreatment.visitType) { // Only check visitType as treatmentType is now optional
+    if (!newTreatment.visitType) {
       toast({
         title: "Xatolik",
         description: "Bugungi tashrif turi to'ldirilishi kerak.",
@@ -629,11 +653,11 @@ const DentalClinicDashboard = () => {
       const treatmentData = {
         clientId: selectedClient?._id,
         visitType: newTreatment.visitType,
-        treatmentType: "", // Send empty string as it's removed from UI but still in schema
+        treatmentType: "",
         description: newTreatment.description || undefined,
-        notes: "", // Send empty string as it's removed from UI but still in schema
-        doctor: "Dr. Karimova", // Default doctor
-        cost: 0, // Default cost
+        notes: "",
+        doctor: "Dr. Karimova",
+        cost: 0,
         nextVisitDate: newTreatment.nextVisitDate,
         nextVisitNotes: newTreatment.nextVisitNotes || undefined,
       };
@@ -647,12 +671,13 @@ const DentalClinicDashboard = () => {
         });
 
         if (selectedClient?._id) {
-          const treatments = await loadClientTreatments(selectedClient._id);
-          setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: treatments } : null));
+          // Force refresh treatments for the selected client and update cache
+          const updatedTreatments = await loadClientTreatments(selectedClient._id, true);
+          setSelectedClient((prev) => (prev ? { ...prev, treatmentHistory: updatedTreatments } : null));
         }
 
         setNewTreatment({
-          visitType: "", // treatmentType: "", description: "", notes: "", nextVisitDate: undefined, nextVisitNotes: "", images: null,
+          visitType: "",
           description: "",
           nextVisitDate: undefined,
           nextVisitNotes: "",
@@ -787,6 +812,7 @@ const DentalClinicDashboard = () => {
         formatDate={formatDate}
         getStatusColor={getStatusColor}
         setPreviewImage={setPreviewImage}
+        loadingTreatments={loadingTreatments} // Pass loading state
       />
 
       <AddClientModal

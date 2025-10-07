@@ -7,29 +7,29 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, ChevronDown, ChevronRight, ImageIcon, ZoomIn, X } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, ImageIcon, ZoomIn, X, Loader2 } from "lucide-react"; // Added Loader2
 import UploadService from "@/services/uploadService";
 import type { Translations } from "@/types/translations";
-import { cn } from "@/lib/utils"; // Import cn utility
+import { cn } from "@/lib/utils";
 
 interface TreatmentRecord {
   _id?: string;
-  id: string; // Changed from number to string
-  treatmentDate: string; // Renamed from 'date' for clarity
+  id: string;
+  treatmentDate: string;
   visitType: string;
   treatmentType: string;
   doctor: string;
   cost: number;
-  description: string; // Description of the treatment itself
-  notes: string; // General notes for this treatment
+  description: string;
+  notes: string;
   nextVisitDate: string | null;
-  nextVisitNotes: string; // Specific notes for the next visit
+  nextVisitNotes: string;
   images?: string[];
 }
 
 interface Client {
   _id?: string;
-  id: string; // Changed from number to string
+  id: string;
   name: string;
   phone: string;
   email: string;
@@ -59,12 +59,13 @@ interface ClientDetailsModalProps {
   selectedClient: Client | null;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  expandedTreatment: string | null; // Changed from number to string
-  setExpandedTreatment: (id: string | null) => void; // Changed id type
+  expandedTreatment: string | null;
+  setExpandedTreatment: (id: string | null) => void;
   setIsAddTreatmentOpen: (isOpen: boolean) => void;
-  formatDate: (dateString: string | null) => string; // Updated type
+  formatDate: (dateString: string | null) => string;
   getStatusColor: (status: string) => string;
   setPreviewImage: (imageUrl: string | null) => void;
+  loadingTreatments: boolean; // New prop for loading state
 }
 
 const ImagePreview = ({
@@ -103,6 +104,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   formatDate,
   getStatusColor,
   setPreviewImage,
+  loadingTreatments, // Use the new prop
 }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -137,6 +139,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 className="transition-all duration-200 text-base py-3"
               >
                 {t.treatmentHistory}
+                {loadingTreatments && (
+                  <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                )}
               </TabsTrigger>
             </TabsList>
 
@@ -286,7 +291,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </Button>
               </div>
 
-              {selectedClient.treatmentHistory.length === 0 ? (
+              {loadingTreatments ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+                  <p className="text-muted-foreground mt-2">
+                    Muolaja tarixi yuklanmoqda...
+                  </p>
+                </div>
+              ) : selectedClient.treatmentHistory.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   {t.noTreatmentHistory}
                 </div>
