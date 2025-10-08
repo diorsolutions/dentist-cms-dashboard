@@ -65,7 +65,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
         {/* Header */}
         <div className="grid grid-cols-18 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
           <div className="col-span-1">No.</div> {/* No. column */}
-          <div className="col-span-1"> {/* Checkbox column - made compact */}
+          <div className="col-span-1 flex items-center"> {/* Select All Checkbox column */}
             <Checkbox
               id="select-all"
               checked={
@@ -92,30 +92,32 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-18 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group"
+              className="grid grid-cols-18 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group relative" // Added relative and group
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
-              <div className="col-span-1 flex items-center"> {/* No. column content */}
-                <span className="text-sm text-muted-foreground">{index + 1}.</span>
-              </div>
+              {/* Individual Checkbox - Absolutely positioned outside the grid flow */}
               <div
-                className="col-span-1 flex items-center" // Checkbox column content - made compact
-                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
+                  selectedClients.includes(client.id)
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                )}
+                onClick={(e) => e.stopPropagation()} // Prevent row click when clicking checkbox
               >
                 <Checkbox
                   checked={selectedClients.includes(client.id)}
                   onCheckedChange={(checked) =>
                     handleClientSelect(client.id, checked as boolean)
                   }
-                  className={cn(
-                    "transition-opacity duration-200",
-                    selectedClients.includes(client.id)
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
-                  )}
                 />
               </div>
+
+              <div className="col-span-1 flex items-center"> {/* No. column content */}
+                <span className="text-sm text-muted-foreground">{index + 1}.</span>
+              </div>
+              <div className="col-span-1"></div> {/* Empty div to align with header's "Select All" column */}
               <div className="col-span-4 flex items-center pl-2"> {/* Name column content */}
                 <div>
                   <div className="text-lg font-semibold text-foreground">
