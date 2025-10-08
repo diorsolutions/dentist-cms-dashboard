@@ -67,8 +67,10 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {/* Select All Checkbox - Absolutely positioned */}
           <div
             className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
-              selectedClients.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+              "absolute left-[-1.4rem] top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
+              selectedClients.length > 0
+                ? "opacity-100 pointer-events-auto"
+                : "opacity-0 pointer-events-none"
             )}
             onClick={(e) => e.stopPropagation()} // Prevent header click when clicking checkbox
           >
@@ -82,14 +84,21 @@ const ClientTable: React.FC<ClientTableProps> = ({
             />
           </div>
           <div className="col-span-1">No.</div> {/* No. column */}
-          <div className="col-span-4 pl-2"> {/* Name column with left padding */}
+          <div className="col-span-4 pl-2">
+            {" "}
+            {/* Name column with left padding */}
             <span className="font-medium">{t.name}</span>
           </div>
-          <div className="col-span-3 px-2">{t.birthDate}</div> {/* Birth Date column */}
-          <div className="col-span-3 px-2">{t.lastVisit}</div> {/* Last Visit column */}
-          <div className="col-span-3 px-2">{t.nextAppointment}</div> {/* Next Appointment column */}
+          <div className="col-span-3 px-2">{t.birthDate}</div>{" "}
+          {/* Birth Date column */}
+          <div className="col-span-3 px-2">{t.lastVisit}</div>{" "}
+          {/* Last Visit column */}
+          <div className="col-span-3 px-2">{t.nextAppointment}</div>{" "}
+          {/* Next Appointment column */}
           <div className="col-span-2 px-2">{t.phone}</div> {/* Phone column */}
-          <div className="col-span-1"> {/* Status column */}
+          <div className="col-span-1">
+            {" "}
+            {/* Status column */}
             {t.status}
           </div>
         </div>
@@ -99,14 +108,14 @@ const ClientTable: React.FC<ClientTableProps> = ({
           {filteredAndSortedClients.map((client, index) => (
             <div
               key={client.id}
-              className="grid grid-cols-18 px-4 py-2 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group relative" // Added relative and group
+              className="grid grid-cols-18 px-4 py-4 hover:bg-muted/50 cursor-pointer transition-all duration-200 animate-in fade-in-50 group relative" // Added relative and group
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => openClientModal(client)}
             >
               {/* Individual Checkbox - Absolutely positioned outside the grid flow */}
               <div
                 className={cn(
-                  "absolute left-0 top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
+                  "absolute left-[-1.4rem] top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
                   selectedClients.includes(client.id)
                     ? "opacity-100"
                     : "opacity-0 group-hover:opacity-100"
@@ -121,24 +130,36 @@ const ClientTable: React.FC<ClientTableProps> = ({
                 />
               </div>
 
-              <div className="col-span-1 flex items-center"> {/* No. column content */}
-                <span className="text-sm text-muted-foreground">{index + 1}.</span>
+              <div className="col-span-1 flex items-center">
+                {" "}
+                {/* No. column content */}
+                <span className="text-sm text-muted-foreground">
+                  {index + 1}.
+                </span>
               </div>
               {/* Removed the empty div here to close the gap between No. and Name */}
-              <div className="col-span-4 flex items-center pl-2"> {/* Name column content */}
+              <div className="col-span-4 flex items-center pl-2">
+                {" "}
+                {/* Name column content */}
                 <div>
                   <div className="text-lg font-semibold text-foreground">
                     {client.name}
                   </div>
                 </div>
               </div>
-              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2"> {/* Birth Date content */}
+              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                {" "}
+                {/* Birth Date content */}
                 {formatDate(client.dateOfBirth)}
               </div>
-              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2"> {/* Last Visit content */}
+              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                {" "}
+                {/* Last Visit content */}
                 {formatDate(client.lastVisit)}
               </div>
-              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2"> {/* Next Appointment content */}
+              <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                {" "}
+                {/* Next Appointment content */}
                 {client.nextAppointment ? (
                   <span
                     className={
@@ -155,10 +176,14 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   t.notSpecified
                 )}
               </div>
-              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2"> {/* Phone content */}
+              <div className="col-span-2 flex items-center text-sm text-muted-foreground px-2">
+                {" "}
+                {/* Phone content */}
                 {client.phone}
               </div>
-              <div className="col-span-1 flex items-center"> {/* Status content */}
+              <div className="col-span-1 flex items-center">
+                {" "}
+                {/* Status content */}
                 <Badge className={getStatusColor(client.status)}>
                   {t[client.status]}
                 </Badge>

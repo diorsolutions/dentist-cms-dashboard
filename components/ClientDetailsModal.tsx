@@ -4,9 +4,18 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Plus,
   ChevronDown,
@@ -131,9 +140,11 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent
-        className={cn("sm:max-w-4xl max-h-[90vh] overflow-y-auto")}
+        className={cn(
+          "sm:max-w-4xl bg-gray-900/60 max-h-[90vh] overflow-y-auto"
+        )}
       >
-        <DialogHeader className="pb-6">
+        <DialogHeader>
           <div>
             <DialogTitle className="text-2xl font-bold">
               {selectedClient?.name}
@@ -145,9 +156,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
-            className="w-full"
+            className="w-full flex flex-col"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-6 h-101">
+            <TabsList className="grid w-full grid-cols-2 h-auto">
               <TabsTrigger
                 value="info"
                 className="transition-all duration-200 text-base py-3"
@@ -167,118 +178,127 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
             <TabsContent
               value="info"
-              className="space-y-6 mt-4 animate-in fade-in-50 duration-300"
+              className="overflow-auto flex flex-col gap-3 max-h-[70vh] p-2 rounded-lg"
             >
-              {/* Personal Information Card */}
-              <Card>
+              {/* Personal Information */}
+              <Card className="bg-gray-900/10 backdrop-blur-lg shadow-2xl border border-gray-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-white/80">
                     <User className="h-5 w-5 text-white/90" />
                     {t.clientInfo}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
-                      <User className="h-4 w-4" /> {t.name}
-                    </Label>
-                    <p className="text-base font-semibold text-white/70">
-                      {selectedClient.name}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
-                      <Calendar className="h-4 w-4" /> {t.birthDate}
-                    </Label>
-                    <p className="text-base font-semibold text-white/70">
-                      {formatDate(selectedClient.dateOfBirth)}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
-                      <Clock className="h-4 w-4" /> {t.ageCalculated}
-                    </Label>
-                    <p className="text-base font-semibold text-white/70">
-                      {clientAge !== null ? clientAge : t.notSpecified}
-                    </p>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
-                      <MapPin className="h-4 w-4" /> {t.address}
-                    </Label>
-                    <p className="text-base font-semibold text-white/70">
-                      {selectedClient.address || t.notSpecified}
-                    </p>
-                  </div>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                  {[
+                    [
+                      {
+                        icon: <User className="h-4 w-4" />,
+                        label: t.name,
+                        value: selectedClient.name,
+                      },
+                      {
+                        icon: <Calendar className="h-4 w-4" />,
+                        label: t.birthDate,
+                        value: formatDate(selectedClient.dateOfBirth),
+                      },
+                    ],
+                    [
+                      {
+                        icon: <Clock className="h-4 w-4" />,
+                        label: t.ageCalculated,
+                        value: clientAge ?? t.notSpecified,
+                      },
+                      {
+                        icon: <MapPin className="h-4 w-4" />,
+                        label: t.address,
+                        value: selectedClient.address || t.notSpecified,
+                      },
+                    ],
+                  ].map((col, i) => (
+                    <div
+                      key={i}
+                      className="flex flex-col bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 gap-3 rounded-md"
+                    >
+                      {col.map((field, j) => (
+                        <div key={j} className="space-y-1">
+                          <Label className="text-sm text-white/40 flex items-center gap-1">
+                            {field.icon} {field.label}
+                          </Label>
+                          <p className="text-base font-semibold text-white/70 break-words">
+                            {field.value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
 
-              {/* Contact Information Card */}
-              <Card>
+              {/* Contact Information */}
+              <Card className="bg-gray-900/10 backdrop-blur-lg shadow-2xl border border-gray-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-white/80">
                     <Phone className="h-5 w-5 text-white/90" />
                     {t.phoneNumber} & {t.email}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                  <div className="flex flex-col bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 rounded-md">
                     <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Phone className="h-4 w-4" /> {t.phone}
                     </Label>
                     <a
                       href={`tel:${selectedClient.phone}`}
-                      className="text-base font-semibold text-blue-600 hover:underline"
+                      className="text-base font-semibold text-blue-200 hover:underline w-[40%]"
                     >
                       {selectedClient.phone}
                     </a>
                   </div>
-                  <div className="space-y-1">
+                  <div className="flex flex-col bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 rounded-md">
                     <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Mail className="h-4 w-4" /> {t.email}
                     </Label>
-                    <p className="text-base font-semibold text-white/70">
+                    <p className="text-base font-semibold text-white/70 break-all">
                       {selectedClient.email || t.notSpecified}
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Treatment Overview Card */}
-              <Card>
+              {/* Treatment Overview */}
+              <Card className="bg-gray-900/10 backdrop-blur-lg shadow-2xl border border-gray-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-white/80">
                     <Stethoscope className="h-5 w-5 text-white/90" />
                     {t.treatment}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                  <div className="flex flex-col bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 rounded-md">
                     <Label className="text-sm text-white/50 flex items-center gap-1">
                       <FileText className="h-4 w-4" /> {t.initialTreatment}
                     </Label>
                     <p className="text-base font-semibold text-white/70">
                       {selectedClient.treatment || t.notSpecified}
                     </p>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
+
+                    <Label className="text-sm text-white/50 flex items-center gap-1 mt-3">
                       <Clock className="h-4 w-4" /> {t.status}
                     </Label>
                     <Badge className={getStatusColor(selectedClient.status)}>
                       {t[selectedClient.status]}
                     </Badge>
                   </div>
-                  <div className="space-y-1">
+
+                  <div className="flex flex-col bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 rounded-md">
                     <Label className="text-sm text-white/50 flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> {t.lastVisit}
                     </Label>
                     <p className="text-base font-semibold text-white/70">
                       {formatDate(selectedClient.lastVisit)}
                     </p>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-sm text-white/50 flex items-center gap-1">
+
+                    <Label className="text-sm text-white/50 flex items-center gap-1 mt-3">
                       <Calendar className="h-4 w-4" /> {t.nextAppointment}
                     </Label>
                     <p className="text-base font-semibold text-white/70">
@@ -288,60 +308,41 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Additional Notes Card */}
-              <Card>
+              {/* Notes */}
+              <Card className="bg-gray-900/10 backdrop-blur-lg shadow-2xl border border-gray-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-white/80">
                     <FileText className="h-5 w-5 text-white/90" />
                     {t.clientNotes}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-base font-semibold text-white/70">
+                <CardContent className="p-4">
+                  <div className="bg-gray-600/30 border border-gray-600/50 shadow-2xl p-4 rounded-md text-base font-semibold text-white/70 whitespace-pre-wrap break-words">
                     {selectedClient.notes || t.notSpecified}
-                  </p>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Images Gallery Section */}
-              <Card>
+              {/* Image Gallery */}
+              <Card className="bg-gray-900/10 backdrop-blur-lg shadow-2xl border border-gray-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl text-white/80">
                     <ImageIcon className="h-5 w-5 text-white/90" />
                     {t.uploadedImages}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
                   {selectedClient.uploadedFiles?.images &&
                   selectedClient.uploadedFiles.images.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {selectedClient.uploadedFiles.images.map(
-                        (image, index) => (
-                          <ImagePreview
-                            key={index}
-                            src={
-                              UploadService.getImageUrl(image) ||
-                              "/placeholder.svg"
-                            }
-                            alt={`Mijoz rasmi ${index + 1}`}
-                            onClick={() =>
-                              setPreviewImage(UploadService.getImageUrl(image))
-                            }
-                          />
-                        )
-                      )}
-                    </div>
-                  ) : selectedClient.images &&
-                    selectedClient.images.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {selectedClient.images.map((image, index) => (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {selectedClient.uploadedFiles.images.map((image, i) => (
                         <ImagePreview
-                          key={index}
+                          key={i}
                           src={
                             UploadService.getImageUrl(image) ||
                             "/placeholder.svg"
                           }
-                          alt={`Mijoz rasmi ${index + 1}`}
+                          alt={`Image ${i + 1}`}
                           onClick={() =>
                             setPreviewImage(UploadService.getImageUrl(image))
                           }
@@ -349,13 +350,13 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/30">
-                      <ImageIcon className="w-12 h-12 mx-auto text-white/50 mb-4" />
+                    <div className="text-center py-10 bg-gray-600/30 border border-gray-600/50 shadow-2xl rounded-md border border-dashed border-gray-600/40">
+                      <ImageIcon className="w-10 h-10 mx-auto text-white/50 mb-2" />
                       <p className="text-white/50 text-lg">
                         {t.noImagesUploaded}
                       </p>
-                      <p className="text-white/70 text-sm mt-2">
-                        Mijoz qo'shish vaqtida rasm yuklash mumkin
+                      <p className="text-white/60 text-sm mt-1">
+                        Mijoz qo‘shish vaqtida rasm yuklash mumkin
                       </p>
                     </div>
                   )}

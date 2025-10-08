@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils";
@@ -59,18 +65,16 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
 
   return (
     <Dialog open={isAddTreatmentOpen} onOpenChange={setIsAddTreatmentOpen}>
-      <DialogContent
-        className={cn(
-          "sm:max-w-2xl max-h-[90vh] overflow-y-auto"
-        )}
-      >
+      <DialogContent className={cn("sm:max-w-2xl max-h-[80vh] h-full")}>
         <DialogHeader className="pb-6">
           <DialogTitle>{t.addTreatment}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="visitType">{t.visitTypeLabel} *</Label>
+            <Label htmlFor="visitType" className="text-gray-300">
+              {t.visitTypeLabel} *
+            </Label>
             <Input
               id="visitType"
               value={newTreatment.visitType}
@@ -85,7 +89,9 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="description">{t.treatmentDescription}</Label>
+            <Label htmlFor="description" className="text-gray-300">
+              {t.treatmentDescription}
+            </Label>
             <Textarea
               id="description"
               value={newTreatment.description}
@@ -101,7 +107,9 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="nextVisitDate">{t.nextVisitDate}</Label>
+            <Label htmlFor="nextVisitDate" className="text-gray-300">
+              {t.nextVisitDate}
+            </Label>
             <DatePicker
               value={newTreatment.nextVisitDate}
               onChange={(date) =>
@@ -119,7 +127,9 @@ const AddTreatmentModal: React.FC<AddTreatmentModalProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="nextVisitNotes">{t.nextVisitNotesLabel}</Label>
+            <Label htmlFor="nextVisitNotes" className="text-gray-300">
+              {t.nextVisitNotesLabel}
+            </Label>
             <Textarea
               id="nextVisitNotes"
               value={newTreatment.nextVisitNotes}
