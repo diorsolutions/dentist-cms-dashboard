@@ -124,7 +124,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
               <div className="col-span-1 flex items-center"> {/* No. column content */}
                 <span className="text-sm text-muted-foreground">{index + 1}.</span>
               </div>
-              <div className="col-span-1"></div> {/* Empty div to align with header's "Select All" column */}
+              {/* Removed the empty div here to close the gap between No. and Name */}
               <div className="col-span-4 flex items-center pl-2"> {/* Name column content */}
                 <div>
                   <div className="text-lg font-semibold text-foreground">
