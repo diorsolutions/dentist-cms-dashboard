@@ -63,9 +63,12 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-18 px-4 py-2 border-b bg-muted/50 font-medium text-sm">
-          <div className="col-span-1">No.</div> {/* No. column */}
-          <div className="col-span-1 flex items-center"> {/* Select All Checkbox column */}
+        <div className="grid grid-cols-18 px-4 py-2 border-b bg-muted/50 font-medium text-sm relative"> {/* Added relative here */}
+          {/* Select All Checkbox - Absolutely positioned */}
+          <div
+            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center"
+            onClick={(e) => e.stopPropagation()} // Prevent header click when clicking checkbox
+          >
             <Checkbox
               id="select-all"
               checked={
@@ -75,6 +78,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
               onCheckedChange={handleSelectAll}
             />
           </div>
+          <div className="col-span-1">No.</div> {/* No. column */}
           <div className="col-span-4 pl-2"> {/* Name column with left padding */}
             <span className="font-medium">{t.name}</span>
           </div>
