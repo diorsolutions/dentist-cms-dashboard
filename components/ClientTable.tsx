@@ -63,10 +63,13 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500">
       <CardContent className="p-0">
         {/* Header */}
-        <div className="grid grid-cols-18 px-4 py-2 border-b bg-muted/50 font-medium text-sm relative"> {/* Added relative here */}
+        <div className="grid grid-cols-18 px-4 py-2 border-b bg-muted/50 font-medium text-sm relative">
           {/* Select All Checkbox - Absolutely positioned */}
           <div
-            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center"
+            className={cn(
+              "absolute left-0 top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
+              selectedClients.length > 0 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            )}
             onClick={(e) => e.stopPropagation()} // Prevent header click when clicking checkbox
           >
             <Checkbox
