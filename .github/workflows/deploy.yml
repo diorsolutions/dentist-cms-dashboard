@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 1. Loyihaning asosiy papkasini doimiy o'zgaruvchiga olamiz
-            PROJECT_DIR="/var/www/dentist-cms-dashboard"
+            PROJECT_DIR="/var/www/dentist-cms"
             
             echo "🛠️ 1-bosqich: Loyihani Git'dan yangilash..."
             cd $PROJECT_DIR
@@ -32,7 +32,7 @@ jobs:
             npm install
             
             # pm2 da bormi yoki yo'q tekshirib, shunga qarab restart yoki start qilamiz
-            pm2 restart backend-api --update-env || pm2 start server.js --name "backend-api"
+            pm2 restart dentist-api --update-env || pm2 start server.js --name "dentist-api"
             
             # ==========================================
             # 3. FRONTEND YANGILANISHI
@@ -44,8 +44,8 @@ jobs:
             # RAM muammosi bo'lmasligi uchun xotirani optimallashtirib build ishga tushiramiz
             NODE_OPTIONS="--max-old-space-size=2048" npm run build
             
-            # Next.js dasturini pm2 orqali xavfsiz va to'g'ri port (3000) bilan ishga tushirish
-            pm2 restart frontend-app --update-env || pm2 start npm --name "frontend-app" -- start -- -p 3000
+            # Next.js dasturini pm2 orqali xavfsiz va to'g'ri port (4001) bilan ishga tushirish
+            pm2 restart dentist-ui --update-env || pm2 start npm --name "dentist-ui" -- start -- -p 4001
             
             # ==========================================
             # 4. YAKUNIY BOSQICH
