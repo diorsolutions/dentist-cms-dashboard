@@ -1,5 +1,10 @@
 import ApiService from "./api";
 
+let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+if (API_BASE_URL === "/api") API_BASE_URL = "";
+if (API_BASE_URL.endsWith("/api")) API_BASE_URL = API_BASE_URL.slice(0, -4);
+if (API_BASE_URL.endsWith("/")) API_BASE_URL = API_BASE_URL.slice(0, -1);
+
 class UploadService {
   // Upload client images through backend
   static async uploadClientImages(clientId, images) {
@@ -13,15 +18,10 @@ class UploadService {
       });
 
       // Upload through backend API which handles Cloudinary
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-        }/api/upload/client-images`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/upload/client-images`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -53,9 +53,7 @@ class UploadService {
 
       // Upload through backend API which handles Cloudinary
       const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-        }/api/upload/treatment-images`,
+        `${API_BASE_URL}/api/upload/treatment-images`,
         {
           method: "POST",
           body: formData,
@@ -89,15 +87,11 @@ class UploadService {
 
     // If it starts with uploads/, use backend URL (fallback for old local files)
     if (imagePath.startsWith("uploads/")) {
-      return `${
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-      }/${imagePath}`;
+      return `${API_BASE_URL}/${imagePath}`;
     }
 
     // Otherwise, assume it's just the filename (fallback for old local files)
-    return `${
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
-    }/uploads/${imagePath}`;
+    return `${API_BASE_URL}/uploads/${imagePath}`;
   }
 }
 

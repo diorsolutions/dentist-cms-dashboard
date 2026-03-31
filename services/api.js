@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+if (API_BASE_URL === "/api") API_BASE_URL = "";
+if (API_BASE_URL.endsWith("/api")) API_BASE_URL = API_BASE_URL.slice(0, -4);
+if (API_BASE_URL.endsWith("/")) API_BASE_URL = API_BASE_URL.slice(0, -1);
 
 class ApiService {
   static async request(endpoint, options = {}) {
