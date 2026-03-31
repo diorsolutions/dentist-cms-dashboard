@@ -90,10 +90,8 @@ export default function LoginPage() {
 
     try {
       let apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      // Agar apiUrl ga oxirida /api yozilgan bo'lsa yoki turlicha ko'rsatilgan bo'lsa, tozalaymiz
-      if (apiUrl === "/api") apiUrl = "";
+      apiUrl = apiUrl.replace(/\/+$/, ""); // remove any trailing slashes
       if (apiUrl.endsWith("/api")) apiUrl = apiUrl.slice(0, -4);
-      if (apiUrl.endsWith("/")) apiUrl = apiUrl.slice(0, -1);
       
       const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
