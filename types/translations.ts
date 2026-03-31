@@ -163,7 +163,7 @@ export const translations: Record<
 > = {
   latin: {
     // Main navigation and titles
-    dentalManagement: "Stomatologiya boshqaruvi",
+    dentalManagement: "Stomatolog",
     clientInfo: "Mijoz ma'lumotlari",
     treatmentHistory: "Davolash tarixi",
 
