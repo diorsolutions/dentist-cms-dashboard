@@ -187,7 +187,7 @@ export const translations: Record<
     inTreatment: "Davolanmoqda",
     completed: "Tugallangan",
     lastVisit: "Oxirgi tashrif",
-    nextAppointment: "Keyingi uchrashiv",
+    nextAppointment: "Keyingi uchrashuv",
     treatment: "Muolaja",
     notes: "Izohlar",
 
