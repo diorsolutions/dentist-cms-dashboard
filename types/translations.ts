@@ -183,7 +183,7 @@ export const translations: Record<
 
     // Status and filters
     status: "Holat",
-    allStatuses: "Barcha holatlar",
+    allStatuses: "Barchasi",
     inTreatment: "Davolanmoqda",
     completed: "Tugallangan",
     lastVisit: "Oxirgi tashrif",
