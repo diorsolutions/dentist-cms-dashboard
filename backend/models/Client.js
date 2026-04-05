@@ -147,20 +147,30 @@ clientSchema.methods.addImages = function (imageFilenames) {
   console.log("Adding images to client:", imageFilenames)
 
   if (!this.uploadedFiles) {
-    this.uploadedFiles = {}
+    this.uploadedFiles = { images: [], documents: [], videos: [] }
   }
   if (!this.uploadedFiles.images) {
     this.uploadedFiles.images = []
   }
 
+  // Convert string URLs to expected object format if necessary
+  const imageObjects = imageFilenames.map((img) => {
+    if (typeof img === "string") {
+      return { url: img, comment: "" }
+    }
+    return img
+  })
+
   // Add to new structure
-  this.uploadedFiles.images.push(...imageFilenames)
+  this.uploadedFiles.images.push(...imageObjects)
 
   // Also add to legacy field for backward compatibility
+  // Legacy field only accepts strings
   if (!this.images) {
     this.images = []
   }
-  this.images.push(...imageFilenames)
+  const stringUrls = imageFilenames.map((img) => (typeof img === "string" ? img : img.url))
+  this.images.push(...stringUrls)
 
   console.log("Client images after adding:", this.uploadedFiles.images)
   return this.save()

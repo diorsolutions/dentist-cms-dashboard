@@ -239,17 +239,23 @@ router.post(
       }
 
       // Upload files to Cloudinary
-      const urls = [];
-      for (const file of req.files) {
+      const comments = req.body.comments || [];
+      const imageObjects = [];
+      
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
         try {
           const uploaded = await cloudinary.uploader.upload(file.path, {
             folder: "dental-clinic/clients",
           });
-          fs.unlinkSync(file.path); // lokalni o'chir
-          urls.push(uploaded.secure_url);
+          fs.unlinkSync(file.path);
+          
+          imageObjects.push({
+            url: uploaded.secure_url,
+            comment: comments[i] || ""
+          });
         } catch (uploadError) {
           console.error("Cloudinary upload error:", uploadError);
-          // O'chirish
           if (fs.existsSync(file.path)) {
             fs.unlinkSync(file.path);
           }
@@ -258,16 +264,16 @@ router.post(
       }
 
       // Add images to client
-      await client.addImages(urls);
+      await client.addImages(imageObjects);
 
       console.log("Images added to client successfully");
 
       res.json({
         success: true,
-        message: `${urls.length} ta rasm Cloudinaryga yuklandi`,
+        message: `${imageObjects.length} ta rasm Cloudinaryga yuklandi`,
         data: {
-          urls,
-          uploadedCount: urls.length,
+          urls: imageObjects.map(img => img.url),
+          uploadedCount: imageObjects.length,
         },
       });
     } catch (error) {
@@ -333,17 +339,25 @@ router.post(
       }
 
       // Upload files to Cloudinary
-      const urls = [];
-      for (const file of req.files) {
+      const comments = req.body.comments || [];
+      const imageObjects = [];
+      
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
         try {
           const uploaded = await cloudinary.uploader.upload(file.path, {
             folder: "dental-clinic/treatments",
           });
-          fs.unlinkSync(file.path); // lokalni o'chir
-          urls.push(uploaded.secure_url);
+          fs.unlinkSync(file.path);
+          
+          imageObjects.push({
+            url: uploaded.secure_url,
+            filename: uploaded.secure_url.split("/").pop(),
+            cloudinaryId: extractPublicId(uploaded.secure_url),
+            comment: comments[i] || ""
+          });
         } catch (uploadError) {
           console.error("Cloudinary upload error:", uploadError);
-          // O'chirish
           if (fs.existsSync(file.path)) {
             fs.unlinkSync(file.path);
           }
@@ -353,17 +367,18 @@ router.post(
 
       // Add images to treatment
       if (!treatment.images) {
-        treatment.images = [];
+        treatment.images = []
       }
-      treatment.images.push(...urls);
-      await treatment.save();
+      
+      treatment.images.push(...imageObjects)
+      await treatment.save()
 
       res.json({
         success: true,
-        message: `${urls.length} ta rasm Cloudinaryga yuklandi`,
+        message: `${imageObjects.length} ta rasm Cloudinaryga yuklandi`,
         data: {
-          urls,
-          uploadedCount: urls.length,
+          urls: imageObjects.map(img => img.url),
+          uploadedCount: imageObjects.length,
         },
       });
     } catch (error) {

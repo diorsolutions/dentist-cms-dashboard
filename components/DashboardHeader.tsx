@@ -34,23 +34,33 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   };
 
   return (
-    <div className="border-b bg-card transition-colors duration-300">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold text-foreground">
-              {t.dentalManagement}
-            </h1>
+    <div className="border-b bg-card transition-colors duration-300 sticky top-0 z-50">
+      <div className="container mx-auto px-4 md:px-6 py-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg md:text-xl font-bold text-foreground truncate max-w-[200px] sm:max-w-none">
+                {t.dentalManagement}
+              </h1>
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hidden sm:flex shrink-0"
+              >
+                {filteredClientCount} mijoz
+              </Badge>
+              {loading && <Loader2 className="h-4 w-4 animate-spin shrink-0 text-muted-foreground" />}
+            </div>
+            
+            {/* Mobile-only badge */}
             <Badge
-              variant="secondary"
-              className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-            >
-              {filteredClientCount} mijoz
+                variant="secondary"
+                className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 sm:hidden"
+              >
+                {filteredClientCount}
             </Badge>
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4 w-full md:w-auto">
             {/* Language Selector */}
             <Select
               value={language}
@@ -58,7 +68,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 setLanguage(value)
               }
             >
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-full sm:w-32 h-9">
                 <div className="flex items-center gap-2">
                   <Languages className="h-4 w-4" />
                   <SelectValue />
@@ -77,6 +87,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               onClick={() =>
                 setTheme(currentTheme === "dark" ? "light" : "dark")
               }
+              className="shrink-0 h-9 w-9"
             >
               {currentTheme === "dark" ? (
                 <Sun className="h-4 w-4" />
@@ -90,10 +101,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="gap-2 bg-transparent"
+              className="gap-2 bg-transparent shrink-0 h-9"
             >
               <LogOut className="h-4 w-4" />
-              Chiqish
+              <span className="hidden xs:inline">Chiqish</span>
             </Button>
           </div>
         </div>

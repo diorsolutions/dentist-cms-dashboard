@@ -90,7 +90,7 @@ interface NewTreatmentState {
   description: string;
   nextVisitDate?: Date;
   nextVisitNotes: string;
-  images: File[] | null;
+  images: { file: File; comment: string }[] | null;
 }
 
 interface FormErrors {
@@ -145,7 +145,9 @@ const DentalClinicDashboard = () => {
     treatment: "",
     notes: "",
   });
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<
+    { file: File; comment: string }[]
+  >([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
@@ -652,6 +654,49 @@ const DentalClinicDashboard = () => {
     }
   };
 
+  const handleBulkExport = async () => {
+    const selectedClientIds = clients
+      .filter((client) => selectedClients.includes(client.id))
+      .map((client) => client._id)
+      .filter(Boolean) as string[];
+
+    if (selectedClientIds.length === 0) {
+      toast({
+        title: "Ogohlantirish",
+        description: "Eksport qilish uchun mijozlarni tanlang",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await ClientService.bulkExportClients(selectedClientIds);
+
+      if (result.success) {
+        toast({
+          title: "Muvaffaqiyat",
+          description: `${selectedClientIds.length} ta mijoz ma'lumotlari ZIP fayl sifatida yuklab olindi`,
+        });
+      } else {
+        toast({
+          title: "Xatolik",
+          description: result.error || "Eksport qilishda xatolik yuz berdi",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Bulk export error:", error);
+      toast({
+        title: "Xatolik",
+        description: "Eksport qilishda xatolik yuz berdi",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const changeStatusToInTreatment = async () => {
     if (
       window.confirm(
@@ -809,32 +854,51 @@ const DentalClinicDashboard = () => {
       };
 
       const response = await TreatmentService.createTreatment(treatmentData);
-
-      if (response.success) {
-        toast({
-          title: "Muvaffaqiyat",
-          description: "Yangi muolaja muvaffaqiyatli qo'shildi!",
-        });
-
-        if (selectedClient?._id) {
-          // Force refresh treatments for the selected client and update cache
-          const updatedTreatments = await loadClientTreatments(
-            selectedClient._id,
-            true
-          );
-          setSelectedClient((prev) =>
-            prev ? { ...prev, treatmentHistory: updatedTreatments } : null
-          );
+ 
+       if (response.success) {
+        const newTreatmentId = response.data._id;
+        
+        if (newTreatment.images && newTreatment.images.length > 0) {
+          try {
+            await UploadService.uploadTreatmentImages(newTreatmentId, newTreatment.images);
+            toast({
+              title: "Muvaffaqiyat",
+              description: `Yangi muolaja va ${newTreatment.images.length} ta rasm muvaffaqiyatli qo'shildi!`,
+            });
+          } catch (uploadError) {
+            console.error("Error uploading treatment images:", uploadError);
+            toast({
+              title: "Ogohlantirish",
+              description: "Muolaja qo'shildi, lekin rasmlar yuklanmadi.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Muvaffaqiyat",
+            description: "Yangi muolaja muvaffaqiyatli qo'shildi!",
+          });
         }
-
-        setNewTreatment({
-          visitType: "",
-          description: "",
-          nextVisitDate: undefined,
-          nextVisitNotes: "",
-          images: null,
-        });
-        setIsAddTreatmentModalOpen(false);
+ 
+         if (selectedClient?._id) {
+           // Force refresh treatments for the selected client and update cache
+           const updatedTreatments = await loadClientTreatments(
+             selectedClient._id,
+             true
+           );
+           setSelectedClient((prev) =>
+             prev ? { ...prev, treatmentHistory: updatedTreatments } : null
+           );
+         }
+ 
+         setNewTreatment({
+           visitType: "",
+           description: "",
+           nextVisitDate: undefined,
+           nextVisitNotes: "",
+           images: null,
+         });
+         setIsAddTreatmentModalOpen(false);
       } else {
         toast({
           title: "Xatolik",
@@ -921,7 +985,7 @@ const DentalClinicDashboard = () => {
         loading={loading}
       />
 
-      <div className="container mx-auto p-6 pb-24">
+      <main className="container mx-auto px-4 md:px-6 py-4 sm:py-6 lg:py-8 pb-24">
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 dark:bg-red-950 dark:border-red-800 dark:text-red-300 animate-in fade-in-50 duration-300 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 flex-shrink-0" />
@@ -936,11 +1000,11 @@ const DentalClinicDashboard = () => {
             </Button>
           </div>
         )}
-
+        
         <ClientFilters
           t={t}
           currentFilterAndSortField={currentFilterAndSortField}
-          setCurrentFilterAndSortField={handleFilterFieldChange} // Use new handler
+          setCurrentFilterAndSortField={handleFilterFieldChange}
           currentSortDirection={currentSortDirection}
           setCurrentSortDirection={setCurrentSortDirection}
           searchTerm={searchTerm}
@@ -949,16 +1013,18 @@ const DentalClinicDashboard = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           selectedClientCount={selectedClients.length}
+          selectedClientIds={selectedClients}
           generatePDF={generatePDF}
-          handleApplySearch={handleApplySearch} // Pass new handler
-          onResetFilters={resetAllFilters} // Pass reset function
-          isFilterActive={isFilterActive} // Pass filter active status
-          lastVisitFilterDate={lastVisitFilterDate} // Pass new prop
-          setLastVisitFilterDate={setLastVisitFilterDate} // Pass new prop
-          nextAppointmentFilterDate={nextAppointmentFilterDate} // Pass new prop
-          setNextAppointmentFilterDate={setNextAppointmentFilterDate} // Pass new prop
-          birthDateFilterDate={birthDateFilterDate} // Pass new prop
-          setBirthDateFilterDate={setBirthDateFilterDate} // Pass new prop
+          handleBulkExport={handleBulkExport}
+          handleApplySearch={handleApplySearch}
+          onResetFilters={resetAllFilters}
+          isFilterActive={isFilterActive}
+          lastVisitFilterDate={lastVisitFilterDate}
+          setLastVisitFilterDate={setLastVisitFilterDate}
+          nextAppointmentFilterDate={nextAppointmentFilterDate}
+          setNextAppointmentFilterDate={setNextAppointmentFilterDate}
+          birthDateFilterDate={birthDateFilterDate}
+          setBirthDateFilterDate={setBirthDateFilterDate}
         />
 
         <ClientTable
@@ -973,33 +1039,27 @@ const DentalClinicDashboard = () => {
           getStatusColor={getStatusColor}
         />
 
-        {totalPages > 1 && (
-          <PaginationControls
-            t={t}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            loading={loading}
-          />
-        )}
-      </div>
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          t={t}
+          loading={loading}
+        />
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-t shadow-lg p-4 transition-all duration-300">
-        <div className="container mx-auto">
-          <DashboardFooterActions
-            t={t}
-            setIsAddClientOpen={setIsAddClientModalOpen}
-            markAsCompleted={markAsCompleted}
-            changeStatusToInTreatment={changeStatusToInTreatment}
-            deleteClients={deleteClients}
-            selectedClientCount={selectedClients.length}
-            loading={loading}
-            allSelectedAreCompleted={allSelectedAreCompleted}
-            allSelectedAreInTreatment={allSelectedAreInTreatment}
-            totalClientsEver={totalClientsEver}
-          />
-        </div>
-      </div>
+        <DashboardFooterActions
+          t={t}
+          setIsAddClientOpen={setIsAddClientModalOpen}
+          markAsCompleted={markAsCompleted}
+          changeStatusToInTreatment={changeStatusToInTreatment}
+          deleteClients={deleteClients}
+          selectedClientCount={selectedClients.length}
+          loading={loading}
+          allSelectedAreCompleted={allSelectedAreCompleted}
+          allSelectedAreInTreatment={allSelectedAreInTreatment}
+          totalClientsEver={totalClientsEver}
+        />
+      </main>
 
       <ClientDetailsModal
         t={t}

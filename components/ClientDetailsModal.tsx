@@ -32,12 +32,15 @@ import {
   Stethoscope, // Added
   FileText, // Added
   Clock, // Added
+  Download, // Added for export
 } from "lucide-react";
 import UploadService from "@/services/uploadService";
+import ClientService from "@/services/clientService";
 import type { Translations } from "@/types/translations";
 import { cn } from "@/lib/utils";
 import { calculateAge } from "@/utils/date-formatter";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; // Import Card components
+import { useToast } from "@/hooks/use-toast";
 
 interface TreatmentRecord {
   _id?: string;
@@ -98,23 +101,32 @@ interface ClientDetailsModalProps {
 const ImagePreview = ({
   src,
   alt,
+  comment,
   onClick,
 }: {
   src: string;
   alt: string;
+  comment?: string;
   onClick: () => void;
 }) => (
-  <div className="relative group cursor-pointer" onClick={onClick}>
-    <div className="aspect-square bg-muted rounded-lg overflow-hidden border-2 border-blue-200 hover:border-blue-400 transition-colors">
-      <img
-        src={src || "/placeholder.svg"}
-        alt={alt}
-        className="w-full h-full object-cover hover:scale-105 transition-transform"
-      />
+  <div className="flex flex-col gap-2">
+    <div className="relative group cursor-pointer" onClick={onClick}>
+      <div className="aspect-square bg-muted rounded-lg overflow-hidden border-2 border-blue-200 hover:border-blue-400 transition-colors">
+        <img
+          src={src || "/placeholder.svg"}
+          alt={alt}
+          className="w-full h-full object-cover hover:scale-105 transition-transform"
+        />
+      </div>
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+        <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
     </div>
-    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
-      <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-    </div>
+    {comment && (
+      <p className="text-xs text-white/60 line-clamp-2 px-1" title={comment}>
+        {comment}
+      </p>
+    )}
   </div>
 );
 
@@ -133,22 +145,70 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   setPreviewImage,
   loadingTreatments,
 }) => {
+  const { toast } = useToast();
+  const [isExporting, setIsExporting] = React.useState(false);
+
   const clientAge = selectedClient?.dateOfBirth
     ? calculateAge(selectedClient.dateOfBirth)
     : null;
+
+  const handleExportClient = async () => {
+    if (!selectedClient?._id) return;
+
+    setIsExporting(true);
+    try {
+      const result = await ClientService.exportClient(selectedClient._id);
+
+      if (result.success) {
+        toast({
+          title: t.success || "Muvaffaqiyat",
+          description: `Mijoz ma'lumotlari va rasmlari ZIP fayl sifatida yuklab olindi`,
+        });
+      } else {
+        toast({
+          title: t.error || "Xatolik",
+          description: result.error || "Eksport qilishda xatolik yuz berdi",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Export error:", error);
+      toast({
+        title: t.error || "Xatolik",
+        description: "Eksport qilishda xatolik yuz berdi",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent
         className={cn(
-          "sm:max-w-4xl bg-gray-900/60 max-h-[90vh] overflow-y-auto"
+          "w-[95vw] sm:max-w-4xl bg-gray-950/95 border-gray-800 backdrop-blur-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6"
         )}
       >
         <DialogHeader>
-          <div>
+          <div className="flex items-center justify-between">
             <DialogTitle className="text-2xl font-bold">
               {selectedClient?.name}
             </DialogTitle>
+            <Button
+              onClick={handleExportClient}
+              disabled={isExporting}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              {isExporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              {isExporting ? "Yuklanmoqda..." : "ZIP Yuklab olish"}
+            </Button>
           </div>
         </DialogHeader>
 
@@ -333,18 +393,19 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </CardHeader>
                 <CardContent className="p-4">
                   {selectedClient.uploadedFiles?.images &&
-                  selectedClient.uploadedFiles.images.length > 0 ? (
+                    selectedClient.uploadedFiles.images.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {selectedClient.uploadedFiles.images.map((image, i) => (
+                      {selectedClient.uploadedFiles.images.map((imageObj: any, i) => (
                         <ImagePreview
                           key={i}
                           src={
-                            UploadService.getImageUrl(image) ||
+                            UploadService.getImageUrl(imageObj) ||
                             "/placeholder.svg"
                           }
                           alt={`Image ${i + 1}`}
+                          comment={imageObj.comment}
                           onClick={() =>
-                            setPreviewImage(UploadService.getImageUrl(image))
+                            setPreviewImage(UploadService.getImageUrl(imageObj))
                           }
                         />
                       ))}
@@ -482,6 +543,25 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                                 <div className="text-muted-foreground text-base">
                                   {treatment.nextVisitNotes}
                                 </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {treatment.images && treatment.images.length > 0 && (
+                            <div className="mt-4">
+                              <span className="font-medium text-base block mb-2">
+                                {t.images}:
+                              </span>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {treatment.images.map((imageObj: any, idx: number) => (
+                                  <ImagePreview
+                                    key={idx}
+                                    src={UploadService.getImageUrl(imageObj) || "/placeholder.svg"}
+                                    alt={`Treatment Image ${idx + 1}`}
+                                    comment={imageObj.comment}
+                                    onClick={() => setPreviewImage(UploadService.getImageUrl(imageObj))}
+                                  />
+                                ))}
                               </div>
                             </div>
                           )}

@@ -64,6 +64,10 @@ const treatmentSchema = new mongoose.Schema(
         filename: String,
         url: String,
         cloudinaryId: String,
+        comment: {
+          type: String,
+          default: "",
+        },
         uploadedAt: {
           type: Date,
           default: Date.now,

@@ -11,9 +11,10 @@ class UploadService {
       const formData = new FormData();
       formData.append("clientId", clientId);
 
-      // Add all images to FormData
-      images.forEach((image) => {
-        formData.append("images", image);
+      // Add all images and comments to FormData
+      images.forEach((imgObj) => {
+        formData.append("images", imgObj.file);
+        formData.append("comments[]", imgObj.comment || "");
       });
 
       // Upload through backend API which handles Cloudinary
@@ -45,9 +46,10 @@ class UploadService {
       const formData = new FormData();
       formData.append("treatmentId", treatmentId);
 
-      // Add all images to FormData
-      images.forEach((image) => {
-        formData.append("images", image);
+      // Add all images and comments to FormData
+      images.forEach((imgObj) => {
+        formData.append("images", imgObj.file);
+        formData.append("comments[]", imgObj.comment || "");
       });
 
       // Upload through backend API which handles Cloudinary
@@ -79,18 +81,30 @@ class UploadService {
   static getImageUrl(imagePath) {
     if (!imagePath) return null;
 
+    // Handle object structure if passed (e.g. { url: "...", comment: "..." })
+    let path = imagePath;
+    if (typeof imagePath === "object" && imagePath !== null && imagePath.url) {
+      path = imagePath.url;
+    }
+
+    // Ensure path is a string before calling startsWith
+    if (typeof path !== "string") {
+      console.warn("getImageUrl received non-string path:", path);
+      return null;
+    }
+
     // If it's already a full URL (Cloudinary or other), return as is
-    if (imagePath.startsWith("http")) {
-      return imagePath;
+    if (path.startsWith("http")) {
+      return path;
     }
 
     // If it starts with uploads/, use backend URL (fallback for old local files)
-    if (imagePath.startsWith("uploads/")) {
-      return `${API_BASE_URL}/${imagePath}`;
+    if (path.startsWith("uploads/")) {
+      return `${API_BASE_URL}/${path}`;
     }
 
     // Otherwise, assume it's just the filename (fallback for old local files)
-    return `${API_BASE_URL}/uploads/${imagePath}`;
+    return `${API_BASE_URL}/uploads/${path}`;
   }
 }
 

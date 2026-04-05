@@ -44,8 +44,8 @@ export interface Translations {
   searchByNextAppointmentDate: string; // New
   searchByBirthDate: string; // New
   filterBy: string; // New
-  filterByName: "Ism"; // New
-  filterByPhone: "Telefon"; // New
+  filterByName: string; // New
+  filterByPhone: string; // New
   filterByLastVisit: string; // New
   filterByNextAppointment: string; // New
   filterByBirthDate: string; // New
@@ -65,6 +65,8 @@ export interface Translations {
   uploadImage: string;
   uploadedImages: string;
   noImagesUploaded: string;
+  imageComment: string;
+  imageComments: string;
 
   // Treatment specific
   visitTypeLabel: string; // Renamed from todayVisit
@@ -144,7 +146,6 @@ export interface Translations {
   // Treatment details
   visitNumber: string;
   treatmentReceived: string;
-  nextVisitNotesLabel: string; // New label for next visit notes
   createdOn: string;
   notSpecified: string;
   ageCalculated: string; // New translation for calculated age
@@ -228,6 +229,8 @@ export const translations: Record<
     uploadImage: "Rasm yuklash",
     uploadedImages: "Yuklangan rasmlar",
     noImagesUploaded: "Rasm yuklanmagan",
+    imageComment: "Rasm izohi",
+    imageComments: "Rasmlar izohlari",
 
     // Treatment specific
     visitTypeLabel: "Bugungi muolaja turi", // Updated
@@ -307,7 +310,6 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Tashrif raqami",
     treatmentReceived: "Olingan muolaja",
-    nextVisitNotesLabel: "Keyingi tashrif uchun izoh",
     createdOn: "Yaratilgan",
     notSpecified: "Belgilanmagan",
     ageCalculated: "Yosh", // New translation for calculated age
@@ -389,6 +391,8 @@ export const translations: Record<
     uploadImage: "Расм юклаш",
     uploadedImages: "Юкланган расмлар",
     noImagesUploaded: "Расм юкланмаган",
+    imageComment: "Расм изоҳи",
+    imageComments: "Расмлар изоҳлари",
 
     // Treatment specific
     visitTypeLabel: "Бугунги муолажа тури", // Updated
@@ -468,7 +472,6 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Ташриф рақами",
     treatmentReceived: "Олинган муолажа",
-    nextVisitNotesLabel: "Кейинги ташриф учун изоҳ",
     createdOn: "Яратилган",
     notSpecified: "Белгиланмаган",
     ageCalculated: "Ёш", // New translation for calculated age
@@ -549,6 +552,8 @@ export const translations: Record<
     uploadImage: "Upload Image",
     uploadedImages: "Uploaded Images",
     noImagesUploaded: "No images uploaded",
+    imageComment: "Image comment",
+    imageComments: "Image comments",
 
     // Treatment specific
     visitTypeLabel: "Today's Treatment Type", // Updated
@@ -628,7 +633,6 @@ export const translations: Record<
     // Treatment details
     visitNumber: "Visit Number",
     treatmentReceived: "Treatment Received",
-    nextVisitNotesLabel: "Next Visit Notes",
     createdOn: "Created On",
     notSpecified: "Not Specified",
     ageCalculated: "Age", // New translation for calculated age

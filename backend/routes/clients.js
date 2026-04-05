@@ -4,6 +4,10 @@ const Client = require("../models/Client");
 const Treatment = require("../models/Treatment");
 const { validateClient } = require("../middleware/validation");
 const { auth, optionalAuth } = require("../middleware/auth");
+const archiver = require("archiver");
+const axios = require("axios");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 // GET /api/clients - Get all clients
 router.get("/", optionalAuth, async (req, res) => {
@@ -70,7 +74,7 @@ router.get("/", optionalAuth, async (req, res) => {
             // This is often more reliable than Date.UTC() for day boundaries
             const localStartOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
             const startOfDayUTC = new Date(localStartOfDay.toISOString());
-            
+
             const localEndOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
             const endOfDayUTC = new Date(localEndOfDay.toISOString());
 
@@ -116,7 +120,7 @@ router.get("/", optionalAuth, async (req, res) => {
     const sortStage = {};
     let actualSortBy = sortBy;
     if (sortBy === "name") {
-        actualSortBy = "fullName"; // Sort by computed fullName
+      actualSortBy = "fullName"; // Sort by computed fullName
     }
     // For date fields, we sort by the actual Date object, not a string representation
     // The frontend sends "lastVisit", "nextAppointment", "dateOfBirth" which are direct field names
@@ -129,27 +133,27 @@ router.get("/", optionalAuth, async (req, res) => {
 
     // Add final projection stage
     pipeline.push({
-        $project: {
-          _id: 1,
-          firstName: 1,
-          lastName: 1,
-          phone: 1,
-          email: 1,
-          dateOfBirth: 1,
-          address: 1,
-          status: 1,
-          initialTreatment: 1,
-          notes: 1,
-          uploadedFiles: 1,
-          images: 1,
-          isActive: 1,
-          createdAt: 1,
-          updatedAt: 1,
-          treatmentCount: 1,
-          lastVisit: 1,
-          nextAppointment: 1,
-          fullName: 1, // Keep fullName if it was used for sorting/searching
-        },
+      $project: {
+        _id: 1,
+        firstName: 1,
+        lastName: 1,
+        phone: 1,
+        email: 1,
+        dateOfBirth: 1,
+        address: 1,
+        status: 1,
+        initialTreatment: 1,
+        notes: 1,
+        uploadedFiles: 1,
+        images: 1,
+        isActive: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        treatmentCount: 1,
+        lastVisit: 1,
+        nextAppointment: 1,
+        fullName: 1, // Keep fullName if it was used for sorting/searching
+      },
     });
 
     const clients = await Client.aggregate(pipeline);
@@ -157,71 +161,71 @@ router.get("/", optionalAuth, async (req, res) => {
     // For total count of currently filtered/active clients (for pagination)
     // This needs a separate pipeline that applies all filters but no skip/limit
     const totalCountPipeline = [
-        { $match: initialMatch },
-        {
-            $lookup: {
-                from: "treatments",
-                localField: "_id",
-                foreignField: "clientId",
-                as: "treatments",
-            },
+      { $match: initialMatch },
+      {
+        $lookup: {
+          from: "treatments",
+          localField: "_id",
+          foreignField: "clientId",
+          as: "treatments",
         },
-        {
-            $addFields: {
-                fullName: { $concat: ["$firstName", " ", "$lastName"] },
-                lastVisit: { $max: "$treatments.treatmentDate" },
-                nextAppointment: {
-                    $min: {
-                        $filter: {
-                            input: "$treatments.nextVisitDate",
-                            as: "date",
-                            cond: { $gte: ["$$date", new Date(new Date().toISOString())] },
-                        },
-                    },
-                },
+      },
+      {
+        $addFields: {
+          fullName: { $concat: ["$firstName", " ", "$lastName"] },
+          lastVisit: { $max: "$treatments.treatmentDate" },
+          nextAppointment: {
+            $min: {
+              $filter: {
+                input: "$treatments.nextVisitDate",
+                as: "date",
+                cond: { $gte: ["$$date", new Date(new Date().toISOString())] },
+              },
             },
+          },
         },
+      },
     ];
     if (search) {
-        let dynamicSearchFilter = {};
-        if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
-            try {
-                const searchDate = new Date(search);
-                if (!isNaN(searchDate.getTime())) {
-                    const localStartOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
-                    const startOfDayUTC = new Date(localStartOfDay.toISOString());
-                    
-                    const localEndOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
-                    const endOfDayUTC = new Date(localEndOfDay.toISOString());
+      let dynamicSearchFilter = {};
+      if (["lastVisit", "nextAppointment", "dateOfBirth"].includes(searchField)) {
+        try {
+          const searchDate = new Date(search);
+          if (!isNaN(searchDate.getTime())) {
+            const localStartOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate());
+            const startOfDayUTC = new Date(localStartOfDay.toISOString());
 
-                    if (searchField === "lastVisit") {
-                        dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-                    } else if (searchField === "nextAppointment") {
-                        dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-                    } else if (searchField === "dateOfBirth") {
-                        dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
-                    }
-                } else {
-                    dynamicSearchFilter[searchField] = null;
-                }
-            } catch (dateError) {
-                console.error("Error parsing date for filter in total count:", dateError);
-                dynamicSearchFilter[searchField] = null;
+            const localEndOfDay = new Date(searchDate.getFullYear(), searchDate.getMonth(), searchDate.getDate() + 1);
+            const endOfDayUTC = new Date(localEndOfDay.toISOString());
+
+            if (searchField === "lastVisit") {
+              dynamicSearchFilter.lastVisit = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            } else if (searchField === "nextAppointment") {
+              dynamicSearchFilter.nextAppointment = { $gte: startOfDayUTC, $lt: endOfDayUTC };
+            } else if (searchField === "dateOfBirth") {
+              dynamicSearchFilter.dateOfBirth = { $gte: startOfDayUTC, $lt: endOfDayUTC };
             }
-        } else {
-            const searchRegex = { $regex: search, $options: "i" };
-            switch (searchField) {
-                case "name": dynamicSearchFilter.fullName = searchRegex; break;
-                case "phone": dynamicSearchFilter.phone = searchRegex; break;
-                default:
-                    dynamicSearchFilter.$or = [
-                        { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
-                        { fullName: searchRegex },
-                    ];
-                    break;
-            }
+          } else {
+            dynamicSearchFilter[searchField] = null;
+          }
+        } catch (dateError) {
+          console.error("Error parsing date for filter in total count:", dateError);
+          dynamicSearchFilter[searchField] = null;
         }
-        totalCountPipeline.push({ $match: dynamicSearchFilter });
+      } else {
+        const searchRegex = { $regex: search, $options: "i" };
+        switch (searchField) {
+          case "name": dynamicSearchFilter.fullName = searchRegex; break;
+          case "phone": dynamicSearchFilter.phone = searchRegex; break;
+          default:
+            dynamicSearchFilter.$or = [
+              { firstName: searchRegex }, { lastName: searchRegex }, { phone: searchRegex },
+              { fullName: searchRegex },
+            ];
+            break;
+        }
+      }
+      totalCountPipeline.push({ $match: dynamicSearchFilter });
     }
     totalCountPipeline.push({ $count: "total" });
 
@@ -480,6 +484,326 @@ router.post("/bulk-delete", optionalAuth, async (req, res) => {
       message: "Error deleting clients",
       error: error.message,
     });
+  }
+});
+
+// GET /api/clients/:id/export - Export client with images as ZIP
+router.get("/:id/export", optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the client
+    const client = await Client.findById(id);
+    if (!client || !client.isActive) {
+      return res.status(404).json({
+        success: false,
+        message: "Client not found",
+      });
+    }
+
+    // Get client's treatments
+    const treatments = await Treatment.find({ clientId: id }).sort({
+      treatmentDate: -1,
+    });
+
+    // Collect all image URLs from client
+    const imageUrls = [];
+
+    // From uploadedFiles.images (new structure with objects)
+    if (client.uploadedFiles?.images) {
+      client.uploadedFiles.images.forEach((img) => {
+        if (img.url) imageUrls.push(img.url);
+      });
+    }
+
+    // From legacy images (backward compatibility)
+    if (client.images) {
+      client.images.forEach((img) => {
+        if (typeof img === "string" && img.startsWith("http")) {
+          imageUrls.push(img);
+        }
+      });
+    }
+
+    // From treatment images
+    treatments.forEach((treatment) => {
+      if (treatment.images) {
+        treatment.images.forEach((img) => {
+          if (img.url) imageUrls.push(img.url);
+        });
+      }
+    });
+
+    // Remove duplicates
+    const uniqueImageUrls = [...new Set(imageUrls)];
+
+    // Set response headers for ZIP download
+    const sanitizedName = `${client.firstName}_${client.lastName}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filename = `client-export-${sanitizedName}-${new Date().toISOString().split("T")[0]}.zip`;
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Cache-Control", "no-cache");
+
+    // Create archiver instance
+    const archive = archiver("zip", {
+      zlib: { level: 9 }, // Maximum compression
+    });
+
+    // Handle archiver errors
+    archive.on("error", (err) => {
+      console.error("Archive error:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: "Error creating ZIP archive",
+        });
+      }
+    });
+
+    // Pipe archive to response
+    archive.pipe(res);
+
+    // Add client data as JSON
+    const clientData = {
+      firstName: client.firstName,
+      lastName: client.lastName,
+      phone: client.phone,
+      email: client.email,
+      dateOfBirth: client.dateOfBirth,
+      address: client.address,
+      status: client.status,
+      initialTreatment: client.initialTreatment,
+      notes: client.notes,
+      createdAt: client.createdAt,
+      updatedAt: client.updatedAt,
+    };
+    archive.append(JSON.stringify(clientData, null, 2), {
+      name: "client-data.json",
+    });
+
+    // Add treatments data as JSON
+    archive.append(JSON.stringify(treatments, null, 2), {
+      name: "treatments-data.json",
+    });
+
+    // Add README with export info
+    const readmeContent = `Client Export
+=============
+Exported: ${new Date().toISOString()}
+Client: ${client.firstName} ${client.lastName}
+Phone: ${client.phone}
+Total Images: ${uniqueImageUrls.length}
+Total Treatments: ${treatments.length}
+
+This file was automatically generated by Dental Clinic CMS.
+`;
+    archive.append(readmeContent, { name: "README.txt" });
+
+    // Create images folder in ZIP
+    archive.directory("images/", false);
+
+    // Download images from Cloudinary and add to ZIP
+    const imageDownloadPromises = uniqueImageUrls.map(async (url, index) => {
+      try {
+        const response = await axios.get(url, {
+          responseType: "arraybuffer",
+          timeout: 30000, // 30 second timeout per image
+          maxContentLength: 50 * 1024 * 1024, // 50MB max per image
+        });
+
+        // Determine file extension from URL or default to jpg
+        const urlParts = url.split(".");
+        const extension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split("?")[0] : "jpg";
+        const validExtensions = ["jpg", "jpeg", "png", "gif", "webp", "bmp"];
+        const fileExt = validExtensions.includes(extension) ? extension : "jpg";
+
+        const filename = `images/image-${String(index + 1).padStart(3, "0")}.${fileExt}`;
+
+        archive.append(Buffer.from(response.data), { name: filename });
+
+        return { url, status: "success", filename };
+      } catch (error) {
+        console.error(`Error downloading image ${index + 1}: ${url}`, error.message);
+        return { url, status: "failed", error: error.message };
+      }
+    });
+
+    // Wait for all downloads to complete
+    const downloadResults = await Promise.allSettled(imageDownloadPromises);
+
+    // Add download report
+    const successfulDownloads = downloadResults.filter(
+      (r) => r.status === "fulfilled" && r.value.status === "success"
+    ).length;
+    const failedDownloads = downloadResults.filter(
+      (r) => r.status === "fulfilled" && r.value.status === "failed"
+    );
+
+    const downloadReport = `Image Download Report
+========================
+Total Images: ${uniqueImageUrls.length}
+Successful: ${successfulDownloads}
+Failed: ${failedDownloads.length}
+
+${failedDownloads.length > 0 ? "Failed URLs:\n" + failedDownloads.map((f) => `- ${f.value.url}`).join("\n") : "All images downloaded successfully."}
+`;
+    archive.append(downloadReport, { name: "download-report.txt" });
+
+    // Finalize the archive
+    await archive.finalize();
+  } catch (error) {
+    console.error("Export client error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Error exporting client",
+        error: error.message,
+      });
+    }
+  }
+});
+
+// POST /api/clients/bulk-export - Export multiple clients as ZIP
+router.post("/bulk-export", optionalAuth, async (req, res) => {
+  try {
+    const { clientIds } = req.body;
+
+    if (!Array.isArray(clientIds) || clientIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Client IDs array is required",
+      });
+    }
+
+    // Find all clients
+    const clients = await Client.find({
+      _id: { $in: clientIds },
+      isActive: true,
+    });
+
+    if (clients.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No clients found",
+      });
+    }
+
+    // Set response headers
+    const filename = `bulk-export-${clients.length}-clients-${new Date().toISOString().split("T")[0]}.zip`;
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Cache-Control", "no-cache");
+
+    // Create archiver
+    const archive = archiver("zip", {
+      zlib: { level: 9 },
+    });
+
+    archive.on("error", (err) => {
+      console.error("Archive error:", err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: "Error creating ZIP archive",
+        });
+      }
+    });
+
+    archive.pipe(res);
+
+    // Add summary JSON
+    const summary = {
+      exportDate: new Date().toISOString(),
+      totalClients: clients.length,
+      clients: clients.map((c) => ({
+        id: c._id,
+        name: `${c.firstName} ${c.lastName}`,
+        phone: c.phone,
+        email: c.email,
+      })),
+    };
+    archive.append(JSON.stringify(summary, null, 2), {
+      name: "bulk-export-summary.json",
+    });
+
+    // Add each client's data
+    for (const client of clients) {
+      const sanitizedName = `${client.firstName}_${client.lastName}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+      const folderName = `clients/${sanitizedName}_${client._id}/`;
+
+      // Client data
+      const clientData = {
+        firstName: client.firstName,
+        lastName: client.lastName,
+        phone: client.phone,
+        email: client.email,
+        dateOfBirth: client.dateOfBirth,
+        address: client.address,
+        status: client.status,
+        initialTreatment: client.initialTreatment,
+        notes: client.notes,
+      };
+      archive.append(JSON.stringify(clientData, null, 2), {
+        name: `${folderName}client-data.json`,
+      });
+
+      // Get treatments
+      const treatments = await Treatment.find({ clientId: client._id });
+      archive.append(JSON.stringify(treatments, null, 2), {
+        name: `${folderName}treatments-data.json`,
+      });
+
+      // Collect image URLs
+      const imageUrls = [];
+      if (client.uploadedFiles?.images) {
+        client.uploadedFiles.images.forEach((img) => {
+          if (img.url) imageUrls.push(img.url);
+        });
+      }
+      if (client.images) {
+        client.images.forEach((img) => {
+          if (typeof img === "string" && img.startsWith("http")) {
+            imageUrls.push(img);
+          }
+        });
+      }
+
+      // Download and add images
+      for (let i = 0; i < imageUrls.length; i++) {
+        try {
+          const url = imageUrls[i];
+          const response = await axios.get(url, {
+            responseType: "arraybuffer",
+            timeout: 30000,
+            maxContentLength: 50 * 1024 * 1024,
+          });
+
+          const urlParts = url.split(".");
+          const extension = urlParts.length > 1 ? urlParts[urlParts.length - 1].split("?")[0] : "jpg";
+          const validExtensions = ["jpg", "jpeg", "png", "gif", "webp", "bmp"];
+          const fileExt = validExtensions.includes(extension) ? extension : "jpg";
+
+          archive.append(Buffer.from(response.data), {
+            name: `${folderName}images/image-${String(i + 1).padStart(3, "0")}.${fileExt}`,
+          });
+        } catch (error) {
+          console.error(`Error downloading image for ${client.firstName}:`, error.message);
+        }
+      }
+    }
+
+    await archive.finalize();
+  } catch (error) {
+    console.error("Bulk export error:", error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Error exporting clients",
+        error: error.message,
+      });
+    }
   }
 });
 

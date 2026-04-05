@@ -32,8 +32,10 @@ interface AddClientModalProps {
   setIsAddClientOpen: (isOpen: boolean) => void;
   newClient: NewClientState;
   setNewClient: React.Dispatch<React.SetStateAction<NewClientState>>;
-  uploadedImages: File[];
-  setUploadedImages: React.Dispatch<React.SetStateAction<File[]>>;
+  uploadedImages: { file: File; comment: string }[];
+  setUploadedImages: React.Dispatch<
+    React.SetStateAction<{ file: File; comment: string }[]>
+  >;
   isSubmitting: boolean;
   handleAddClient: () => Promise<void>;
   formErrors: FormErrors;
@@ -58,7 +60,10 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      const newImages = Array.from(files);
+      const newImages = Array.from(files).map((file) => ({
+        file,
+        comment: "",
+      }));
       setUploadedImages((prev) => [...prev, ...newImages]);
     }
   };
@@ -87,7 +92,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
     <Dialog open={isAddClientOpen} onOpenChange={setIsAddClientOpen}>
       <DialogContent
         className={cn(
-          "sm:max-w-2xl max-h-[90vh] overflow-y-auto"
+          "w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6"
         )}
       >
         <DialogHeader className="pb-6">
@@ -95,7 +100,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">{t.firstName} *</Label>
               <Input
@@ -278,27 +283,46 @@ const AddClientModal: React.FC<AddClientModalProps> = ({
 
             {/* Image Preview */}
             {uploadedImages.length > 0 && (
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                {uploadedImages.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <div className="aspect-square bg-muted rounded-lg overflow-hidden border">
-                      <img
-                        src={URL.createObjectURL(image) || "/placeholder.svg"}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+              <div className="space-y-4 mt-4">
+                <Label className="text-sm font-medium">{t.imageComments}</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  {uploadedImages.map((imgObj, index) => (
+                    <div key={index} className="relative group border rounded-lg p-2 bg-muted/30">
+                      <div className="aspect-square bg-muted rounded-md overflow-hidden border mb-2">
+                        <img
+                          src={URL.createObjectURL(imgObj.file) || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor={`comment-${index}`} className="text-[10px] uppercase text-muted-foreground">
+                          {t.imageComment}
+                        </Label>
+                        <Input
+                          id={`comment-${index}`}
+                          value={imgObj.comment}
+                          onChange={(e) => {
+                            const newComments = [...uploadedImages];
+                            newComments[index].comment = e.target.value;
+                            setUploadedImages(newComments);
+                          }}
+                          placeholder={t.imageComment}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removeImage(index)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>

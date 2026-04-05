@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Download, RotateCcw } from "lucide-react";
+import { Badge } from "@/components/ui/badge"; // Add Badge import
+import { Search, Download, RotateCcw, Archive } from "lucide-react";
 import type { Translations } from "@/types/translations";
 import { DatePicker } from "@/components/date-picker"; // Import DatePicker
 import { format } from "date-fns"; // Import format for date conversion
@@ -36,7 +37,9 @@ interface ClientFiltersProps {
   statusFilter: string;
   setStatusFilter: (status: string) => void;
   selectedClientCount: number;
+  selectedClientIds: string[];
   generatePDF: () => void;
+  handleBulkExport: () => void;
   handleApplySearch: () => void;
   onResetFilters: () => void;
   isFilterActive: boolean;
@@ -60,7 +63,9 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   statusFilter,
   setStatusFilter,
   selectedClientCount,
+  selectedClientIds,
   generatePDF,
+  handleBulkExport,
   handleApplySearch,
   onResetFilters,
   isFilterActive,
@@ -173,177 +178,192 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
   return (
     <Card className="mb-6 animate-in fade-in-50 duration-300">
       <CardContent className="p-4">
-        <div className="w-full flex items-center gap-4">
-          {/* Select for Search/Sort Field */}
-          <Select
-            value={currentFilterAndSortField}
-            onValueChange={(value: FilterAndSortField) => {
-              setCurrentFilterAndSortField(value);
-              setCurrentSortDirection("asc"); // Reset sort direction when field changes
-              setSearchTerm(""); // Clear input field in parent
-              setLastVisitFilterDate(undefined); // Clear date picker value
-              setNextAppointmentFilterDate(undefined); // Clear new date picker value
-              setBirthDateFilterDate(undefined);     // Clear new date picker value
-              handleApplySearch(); // Trigger immediate search with empty term
-            }}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder={t.filterBy} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">{t.filterByName}</SelectItem>
-              <SelectItem value="phone">{t.filterByPhone}</SelectItem>
-              <SelectItem value="lastVisit">{t.filterByLastVisit}</SelectItem>
-              <SelectItem value="nextAppointment">
-                {t.filterByNextAppointment}
-              </SelectItem>
-              <SelectItem value="dateOfBirth">{t.filterByBirthDate}</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col lg:flex-row items-center gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full lg:w-auto">
+            {/* Select for Search/Sort Field */}
+            <Select
+              value={currentFilterAndSortField}
+              onValueChange={(value: FilterAndSortField) => {
+                setCurrentFilterAndSortField(value);
+                setCurrentSortDirection("asc"); // Reset sort direction when field changes
+                setSearchTerm(""); // Clear input field in parent
+                setLastVisitFilterDate(undefined); // Clear date picker value
+                setNextAppointmentFilterDate(undefined); // Clear new date picker value
+                setBirthDateFilterDate(undefined);     // Clear new date picker value
+                handleApplySearch(); // Trigger immediate search with empty term
+              }}
+            >
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder={t.filterBy} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">{t.filterByName}</SelectItem>
+                <SelectItem value="phone">{t.filterByPhone}</SelectItem>
+                <SelectItem value="lastVisit">{t.filterByLastVisit}</SelectItem>
+                <SelectItem value="nextAppointment">
+                  {t.filterByNextAppointment}
+                </SelectItem>
+                <SelectItem value="dateOfBirth">{t.filterByBirthDate}</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder={t.status} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t.allStatuses}</SelectItem>
-              <SelectItem value="inTreatment">{t.inTreatment}</SelectItem>
-              <SelectItem value="completed">{t.completed}</SelectItem>
-            </SelectContent>
-          </Select>
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder={t.status} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t.allStatuses}</SelectItem>
+                <SelectItem value="inTreatment">{t.inTreatment}</SelectItem>
+                <SelectItem value="completed">{t.completed}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Search Input(s) */}
-          {currentFilterAndSortField === "phone" ? (
-            <div className="flex items-center gap-1 flex-1">
-              <span className="text-muted-foreground whitespace-nowrap">
-                +998
-              </span>
-              <Input
-                type="tel"
-                placeholder="XX"
-                value={localPhoneCode}
-                onChange={(e) =>
-                  setLocalPhoneCode(
-                    e.target.value.replace(/\D/g, "").slice(0, 2)
-                  )
-                }
-                maxLength={2}
-                className="w-16 text-center"
-              />
-              <Input
-                type="tel"
-                placeholder="XXX"
-                value={localPhoneMiddle}
-                onChange={(e) =>
-                  setLocalPhoneMiddle(
-                    e.target.value.replace(/\D/g, "").slice(0, 3)
-                  )
-                }
-                maxLength={3}
-                className="w-20 text-center"
-              />
-              <Input
-                type="tel"
-                placeholder="XXXX"
-                value={localPhoneLast}
-                onChange={(e) =>
-                  setLocalPhoneLast(
-                    e.target.value.replace(/\D/g, "").slice(0, 4)
-                  )
-                }
-                maxLength={4}
-                className="w-24 text-center"
-              />
-            </div>
-          ) : currentFilterAndSortField === "lastVisit" ? (
-            <div className="flex-1">
-              <DatePicker
-                value={lastVisitFilterDate}
-                onChange={(date) => {
-                  setLastVisitFilterDate(date);
-                  // When date is selected, update searchTerm to trigger debounced search
-                  // This will update appliedSearchTerm in dashboard, triggering loadClients
-                  handleSearchInputChange(
-                    date ? format(date, "yyyy-MM-dd") : ""
-                  );
-                }}
-                placeholder={t.searchByLastVisitDate}
-                allowPastDates={true}
-                showDropdowns={true}
-              />
-            </div>
-          ) : currentFilterAndSortField === "nextAppointment" ? (
-            <div className="flex-1">
-              <DatePicker
-                value={nextAppointmentFilterDate}
-                onChange={(date) => {
-                  setNextAppointmentFilterDate(date);
-                  handleSearchInputChange(
-                    date ? format(date, "yyyy-MM-dd") : ""
-                  );
-                }}
-                placeholder={t.searchByNextAppointmentDate}
-                allowPastDates={false} // Next appointment should be future dates
-                showDropdowns={true}
-              />
-            </div>
-          ) : currentFilterAndSortField === "dateOfBirth" ? (
-            <div className="flex-1">
-              <DatePicker
-                value={birthDateFilterDate}
-                onChange={(date) => {
-                  setBirthDateFilterDate(date);
-                  handleSearchInputChange(
-                    date ? format(date, "yyyy-MM-dd") : ""
-                  );
-                }}
-                placeholder={t.searchByBirthDate}
-                allowPastDates={true} // Birth date should be past dates
-                showDropdowns={true}
-              />
-            </div>
-          ) : (
-            <div className="relative flex-1 flex items-center gap-2">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type={getInputType(currentFilterAndSortField)}
-                placeholder={getPlaceholderText(currentFilterAndSortField)}
-                value={searchTerm}
-                onChange={(e) => handleSearchInputChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="pl-10 w-full"
-                maxLength={getMaxLength(currentFilterAndSortField)}
-                minLength={getMinLength(currentFilterAndSortField)}
-              />
-              {/* Only show search button for non-live search fields */}
-              {currentFilterAndSortField === "name" && (
-                  <Button onClick={handleApplySearch} className="shrink-0">
+          <div className="w-full flex-1 min-w-0">
+            {currentFilterAndSortField === "phone" ? (
+              <div className="flex items-center gap-1 w-full justify-center lg:justify-start">
+                <span className="text-muted-foreground whitespace-nowrap text-sm sm:text-base">
+                  +998
+                </span>
+                <Input
+                  type="tel"
+                  placeholder="XX"
+                  value={localPhoneCode}
+                  onChange={(e) =>
+                    setLocalPhoneCode(
+                      e.target.value.replace(/\D/g, "").slice(0, 2)
+                    )
+                  }
+                  maxLength={2}
+                  className="w-12 sm:w-16 text-center h-9 px-1"
+                />
+                <Input
+                  type="tel"
+                  placeholder="XXX"
+                  value={localPhoneMiddle}
+                  onChange={(e) =>
+                    setLocalPhoneMiddle(
+                      e.target.value.replace(/\D/g, "").slice(0, 3)
+                    )
+                  }
+                  maxLength={3}
+                  className="w-14 sm:w-20 text-center h-9 px-1"
+                />
+                <Input
+                  type="tel"
+                  placeholder="XXXX"
+                  value={localPhoneLast}
+                  onChange={(e) =>
+                    setLocalPhoneLast(
+                      e.target.value.replace(/\D/g, "").slice(0, 4)
+                    )
+                  }
+                  maxLength={4}
+                  className="w-16 sm:w-24 text-center h-9 px-1"
+                />
+              </div>
+            ) : currentFilterAndSortField === "lastVisit" ? (
+              <div className="w-full">
+                <DatePicker
+                  value={lastVisitFilterDate}
+                  onChange={(date) => {
+                    setLastVisitFilterDate(date);
+                    // When date is selected, update searchTerm to trigger debounced search
+                    // This will update appliedSearchTerm in dashboard, triggering loadClients
+                    handleSearchInputChange(
+                      date ? format(date, "yyyy-MM-dd") : ""
+                    );
+                  }}
+                  placeholder={t.searchByLastVisitDate}
+                  allowPastDates={true}
+                  showDropdowns={true}
+                />
+              </div>
+            ) : currentFilterAndSortField === "nextAppointment" ? (
+              <div className="w-full">
+                <DatePicker
+                  value={nextAppointmentFilterDate}
+                  onChange={(date) => {
+                    setNextAppointmentFilterDate(date);
+                    handleSearchInputChange(
+                      date ? format(date, "yyyy-MM-dd") : ""
+                    );
+                  }}
+                  placeholder={t.searchByNextAppointmentDate}
+                  allowPastDates={false} // Next appointment should be future dates
+                  showDropdowns={true}
+                />
+              </div>
+            ) : currentFilterAndSortField === "dateOfBirth" ? (
+              <div className="w-full">
+                <DatePicker
+                  value={birthDateFilterDate}
+                  onChange={(date) => {
+                    setBirthDateFilterDate(date);
+                    handleSearchInputChange(
+                      date ? format(date, "yyyy-MM-dd") : ""
+                    );
+                  }}
+                  placeholder={t.searchByBirthDate}
+                  allowPastDates={true} // Birth date should be past dates
+                  showDropdowns={true}
+                />
+              </div>
+            ) : (
+              <div className="relative w-full flex items-center gap-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={getInputType(currentFilterAndSortField)}
+                  placeholder={getPlaceholderText(currentFilterAndSortField)}
+                  value={searchTerm}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="pl-10 w-full h-9"
+                  maxLength={getMaxLength(currentFilterAndSortField)}
+                  minLength={getMinLength(currentFilterAndSortField)}
+                />
+                {/* Only show search button for non-live search fields */}
+                {currentFilterAndSortField === "name" && (
+                  <Button onClick={handleApplySearch} size="sm" className="shrink-0 h-9 hidden sm:flex">
                     {t.searchPlaceholder.replace("...", "")}
                   </Button>
                 )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
-          {/* PDF Download */}
-          {selectedClientCount > 0 && (
-            <Button onClick={generatePDF} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              {t.downloadPDF}
-            </Button>
-          )}
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto mt-2 lg:mt-0">
+            {/* PDF Download */}
+            {selectedClientCount > 0 && (
+              <Button onClick={generatePDF} size="sm" className="flex items-center gap-2 h-9">
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.downloadPDF}</span>
+              </Button>
+            )}
 
-          {/* Reset Filters Button */}
-          {isFilterActive && (
-            <Button
-              variant="outline"
-              onClick={onResetFilters}
-              className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950 bg-transparent"
-            >
-              <RotateCcw className="h-4 w-4" />
-              {t.resetFilters}
-            </Button>
-          )}
+            {/* Bulk Export ZIP */}
+            {selectedClientCount > 0 && (
+              <Button onClick={handleBulkExport} variant="secondary" size="sm" className="flex items-center gap-2 h-9">
+                <Archive className="h-4 w-4" />
+                <span className="hidden sm:inline">ZIP Export</span> ({selectedClientCount})
+              </Button>
+            )}
+
+            {/* Reset Filters Button */}
+            {isFilterActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onResetFilters}
+                className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-950 bg-transparent h-9"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span className="hidden sm:inline">{t.resetFilters}</span>
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
