@@ -1,7 +1,11 @@
 let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+// AGGRESSIVE PROTOCOL FIX: If it contains https:// anywhere, strip everything before it
+if (API_BASE_URL.includes("https://")) {
+  API_BASE_URL = "https://" + API_BASE_URL.split("https://")[1];
+}
+
 API_BASE_URL = API_BASE_URL.replace(/\/+$/, ""); // remove any trailing slashes
-// Fix potential double protocol issue (e.g. http://https://)
-API_BASE_URL = API_BASE_URL.replace(/^http:\/\/https:\/\//, "https://");
 if (API_BASE_URL.endsWith("/api")) API_BASE_URL = API_BASE_URL.slice(0, -4);
 
 // ✅ FULL INFINITE LOOP FIX
