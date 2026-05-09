@@ -5,9 +5,22 @@ const Clinic = require("../models/Clinic");
 // JWT token verification middleware
 const auth = async (req, res, next) => {
   try {
-    // TEMPORARY LOGIN BYPASS
+    // TEMPORARY LOGIN BYPASS - Find a real admin to avoid foreign key errors
+    const realAdmin = await User.findOne({ where: { role: 'admin' } });
+    
+    if (realAdmin) {
+      req.user = {
+        userId: realAdmin.id,
+        username: realAdmin.username,
+        role: realAdmin.role,
+        email: realAdmin.email,
+      };
+      return next();
+    }
+
+    // Fallback if no admin exists yet
     req.user = {
-      userId: 'bypass-id',
+      userId: '00000000-0000-0000-0000-000000000000', // Dummy UUID
       username: 'admin',
       role: 'admin',
       email: 'admin@dental.uz',
