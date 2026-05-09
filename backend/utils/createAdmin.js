@@ -23,12 +23,15 @@ async function createAdmin() {
     // Check if user already exists
     const existing = await User.findOne({ where: { username: adminData.username } });
     if (existing) {
-      console.log('User with username "admin" already exists. Updating role and resetting password...');
+      console.log('User with username "admin" already exists. Updating details...');
       existing.role = 'admin';
       existing.isActive = true;
       existing.password = 'adminpassword123';
+      existing.firstName = adminData.firstName;
+      existing.lastName = adminData.lastName;
+      existing.phone = adminData.phone;
       await existing.save();
-      console.log('User updated and password reset successfully.');
+      console.log('Admin details and password updated successfully.');
     } else {
       await User.create(adminData);
       console.log('Admin user created successfully!');
