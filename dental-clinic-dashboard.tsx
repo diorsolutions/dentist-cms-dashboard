@@ -215,7 +215,19 @@ const DentalClinicDashboard = () => {
 
   useEffect(() => {
     setMounted(true);
+    // Sahifa yuklanganda saqlangan doktorni qayta tiklash
+    const savedDoctorId = localStorage.getItem("selectedDoctorId");
+    if (savedDoctorId) {
+      setSelectedDoctorId(savedDoctorId);
+    }
   }, []);
+
+  // Tanlangan doktor o'zgarganda uni saqlab qo'yish
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("selectedDoctorId", selectedDoctorId);
+    }
+  }, [selectedDoctorId, mounted]);
 
   const loadClientTreatments = async (
     clientId: string,
