@@ -1,10 +1,12 @@
 let API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 API_BASE_URL = API_BASE_URL.replace(/\/+$/, ""); // remove any trailing slashes
+// Fix potential double protocol issue (e.g. http://https://)
+API_BASE_URL = API_BASE_URL.replace(/^http:\/\/https:\/\//, "https://");
 if (API_BASE_URL.endsWith("/api")) API_BASE_URL = API_BASE_URL.slice(0, -4);
 
 // ✅ FULL INFINITE LOOP FIX
 let globalRedirected = false;
-let lastTokenCheck = 0;
+let lastTokenCheckTime = 0;
 
 class ApiService {
   static async request(endpoint, options = {}) {
@@ -16,7 +18,7 @@ class ApiService {
     try {
       if (typeof window !== "undefined") {
         token = localStorage.getItem("auth_token");
-        
+
         // TEMPORARY LOGIN BYPASS:
         // We will not redirect or throw errors if the token is missing.
         // The backend auth middleware has also been bypassed.
@@ -59,7 +61,7 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: "Network error" }))
-        
+
         // Handle subscription expiry or manual block
         if (response.status === 403 && typeof window !== "undefined") {
           if (errorData.type === 'payment-required') {
