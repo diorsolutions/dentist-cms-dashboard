@@ -1,52 +1,45 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const User = require("../models/User");
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+const User = require('../models/User');
+const { sequelize } = require('../config/database');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-const createAdmin = async () => {
+async function createAdmin() {
   try {
-    // Manzilni tekshirib ulanamiz
-    const uri = process.env.MONGODB_URI;
-    if (!uri) throw new Error("MONGODB_URI topilmadi!");
+    // Sync is not needed if tables exist, but let's just make sure connection is ok
+    await sequelize.authenticate();
+    console.log('Database connection has been established successfully.');
 
-    await mongoose.connect(uri);
-    console.log("✅ Bazaga ulanish muvaffaqiyatli.");
+    const adminData = {
+      username: 'admin',
+      email: 'admin@dental.uz',
+      password: 'adminpassword123',
+      firstName: 'Olloyorov',
+      lastName: 'Xursandbek',
+      phone: '+998901234567',
+      role: 'admin',
+      isActive: true
+    };
 
-    const username = "admin";
-    const password = "admin123";
-
-    // Agar avval bor bo'lsa o'chiramiz
-    await User.findOneAndDelete({ username });
-    console.log("🗑️ Eskisi o'chirildi.");
-
-    // Yangi admin yaratamiz
-    const user = new User({
-      username,
-      email: "admin@example.com",
-      password: password, // Model ichida pre-save hook borligini hisobga olamiz
-      firstName: "Admin",
-      lastName: "System",
-      role: "admin",
-      isActive: true,
-    });
-
-    await user.save();
-
-    console.log(`
-🎉 Muvaffaqiyatli yaratildi!
--------------------------
-👤 Username: ${username}
-🔑 Password: ${password}
--------------------------
-Endi bemalol kirishingiz mumkin!
-    `);
-
-    process.exit(0);
+    // Check if user already exists
+    const existing = await User.findOne({ where: { username: adminData.username } });
+    if (existing) {
+      console.log('User with username "admin" already exists. Updating role and resetting password...');
+      existing.role = 'admin';
+      existing.isActive = true;
+      existing.password = 'adminpassword123';
+      await existing.save();
+      console.log('User updated and password reset successfully.');
+    } else {
+      await User.create(adminData);
+      console.log('Admin user created successfully!');
+      console.log('Username: admin');
+      console.log('Password: adminpassword123');
+    }
   } catch (error) {
-    console.error("❌ Xatolik:", error);
-    process.exit(1);
+    console.error('Error creating admin:', error);
+  } finally {
+    await sequelize.close();
   }
-};
+}
 
 createAdmin();

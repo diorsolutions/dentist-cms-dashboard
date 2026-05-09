@@ -8,6 +8,19 @@ import { Moon, Sun, Languages, Loader2, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import type { Translations } from "@/types/translations";
+import UserSwitcher from "./UserSwitcher";
+
+interface Doctor {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  role: "admin" | "doctor" | "assistant";
+  lastLogin: string;
+}
 
 interface DashboardHeaderProps {
   t: Translations;
@@ -15,6 +28,11 @@ interface DashboardHeaderProps {
   setLanguage: (language: "latin" | "cyrillic") => void;
   filteredClientCount: number;
   loading: boolean;
+  currentUser: Doctor | null;
+  selectedDoctorId: string | "all";
+  onDoctorSelect: (doctorId: string | "all") => void;
+  onAddDoctorClick: () => void;
+  doctorsRefreshKey?: number;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -23,6 +41,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   setLanguage,
   filteredClientCount,
   loading,
+  currentUser,
+  selectedDoctorId,
+  onDoctorSelect,
+  onAddDoctorClick,
+  doctorsRefreshKey,
 }) => {
   const { theme, setTheme, systemTheme } = useTheme();
   const router = useRouter();
@@ -61,6 +84,16 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
 
           <div className="flex items-center justify-center md:justify-end gap-2 md:gap-4 w-full md:w-auto">
+            {/* User Switcher */}
+            <UserSwitcher
+              t={t}
+              currentUser={currentUser}
+              selectedDoctorId={selectedDoctorId}
+              onDoctorSelect={onDoctorSelect}
+              onAddDoctorClick={onAddDoctorClick}
+              refreshKey={doctorsRefreshKey}
+            />
+
             {/* Language Selector */}
             <Select
               value={language}

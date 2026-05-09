@@ -52,6 +52,37 @@ class AuthService {
     const user = localStorage.getItem("user")
     return user ? JSON.parse(user) : null
   }
+
+  // Get all doctors
+  static async getDoctors() {
+    return ApiService.get("/auth/doctors")
+  }
+
+  // Register new doctor (admin only)
+  static async registerDoctor(doctorData) {
+    return ApiService.post("/auth/register-doctor", doctorData)
+  }
+
+  // Delete doctor (admin only)
+  static async deleteDoctor(doctorId) {
+    return ApiService.delete(`/auth/doctors/${doctorId}`)
+  }
+
+  // Get current user role
+  static getUserRole() {
+    const user = this.getStoredUser()
+    return user ? user.role : null
+  }
+
+  // Check if user is admin
+  static isAdmin() {
+    return this.getUserRole() === "admin"
+  }
+
+  // Check if user is doctor
+  static isDoctor() {
+    return this.getUserRole() === "doctor"
+  }
 }
 
 export default AuthService

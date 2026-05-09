@@ -35,6 +35,8 @@ const validateClient = (req, res, next) => {
     notes: Joi.string().trim().max(500).allow("").optional().messages({
       "string.max": "Notes cannot exceed 500 characters",
     }),
+    doctorId: Joi.string().optional().allow(null, ""),
+    images: Joi.array().items(Joi.string()).optional(),
   })
 
   const { error } = schema.validate(req.body)

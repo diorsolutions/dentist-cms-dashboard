@@ -14,12 +14,27 @@ class UploadService {
       // Add all images and comments to FormData
       images.forEach((imgObj) => {
         formData.append("images", imgObj.file);
-        formData.append("comments[]", imgObj.comment || "");
+        formData.append("comments", imgObj.comment || "");
       });
+
+      let token = null;
+      try {
+        if (typeof window !== "undefined") {
+          token = localStorage.getItem("auth_token");
+        }
+      } catch (e) {
+        console.warn("Error accessing localStorage", e);
+      }
+      
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
       // Upload through backend API which handles Cloudinary
       const response = await fetch(`${API_BASE_URL}/api/upload/client-images`, {
         method: "POST",
+        headers: headers,
         body: formData,
       });
 
@@ -93,8 +108,8 @@ class UploadService {
       return null;
     }
 
-    // If it's already a full URL (Cloudinary or other), return as is
-    if (path.startsWith("http")) {
+    // If it's a full URL or a Base64 string, return as is
+    if (path.startsWith("http") || path.startsWith("data:")) {
       return path;
     }
 

@@ -458,7 +458,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 <div className="space-y-4">
                   {selectedClient.treatmentHistory.map((treatment, index) => (
                     <Collapsible
-                      key={treatment.id}
+                      key={treatment.id || `treatment-${index}`}
                       open={expandedTreatment === treatment.id}
                     >
                       <CollapsibleTrigger

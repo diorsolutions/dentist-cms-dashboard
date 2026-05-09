@@ -1,5 +1,5 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const { sequelize, testConnection } = require("./config/database");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -8,29 +8,29 @@ const rateLimit = require("express-rate-limit");
 const path = require("path");
 require("dotenv").config();
 
+// Import models to set up associations
+require("./models/index");
+
 const app = express();
 
-// MongoDB connection
+// PostgreSQL connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const connected = await testConnection();
+    if (!connected) {
+      console.error("❌ PostgreSQL connection failed");
+      console.log("💡 Make sure PostgreSQL is running and credentials are correct");
+      process.exit(1);
+    }
 
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-
-    // Database events
-    mongoose.connection.on("error", (err) => {
-      console.error("❌ MongoDB connection error:", err);
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      console.log("⚠️  MongoDB disconnected");
-    });
+    // Sync models (create tables if they don't exist)
+    // In production, use migrations instead
+    if (process.env.NODE_ENV !== "production") {
+      await sequelize.sync({ alter: true });
+      console.log("✅ Database tables synchronized");
+    }
   } catch (error) {
     console.error("❌ Database connection failed:", error);
-    console.log("💡 Make sure MongoDB is running: mongod");
     process.exit(1);
   }
 };
@@ -97,15 +97,22 @@ app.use("/api/treatments", treatmentRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // Health check endpoint
-app.get("/api/health", (req, res) => {
+app.get("/api/health", async (req, res) => {
+  let dbStatus = "Unknown";
+  try {
+    await sequelize.authenticate();
+    dbStatus = "Connected";
+  } catch {
+    dbStatus = "Disconnected";
+  }
+
   res.json({
     success: true,
     message: "Dental Clinic API is running",
     timestamp: new Date().toISOString(),
     version: "1.0.0",
     environment: process.env.NODE_ENV || "development",
-    database:
-      mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    database: dbStatus,
   });
 });
 
@@ -170,13 +177,15 @@ app.use((error, req, res, next) => {
 });
 
 // Graceful shutdown
-process.on("SIGTERM", () => {
+process.on("SIGTERM", async () => {
   console.log("SIGTERM received. Shutting down gracefully...");
+  await sequelize.close();
   process.exit(0);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   console.log("SIGINT received. Shutting down gracefully...");
+  await sequelize.close();
   process.exit(0);
 });
 
@@ -186,7 +195,7 @@ app.listen(PORT, () => {
   console.log(`
 🚀 Server is running on port ${PORT}
 📱 Frontend URL: ${process.env.FRONTEND_URL || "http://localhost:3000"}
-🗄️  Database: ${process.env.MONGODB_URI}
+🗄️  Database: PostgreSQL
 🌍 Environment: ${process.env.NODE_ENV || "development"}
 📚 API Documentation: http://localhost:${PORT}/api
 🏥 Health Check: http://localhost:${PORT}/api/health

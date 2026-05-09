@@ -1,104 +1,114 @@
-const mongoose = require("mongoose")
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
 
-const clientSchema = new mongoose.Schema(
+const Client = sequelize.define(
+  'Client',
   {
-    // Personal Information
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     firstName: {
-      type: String,
-      required: [true, "First name is required"],
-      trim: true,
-      maxlength: [50, "First name cannot exceed 50 characters"],
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      field: 'first_name',
     },
     lastName: {
-      type: String,
-      required: [true, "Last name is required"],
-      trim: true,
-      maxlength: [50, "Last name cannot exceed 50 characters"],
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      field: 'last_name',
     },
     phone: {
-      type: String,
-      required: [true, "Phone number is required"],
-      match: [/^\+998\d{9}$/, "Please enter a valid phone number (+998XXXXXXXXX)"],
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      validate: {
+        is: /^\+998\d{9}$/,
+      },
     },
     email: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
+      type: DataTypes.STRING,
+      validate: {
+        isEmail: true,
+      },
     },
-    dateOfBirth: { // New field for birth date
-      type: Date,
-      optional: true,
+    dateOfBirth: {
+      type: DataTypes.DATEONLY,
+      field: 'date_of_birth',
     },
     address: {
-      type: String,
-      trim: true,
-      maxlength: [200, "Address cannot exceed 200 characters"],
+      type: DataTypes.STRING(200),
     },
-
-    // Treatment Information
     status: {
-      type: String,
-      enum: ["inTreatment", "completed"],
-      default: "inTreatment",
+      type: DataTypes.ENUM('inTreatment', 'completed'),
+      defaultValue: 'inTreatment',
     },
     initialTreatment: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Initial treatment cannot exceed 100 characters"],
+      type: DataTypes.STRING(100),
+      field: 'initial_treatment',
     },
     notes: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Notes cannot exceed 500 characters"],
+      type: DataTypes.STRING(500),
     },
-
-    // Legacy field for backward compatibility
-    images: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
-    // New structured file storage
+    images: {
+      type: DataTypes.ARRAY(DataTypes.TEXT),
+      defaultValue: [],
+    },
     uploadedFiles: {
-      images: [
-        {
-          url: { type: String, required: true },
-          comment: { type: String, default: "" },
-        },
-      ],
-      documents: [
-        {
-          type: String,
-        },
-      ],
-      videos: [
-        {
-          type: String,
-        },
-      ],
+      type: DataTypes.JSONB,
+      field: 'uploaded_files',
+      defaultValue: { images: [], documents: [], videos: [] },
     },
-
-    // Metadata
     isActive: {
-      type: Boolean,
-      default: true,
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      field: 'is_active',
+    },
+    doctorId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'doctor_id',
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
   },
   {
+    tableName: 'clients',
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    hooks: {
+      beforeCreate: (client) => {
+        if (!client.uploadedFiles) {
+          client.uploadedFiles = { images: [], documents: [], videos: [] };
+        }
+        // If Base64 images are provided, sync them to uploadedFiles for consistency
+        if (client.images && Array.isArray(client.images) && client.images.length > 0) {
+          const imageObjects = client.images.map(url => ({ url, comment: '' }));
+          client.uploadedFiles = {
+            ...client.uploadedFiles,
+            images: [...client.uploadedFiles.images, ...imageObjects]
+          };
+        }
+      },
+      beforeUpdate: (client) => {
+        if (!client.uploadedFiles) {
+          client.uploadedFiles = { images: [], documents: [], videos: [] };
+        }
+      },
+    },
   },
-)
+);
 
-// Virtual fields
-clientSchema.virtual("fullName").get(function () {
-  return `${this.firstName} ${this.lastName}`
-})
+// Instance method to get full name
+Client.prototype.getFullName = function () {
+  return `${this.firstName} ${this.lastName}`;
+};
 
-clientSchema.virtual("age").get(function () {
+// Instance method to get age
+Client.prototype.getAge = function () {
   if (!this.dateOfBirth) return null;
   const today = new Date();
   const birthDate = new Date(this.dateOfBirth);
@@ -108,96 +118,61 @@ clientSchema.virtual("age").get(function () {
     age--;
   }
   return age;
-});
+};
 
-
-clientSchema.virtual("treatmentCount", {
-  ref: "Treatment",
-  localField: "_id",
-  foreignField: "clientId",
-  count: true,
-})
-
-// Indexes for better performance
-clientSchema.index({ firstName: 1, lastName: 1 })
-clientSchema.index({ email: 1 })
-clientSchema.index({ status: 1 })
-clientSchema.index({ createdAt: -1 })
-clientSchema.index({ dateOfBirth: 1 }); // Index for new field
-
-// Pre-save middleware to ensure uploadedFiles structure
-clientSchema.pre("save", function (next) {
+// Instance method to add images
+Client.prototype.addImages = async function (imageFilenames) {
   if (!this.uploadedFiles) {
-    this.uploadedFiles = { images: [], documents: [], videos: [] }
+    this.uploadedFiles = { images: [], documents: [], videos: [] };
   }
   if (!this.uploadedFiles.images) {
-    this.uploadedFiles.images = []
-  }
-  if (!this.uploadedFiles.documents) {
-    this.uploadedFiles.documents = []
-  }
-  if (!this.uploadedFiles.videos) {
-    this.uploadedFiles.videos = []
-  }
-  next()
-})
-
-// Method to add images
-clientSchema.methods.addImages = function (imageFilenames) {
-  console.log("Adding images to client:", imageFilenames)
-
-  if (!this.uploadedFiles) {
-    this.uploadedFiles = { images: [], documents: [], videos: [] }
-  }
-  if (!this.uploadedFiles.images) {
-    this.uploadedFiles.images = []
+    this.uploadedFiles.images = [];
   }
 
-  // Convert string URLs to expected object format if necessary
   const imageObjects = imageFilenames.map((img) => {
-    if (typeof img === "string") {
-      return { url: img, comment: "" }
+    if (typeof img === 'string') {
+      return { url: img, comment: '' };
     }
-    return img
-  })
+    return img;
+  });
 
-  // Add to new structure
-  this.uploadedFiles.images.push(...imageObjects)
+  this.uploadedFiles.images.push(...imageObjects);
 
-  // Also add to legacy field for backward compatibility
-  // Legacy field only accepts strings
   if (!this.images) {
-    this.images = []
+    this.images = [];
   }
-  const stringUrls = imageFilenames.map((img) => (typeof img === "string" ? img : img.url))
-  this.images.push(...stringUrls)
+  const stringUrls = imageFilenames.map((img) => (typeof img === 'string' ? img : img.url));
+  this.images.push(...stringUrls);
 
-  console.log("Client images after adding:", this.uploadedFiles.images)
-  return this.save()
-}
+  this.changed('uploadedFiles', true);
+  this.changed('images', true);
 
-// Method to remove images
-clientSchema.methods.removeImages = function (imageFilenames) {
+  return this.save();
+};
+
+// Instance method to remove images
+Client.prototype.removeImages = async function (imageFilenames) {
   if (this.uploadedFiles && this.uploadedFiles.images) {
-    this.uploadedFiles.images = this.uploadedFiles.images.filter((img) => !imageFilenames.includes(img))
+    this.uploadedFiles.images = this.uploadedFiles.images.filter(
+      (img) => !imageFilenames.includes(img.url || img)
+    );
+    this.changed('uploadedFiles', true);
   }
 
-  // Also remove from legacy field
   if (this.images) {
-    this.images = this.images.filter((img) => !imageFilenames.includes(img))
+    this.images = this.images.filter((img) => !imageFilenames.includes(img));
+    this.changed('images', true);
   }
 
-  return this.save()
-}
+  return this.save();
+};
 
-// Method to get all images
-clientSchema.methods.getAllImages = function () {
-  const newImages = this.uploadedFiles?.images || []
-  const legacyImages = this.images || []
+// Instance method to get all images
+Client.prototype.getAllImages = function () {
+  const newImages = this.uploadedFiles?.images || [];
+  const legacyImages = this.images || [];
+  const allImages = [...new Set([...newImages, ...legacyImages])];
+  return allImages;
+};
 
-  // Combine and deduplicate
-  const allImages = [...new Set([...newImages, ...legacyImages])]
-  return allImages
-}
-
-module.exports = mongoose.model("Client", clientSchema)
+module.exports = Client;

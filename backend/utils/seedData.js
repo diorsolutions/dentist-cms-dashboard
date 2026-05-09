@@ -1,113 +1,112 @@
-const mongoose = require("mongoose")
-require("dotenv").config()
-
-// Import models
-const User = require("../models/User")
-const Client = require("../models/Client")
-const Treatment = require("../models/Treatment")
+const { sequelize } = require("../config/database");
+const { User, Client, Treatment } = require("../models/index");
+require("dotenv").config();
 
 const seedData = async () => {
   try {
     // Connect to database
-    await mongoose.connect(process.env.MONGODB_URI)
-    console.log("✅ Connected to MongoDB")
+    await sequelize.authenticate();
+    console.log("✅ Connected to PostgreSQL");
+
+    // Sync tables
+    await sequelize.sync({ force: true });
+    console.log("🔄 Database tables synchronized");
 
     // Clear existing data
-    await User.deleteMany({})
-    await Client.deleteMany({})
-    await Treatment.deleteMany({})
-    console.log("🧹 Cleared existing data")
+    await Treatment.destroy({ where: {} });
+    await Client.destroy({ where: {} });
+    await User.destroy({ where: {} });
+    console.log("🧹 Cleared existing data");
 
     // Create admin user
-    const adminUser = new User({
+    const adminUser = await User.create({
       username: "admin",
       email: "admin@dentalclinic.uz",
       password: "admin123",
       firstName: "Admin",
       lastName: "User",
       role: "admin",
-    })
-    await adminUser.save()
+    });
 
     // Create doctor user
-    const doctorUser = new User({
+    const doctorUser = await User.create({
       username: "doctor",
       email: "doctor@dentalclinic.uz",
       password: "doctor123",
       firstName: "Dr. Malika",
       lastName: "Karimova",
       role: "doctor",
-    })
-    await doctorUser.save()
+    });
 
-    console.log("👥 Created users")
+    console.log("👥 Created users");
 
     // Create sample clients
-    const clients = [
-      {
-        firstName: "Ahmadjon",
-        lastName: "Karimov",
-        phone: "+998901234567",
-        email: "ahmad@example.com",
-        age: 35,
-        address: "Toshkent, Yunusobod tumani",
-        status: "inTreatment",
-        initialTreatment: "Tish to'ldirish",
-        notes: "Yuqori jag'da 3 ta tish davolash kerak",
-      },
-      {
-        firstName: "Malika",
-        lastName: "Toshmatova",
-        phone: "+998907654321",
-        email: "malika@example.com",
-        age: 28,
-        address: "Toshkent, Mirzo Ulug'bek tumani",
-        status: "completed",
-        initialTreatment: "Tish tozalash",
-        notes: "Muntazam profilaktik ko'rik",
-      },
-      {
-        firstName: "Bobur",
-        lastName: "Rahimov",
-        phone: "+998909876543",
-        email: "bobur@example.com",
-        age: 42,
-        address: "Toshkent, Shayxontohur tumani",
-        status: "inTreatment",
-        initialTreatment: "Implant o'rnatish",
-        notes: "Oldindan tayyorgarlik ko'rish kerak",
-      },
-      {
-        firstName: "Nodira",
-        lastName: "Abdullayeva",
-        phone: "+998905555555",
-        email: "nodira@example.com",
-        age: 24,
-        address: "Toshkent, Chilonzor tumani",
-        status: "inTreatment",
-        initialTreatment: "Ortodontik davolash",
-        notes: "Breket tizimi o'rnatilgan",
-      },
-      {
-        firstName: "Jasur",
-        lastName: "Aliyev",
-        phone: "+998901111111",
-        email: "jasur@example.com",
-        age: 30,
-        address: "Toshkent, Sergeli tumani",
-        status: "completed",
-        initialTreatment: "Tish olib tashlash",
-        notes: "Aql tishi olib tashlandi",
-      },
-    ]
+    const client1 = await Client.create({
+      firstName: "Ahmadjon",
+      lastName: "Karimov",
+      phone: "+998901234567",
+      email: "ahmad@example.com",
+      dateOfBirth: "1989-01-15",
+      address: "Toshkent, Yunusobod tumani",
+      status: "inTreatment",
+      initialTreatment: "Tish to'ldirish",
+      notes: "Yuqori jag'da 3 ta tish davolash kerak",
+    });
 
-    const createdClients = await Client.insertMany(clients)
-    console.log("🦷 Created clients")
+    const client2 = await Client.create({
+      firstName: "Malika",
+      lastName: "Toshmatova",
+      phone: "+998907654321",
+      email: "malika@example.com",
+      dateOfBirth: "1996-05-20",
+      address: "Toshkent, Mirzo Ulug'bek tumani",
+      status: "completed",
+      initialTreatment: "Tish tozalash",
+      notes: "Muntazam profilaktik ko'rik",
+    });
+
+    const client3 = await Client.create({
+      firstName: "Bobur",
+      lastName: "Rahimov",
+      phone: "+998909876543",
+      email: "bobur@example.com",
+      dateOfBirth: "1982-03-10",
+      address: "Toshkent, Shayxontohur tumani",
+      status: "inTreatment",
+      initialTreatment: "Implant o'rnatish",
+      notes: "Oldindan tayyorgarlik ko'rish kerak",
+    });
+
+    const client4 = await Client.create({
+      firstName: "Nodira",
+      lastName: "Abdullayeva",
+      phone: "+998905555555",
+      email: "nodira@example.com",
+      dateOfBirth: "2000-08-25",
+      address: "Toshkent, Chilonzor tumani",
+      status: "inTreatment",
+      initialTreatment: "Ortodontik davolash",
+      notes: "Breket tizimi o'rnatilgan",
+    });
+
+    const client5 = await Client.create({
+      firstName: "Jasur",
+      lastName: "Aliyev",
+      phone: "+998901111111",
+      email: "jasur@example.com",
+      dateOfBirth: "1994-12-01",
+      address: "Toshkent, Sergeli tumani",
+      status: "completed",
+      initialTreatment: "Tish olib tashlash",
+      notes: "Aql tishi olib tashlandi",
+    });
+
+    console.log("🦷 Created clients");
 
     // Create sample treatments
-    const treatments = [
+    await Treatment.bulkCreate([
       {
-        clientId: createdClients[0]._id,
+        clientId: client1.id,
         visitType: "Karies davolash",
         treatmentType: "Tish to'ldirish",
         description: "Yuqori jag'dagi tish to'ldirildi",
@@ -117,7 +116,7 @@ const seedData = async () => {
         status: "completed",
       },
       {
-        clientId: createdClients[0]._id,
+        clientId: client1.id,
         visitType: "Konsultatsiya",
         treatmentType: "Dastlabki ko'rik",
         description: "Og'iz bo'shlig'i tekshirildi",
@@ -127,7 +126,7 @@ const seedData = async () => {
         status: "completed",
       },
       {
-        clientId: createdClients[1]._id,
+        clientId: client2.id,
         visitType: "Profilaktika",
         treatmentType: "Tish tozalash",
         description: "Professional tish tozalash",
@@ -137,7 +136,7 @@ const seedData = async () => {
         status: "completed",
       },
       {
-        clientId: createdClients[2]._id,
+        clientId: client3.id,
         visitType: "Implant tayyorgarlik",
         treatmentType: "Konsultatsiya va rentgen",
         description: "Implant o'rnatish uchun ko'rik",
@@ -147,7 +146,7 @@ const seedData = async () => {
         status: "completed",
       },
       {
-        clientId: createdClients[3]._id,
+        clientId: client4.id,
         visitType: "Ortodontiya",
         treatmentType: "Breket o'rnatish",
         description: "Metal breket tizimi o'rnatildi",
@@ -156,10 +155,9 @@ const seedData = async () => {
         cost: 2000000,
         status: "completed",
       },
-    ]
+    ]);
 
-    await Treatment.insertMany(treatments)
-    console.log("💊 Created treatments")
+    console.log("💊 Created treatments");
 
     console.log(`
 🎉 Seed data created successfully!
@@ -179,14 +177,14 @@ const seedData = async () => {
 💡 Test commands:
 curl http://localhost:5000/api/health
 curl http://localhost:5000/api/clients
-    `)
+    `);
 
-    process.exit(0)
+    process.exit(0);
   } catch (error) {
-    console.error("❌ Seed data error:", error)
-    process.exit(1)
+    console.error("❌ Seed data error:", error);
+    process.exit(1);
   }
-}
+};
 
 // Run seed data
-seedData()
+seedData();

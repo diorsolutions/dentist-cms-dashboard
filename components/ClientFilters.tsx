@@ -343,14 +343,6 @@ const ClientFilters: React.FC<ClientFiltersProps> = ({
               </Button>
             )}
 
-            {/* Bulk Export ZIP */}
-            {selectedClientCount > 0 && (
-              <Button onClick={handleBulkExport} variant="secondary" size="sm" className="flex items-center gap-2 h-9">
-                <Archive className="h-4 w-4" />
-                <span className="hidden sm:inline">ZIP Export</span> ({selectedClientCount})
-              </Button>
-            )}
-
             {/* Reset Filters Button */}
             {isFilterActive && (
               <Button

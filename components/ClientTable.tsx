@@ -63,16 +63,8 @@ const ClientTable: React.FC<ClientTableProps> = ({
     <Card className="animate-in fade-in-50 duration-500 overflow-hidden">
       <CardContent className="p-0">
         {/* Desktop Header - Hidden on mobile */}
-        <div className="hidden lg:grid grid-cols-18 px-4 py-3 border-b bg-muted/50 font-semibold text-sm relative">
-          <div
-            className={cn(
-              "absolute left-[-1.4rem] top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
-              selectedClients.length > 0
-                ? "opacity-100 pointer-events-auto"
-                : "opacity-0 pointer-events-none"
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="hidden lg:grid grid-cols-18 px-4 py-3 border-b bg-muted/50 font-semibold text-sm">
+          <div className="col-span-1 flex items-center">
             <Checkbox
               id="select-all"
               checked={
@@ -82,34 +74,26 @@ const ClientTable: React.FC<ClientTableProps> = ({
               onCheckedChange={handleSelectAll}
             />
           </div>
-          <div className="col-span-1">No.</div>
-          <div className="col-span-4 pl-2">{t.name}</div>
-          <div className="col-span-3 px-2">{t.birthDate}</div>
-          <div className="col-span-3 px-2">{t.lastVisit}</div>
-          <div className="col-span-3 px-2">{t.nextAppointment}</div>
-          <div className="col-span-3 px-2">{t.phone}</div>
-          <div className="col-span-1 text-center">{t.status}</div>
+          <div className="col-span-1 flex items-center">No.</div>
+          <div className="col-span-3 flex items-center pl-2">{t.name}</div>
+          <div className="col-span-3 flex items-center px-2">{t.birthDate}</div>
+          <div className="col-span-3 flex items-center px-2">{t.lastVisit}</div>
+          <div className="col-span-3 flex items-center px-2">{t.nextAppointment}</div>
+          <div className="col-span-3 flex items-center px-2">{t.phone}</div>
+          <div className="col-span-1 flex items-center justify-center">{t.status}</div>
         </div>
 
         {/* Client Rows */}
         <div className="divide-y">
           {filteredAndSortedClients.map((client, index) => (
-            <React.Fragment key={client.id}>
+            <React.Fragment key={client.id || `client-${index}`}>
               {/* Desktop Row - Hidden on mobile */}
               <div
-                className="hidden lg:grid grid-cols-18 px-4 py-4 hover:bg-muted/30 cursor-pointer transition-all duration-200 animate-in fade-in-50 group relative"
+                className="hidden lg:grid grid-cols-18 px-4 py-4 hover:bg-muted/30 cursor-pointer transition-all duration-200 animate-in fade-in-50 group items-center"
                 style={{ animationDelay: `${index * 30}ms` }}
                 onClick={() => openClientModal(client)}
               >
-                <div
-                  className={cn(
-                    "absolute left-[-1.4rem] top-1/2 -translate-y-1/2 flex items-center transition-opacity duration-200",
-                    selectedClients.includes(client.id)
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
-                  )}
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div className="col-span-1 flex items-center" onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     checked={selectedClients.includes(client.id)}
                     onCheckedChange={(checked) =>
@@ -118,21 +102,21 @@ const ClientTable: React.FC<ClientTableProps> = ({
                   />
                 </div>
 
-                <div className="col-span-1 flex items-center text-sm text-muted-foreground">
+                <div className="col-span-1 text-sm text-muted-foreground">
                   {index + 1}.
                 </div>
-                <div className="col-span-4 flex items-center pl-2">
+                <div className="col-span-3 pl-2">
                   <div className="text-base font-semibold text-foreground truncate">
                     {client.name}
                   </div>
                 </div>
-                <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                <div className="col-span-3 text-sm text-muted-foreground px-2">
                   {formatDate(client.dateOfBirth)}
                 </div>
-                <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                <div className="col-span-3 text-sm text-muted-foreground px-2">
                   {formatDate(client.lastVisit)}
                 </div>
-                <div className="col-span-3 flex items-center text-sm text-muted-foreground px-2">
+                <div className="col-span-3 text-sm text-muted-foreground px-2">
                   {client.nextAppointment ? (
                     <span
                       className={
@@ -147,7 +131,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                     <span className="text-muted-foreground/50 italic">{t.notSpecified}</span>
                   )}
                 </div>
-                <div className="col-span-3 flex items-center text-sm font-mono text-muted-foreground px-2">
+                <div className="col-span-3 text-sm font-mono text-muted-foreground px-2">
                   {client.phone}
                 </div>
                 <div className="col-span-1 flex items-center justify-center">

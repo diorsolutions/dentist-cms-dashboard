@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { Op } = require("sequelize");
 const Client = require("../models/Client");
 const Treatment = require("../models/Treatment");
 const cloudinary = require("cloudinary").v2;
@@ -224,7 +225,7 @@ router.post(
       }
 
       // Find the client
-      const client = await Client.findById(clientId);
+      const client = await Client.findByPk(clientId);
       if (!client) {
         // Clean up uploaded files if client not found
         req.files.forEach((file) => {
@@ -238,39 +239,41 @@ router.post(
         });
       }
 
-      // Upload files to Cloudinary
-      const comments = req.body.comments || [];
+      // Local Storage Only - High Speed & Reliable
+      const rawComments = req.body.comments || req.body["comments[]"] || [];
+      const comments = Array.isArray(rawComments) ? rawComments : [rawComments];
       const imageObjects = [];
-      
+
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         try {
-          const uploaded = await cloudinary.uploader.upload(file.path, {
-            folder: "dental-clinic/clients",
-          });
-          fs.unlinkSync(file.path);
+          const filename = `client_${clientId}_${Date.now()}_${i}${path.extname(file.originalname)}`;
+          const destPath = path.join(uploadsDir, filename);
           
+          fs.copyFileSync(file.path, destPath);
+          fs.unlinkSync(file.path);
+
+          const localUrl = `uploads/${filename}`;
           imageObjects.push({
-            url: uploaded.secure_url,
+            url: localUrl,
             comment: comments[i] || ""
           });
-        } catch (uploadError) {
-          console.error("Cloudinary upload error:", uploadError);
+        } catch (error) {
+          console.error(`Failed to save file ${i} locally:`, error);
           if (fs.existsSync(file.path)) {
             fs.unlinkSync(file.path);
           }
-          throw uploadError;
         }
       }
 
       // Add images to client
-      await client.addImages(imageObjects);
-
-      console.log("Images added to client successfully");
+      if (imageObjects.length > 0) {
+        await client.addImages(imageObjects);
+      }
 
       res.json({
         success: true,
-        message: `${imageObjects.length} ta rasm Cloudinaryga yuklandi`,
+        message: `${imageObjects.length} ta rasm lokal xotiraga yuklandi`,
         data: {
           urls: imageObjects.map(img => img.url),
           uploadedCount: imageObjects.length,
@@ -278,23 +281,14 @@ router.post(
       });
     } catch (error) {
       console.error("Upload error:", error);
-
-      // Clean up uploaded files on error
       if (req.files) {
         req.files.forEach((file) => {
-          try {
-            if (fs.existsSync(file.path)) {
-              fs.unlinkSync(file.path);
-            }
-          } catch (unlinkError) {
-            console.error("Error deleting file:", unlinkError);
-          }
+          if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
         });
       }
-
       res.status(500).json({
         success: false,
-        message: "Error uploading images",
+        message: "Rasmlarni saqlashda xato yuz berdi",
         error: error.message,
       });
     }
@@ -324,7 +318,7 @@ router.post(
       }
 
       // Find the treatment
-      const treatment = await Treatment.findById(treatmentId);
+      const treatment = await Treatment.findByPk(treatmentId);
       if (!treatment) {
         // Clean up uploaded files if treatment not found
         req.files.forEach((file) => {
@@ -341,7 +335,7 @@ router.post(
       // Upload files to Cloudinary
       const comments = req.body.comments || [];
       const imageObjects = [];
-      
+
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
         try {
@@ -349,7 +343,7 @@ router.post(
             folder: "dental-clinic/treatments",
           });
           fs.unlinkSync(file.path);
-          
+
           imageObjects.push({
             url: uploaded.secure_url,
             filename: uploaded.secure_url.split("/").pop(),
@@ -367,11 +361,11 @@ router.post(
 
       // Add images to treatment
       if (!treatment.images) {
-        treatment.images = []
+        treatment.images = [];
       }
-      
-      treatment.images.push(...imageObjects)
-      await treatment.save()
+
+      treatment.images.push(...imageObjects);
+      await treatment.save();
 
       res.json({
         success: true,
@@ -424,9 +418,8 @@ router.post(
       const permanentPath = path.join(uploadsDir, req.file.filename);
       fs.renameSync(req.file.path, permanentPath);
 
-      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${
-        req.file.filename
-      }`;
+      const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename
+        }`;
 
       res.json({
         success: true,
@@ -550,19 +543,39 @@ router.delete("/cloudinary/:publicId", async (req, res) => {
     }
 
     // Database'dan ham o'chirish (URL bo'yicha)
-    const cloudinaryUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}`;
-
-    await Client.updateMany(
-      {},
-      {
-        $pull: {
-          images: { $regex: publicId },
-          "uploadedFiles.images": { $regex: publicId },
-        },
+    // Note: Sequelize doesn't have $pull, so we need to manually update arrays
+    const allClients = await Client.findAll();
+    for (const client of allClients) {
+      let updated = false;
+      if (client.images) {
+        const newImages = client.images.filter(img => !img.includes(publicId));
+        if (newImages.length !== client.images.length) {
+          client.images = newImages;
+          updated = true;
+        }
       }
-    );
+      if (client.uploadedFiles?.images) {
+        const newImages = client.uploadedFiles.images.filter(img => !img.url?.includes(publicId));
+        if (newImages.length !== client.uploadedFiles.images.length) {
+          client.uploadedFiles.images = newImages;
+          updated = true;
+        }
+      }
+      if (updated) {
+        await client.save();
+      }
+    }
 
-    await Treatment.updateMany({}, { $pull: { images: { $regex: publicId } } });
+    const allTreatments = await Treatment.findAll();
+    for (const treatment of allTreatments) {
+      if (treatment.images) {
+        const newImages = treatment.images.filter(img => !img.url?.includes(publicId) && !img.includes(publicId));
+        if (newImages.length !== treatment.images.length) {
+          treatment.images = newImages;
+          await treatment.save();
+        }
+      }
+    }
 
     res.json({
       success: true,
@@ -597,22 +610,35 @@ router.delete("/local/:filename", async (req, res) => {
     fs.unlinkSync(filePath);
 
     // Remove from database records
-    await Client.updateMany(
-      {
-        $or: [{ images: filename }, { "uploadedFiles.images": filename }],
-      },
-      {
-        $pull: {
-          images: filename,
-          "uploadedFiles.images": filename,
-        },
+    const allClients = await Client.findAll();
+    for (const client of allClients) {
+      let updated = false;
+      if (client.images && client.images.includes(filename)) {
+        client.images = client.images.filter(img => img !== filename);
+        updated = true;
       }
-    );
+      if (client.uploadedFiles?.images) {
+        const newImages = client.uploadedFiles.images.filter(img => img.url !== filename && img !== filename);
+        if (newImages.length !== client.uploadedFiles.images.length) {
+          client.uploadedFiles.images = newImages;
+          updated = true;
+        }
+      }
+      if (updated) {
+        await client.save();
+      }
+    }
 
-    await Treatment.updateMany(
-      { images: filename },
-      { $pull: { images: filename } }
-    );
+    const allTreatments = await Treatment.findAll();
+    for (const treatment of allTreatments) {
+      if (treatment.images) {
+        const newImages = treatment.images.filter(img => img.url !== filename && img.filename !== filename);
+        if (newImages.length !== treatment.images.length) {
+          treatment.images = newImages;
+          await treatment.save();
+        }
+      }
+    }
 
     res.json({
       success: true,

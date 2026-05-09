@@ -1,103 +1,108 @@
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
+const { DataTypes } = require('sequelize');
+const bcrypt = require('bcryptjs');
+const { sequelize } = require('../config/database');
 
-const userSchema = new mongoose.Schema(
+const User = sequelize.define(
+  'User',
   {
-    // Authentication
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     username: {
-      type: String,
-      required: [true, "Username is required"],
+      type: DataTypes.STRING(30),
+      allowNull: false,
       unique: true,
-      trim: true,
-      minlength: [3, "Username must be at least 3 characters"],
-      maxlength: [30, "Username cannot exceed 30 characters"],
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters"],
-    },
-
-    // Personal information
-    firstName: {
-      type: String,
-      required: [true, "First name is required"],
-      trim: true,
-      maxlength: [50, "First name cannot exceed 50 characters"],
-    },
-    lastName: {
-      type: String,
-      required: [true, "Last name is required"],
-      trim: true,
-      maxlength: [50, "Last name cannot exceed 50 characters"],
-    },
-
-    // Role and permissions
-    role: {
-      type: String,
-      enum: ["admin", "doctor", "assistant"],
-      default: "assistant",
-    },
-
-    // Status
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-
-    // Last login
-    lastLogin: {
-      type: Date,
-    },
-  },
-  {
-    timestamps: true,
-    toJSON: {
-      virtuals: true,
-      transform: (doc, ret) => {
-        delete ret.password
-        return ret
+      validate: {
+        len: [3, 30],
       },
     },
-    toObject: { virtuals: true },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [6, 255],
+      },
+    },
+    firstName: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      field: 'first_name',
+    },
+    lastName: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      field: 'last_name',
+    },
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      validate: {
+        is: /^\+998\d{9}$/,
+      },
+    },
+    role: {
+      type: DataTypes.ENUM('admin', 'doctor', 'assistant', 'super-admin'),
+      defaultValue: 'assistant',
+    },
+    clinicId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'clinic_id',
+    },
+    parentId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'parent_id',
+    },
+    isBlocked: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'is_blocked',
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      field: 'is_active',
+    },
+    lastLogin: {
+      type: DataTypes.DATE,
+      field: 'last_login',
+    },
   },
-)
-
-// Virtual fields
-userSchema.virtual("fullName").get(function () {
-  return `${this.firstName} ${this.lastName}`
-})
-
-// Indexes
-userSchema.index({ username: 1 })
-userSchema.index({ email: 1 })
-userSchema.index({ role: 1 })
-
-// Pre-save middleware - hash password
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
-
-  try {
-    const salt = await bcrypt.genSalt(12)
-    this.password = await bcrypt.hash(this.password, salt)
-    this.updatedAt = Date.now()
-    next()
-  } catch (error) {
-    next(error)
+  {
+    tableName: 'users',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    hooks: {
+      beforeSave: async (user) => {
+        if (user.changed('password')) {
+          const salt = await bcrypt.genSalt(12);
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
+    },
   }
-})
+);
 
-// Compare password method
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password)
-}
+// Instance method to compare password
+User.prototype.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-module.exports = mongoose.model("User", userSchema)
+// Instance method to get full name
+User.prototype.getFullName = function () {
+  return `${this.firstName} ${this.lastName}`;
+};
+
+module.exports = User;

@@ -1,110 +1,92 @@
-const mongoose = require("mongoose")
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
 
-const treatmentSchema = new mongoose.Schema(
+const Treatment = sequelize.define(
+  'Treatment',
   {
-    // Client reference
-    clientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
-      required: [true, "Client ID is required"],
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-
-    // Treatment details
+    clientId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      field: 'client_id',
+      references: {
+        model: 'clients',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+    },
     visitType: {
-      type: String,
-      required: [true, "Visit type is required"],
-      trim: true,
-      maxlength: [100, "Visit type cannot exceed 100 characters"],
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      field: 'visit_type',
     },
     treatmentType: {
-      type: String,
-      trim: true,
-      maxlength: [100, "Treatment type cannot exceed 100 characters"],
-      // Removed 'required'
+      type: DataTypes.STRING(100),
+      field: 'treatment_type',
     },
     description: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Description cannot exceed 500 characters"],
+      type: DataTypes.STRING(500),
     },
     notes: {
-      type: String,
-      trim: true,
-      maxlength: [1000, "Notes cannot exceed 1000 characters"],
+      type: DataTypes.STRING(1000),
     },
-
-    // Doctor information
     doctor: {
-      type: String,
-      default: "Dr. Karimova",
-      trim: true,
-      maxlength: [100, "Doctor name cannot exceed 100 characters"],
+      type: DataTypes.STRING(100),
+      defaultValue: 'Dr. Karimova',
     },
-
-    // Financial information
     cost: {
-      type: Number,
-      min: [0, "Cost cannot be negative"],
-      default: 0,
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
     },
-
-    // Next visit information
     nextVisitDate: {
-      type: Date,
+      type: DataTypes.DATEONLY,
+      field: 'next_visit_date',
     },
     nextVisitNotes: {
-      type: String,
-      trim: true,
-      maxlength: [500, "Next visit notes cannot exceed 500 characters"],
+      type: DataTypes.STRING(500),
+      field: 'next_visit_notes',
     },
-
-    // Treatment images
-    images: [
-      {
-        filename: String,
-        url: String,
-        cloudinaryId: String,
-        comment: {
-          type: String,
-          default: "",
-        },
-        uploadedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
-
-    // Treatment status
+    images: {
+      type: DataTypes.JSONB,
+      defaultValue: [],
+    },
     status: {
-      type: String,
-      enum: ["scheduled", "completed", "cancelled"],
-      default: "completed",
+      type: DataTypes.ENUM('scheduled', 'completed', 'cancelled'),
+      defaultValue: 'completed',
     },
-
-    // Dates
     treatmentDate: {
-      type: Date,
-      default: Date.now,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      field: 'treatment_date',
+    },
+    doctorId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      field: 'doctor_id',
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
   },
   {
+    tableName: 'treatments',
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    hooks: {
+      beforeUpdate: (treatment) => {
+        treatment.updatedAt = new Date();
+      },
+    },
   },
-)
+);
 
-// Indexes
-treatmentSchema.index({ clientId: 1 })
-treatmentSchema.index({ treatmentDate: -1 })
-treatmentSchema.index({ status: 1 })
-treatmentSchema.index({ doctor: 1 })
-
-// Pre-save middleware
-treatmentSchema.pre("save", function (next) {
-  this.updatedAt = Date.now()
-  next()
-})
-
-module.exports = mongoose.model("Treatment", treatmentSchema)
+module.exports = Treatment;

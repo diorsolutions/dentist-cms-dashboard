@@ -19,6 +19,7 @@ import ClientService from "./services/clientService";
 import TreatmentService from "./services/treatmentService";
 import UploadService from "./services/uploadService";
 import { useDebounce } from "@/hooks/use-debounce"; // Import useDebounce
+import AuthService from "./services/authService";
 
 // Import new components
 import DashboardHeader from "@/components/DashboardHeader";
@@ -31,6 +32,7 @@ import AddTreatmentModal from "@/components/AddTreatmentModal";
 import ImagePreviewModal from "@/components/ImagePreviewModal";
 import PaginationControls from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
+import AddDoctorModal from "@/components/AddDoctorModal";
 
 // Types
 interface TreatmentRecord {
@@ -105,6 +107,18 @@ type FilterAndSortField =
   | "nextAppointment"
   | "dateOfBirth"; // Removed email
 
+interface UserData {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  role: "admin" | "doctor" | "assistant";
+  lastLogin: string;
+}
+
 const DentalClinicDashboard = () => {
   const { theme, systemTheme } = useTheme();
   const { toast } = useToast();
@@ -118,6 +132,12 @@ const DentalClinicDashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // User management state
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | "all">("all");
+  const [isAddDoctorModalOpen, setIsAddDoctorModalOpen] = useState(false);
+  const [doctorsRefreshKey, setDoctorsRefreshKey] = useState(0);
 
   const [currentFilterAndSortField, setCurrentFilterAndSortField] =
     useState<FilterAndSortField>("name");
@@ -212,8 +232,7 @@ const DentalClinicDashboard = () => {
       if (response.success) {
         const treatments = response.data
           .map((treatment: any) => ({
-            id: treatment._id,
-            _id: treatment._id,
+            id: treatment.id,
             treatmentDate: treatment.treatmentDate
               ? new Date(treatment.treatmentDate).toISOString().split("T")[0]
               : new Date().toISOString().split("T")[0],
@@ -270,7 +289,7 @@ const DentalClinicDashboard = () => {
         // Note: For phone, appliedSearchTerm already contains the combined phone number.
         // The backend handles the "+998" prefix removal for phone search.
 
-        const params = {
+        const params: Record<string, string> = {
           page: String(page),
           limit: String(limit),
           search: searchParam,
@@ -282,13 +301,16 @@ const DentalClinicDashboard = () => {
           sortOrder: currentSortDirection,
           searchField: searchFieldParam,
         };
+        // Add doctorId filter for admin users
+        if (selectedDoctorId !== "all") {
+          params.doctorId = selectedDoctorId;
+        }
         const response = await ClientService.getAllClients(params);
 
         if (response.success) {
           const transformedClients = response.data.map((client: any) => {
             return {
-              id: client._id,
-              _id: client._id,
+              id: client.id,
               name: `${client.firstName} ${client.lastName}`,
               phone: client.phone,
               email: client.email,
@@ -300,7 +322,7 @@ const DentalClinicDashboard = () => {
               age: client.dateOfBirth ? calculateAge(client.dateOfBirth) : null,
               dateOfBirth: client.dateOfBirth || null,
               address: client.address,
-              treatmentHistory: clientTreatmentsCache.get(client._id) || [],
+              treatmentHistory: clientTreatmentsCache.get(client.id) || [],
               uploadedImages: client.uploadedFiles?.images || [],
               uploadedFiles: client.uploadedFiles || { images: [] },
               images: client.images || [],
@@ -342,6 +364,7 @@ const DentalClinicDashboard = () => {
       lastVisitFilterDate,
       nextAppointmentFilterDate, // Add new dependency
       birthDateFilterDate,     // Add new dependency
+      selectedDoctorId,
     ]
   );
 
@@ -354,6 +377,26 @@ const DentalClinicDashboard = () => {
   useEffect(() => {
     setAppliedSearchTerm(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
+
+  // Load current user on mount
+  useEffect(() => {
+    const user = AuthService.getStoredUser();
+    if (user) {
+      setCurrentUser(user);
+      // If user is doctor, set their ID as selected
+      if (user.role === "doctor") {
+        setSelectedDoctorId(user.id);
+      }
+    }
+  }, []);
+
+  // Handle doctor selection
+  const handleDoctorSelect = (doctorId: string | "all") => {
+    setSelectedDoctorId(doctorId);
+    setCurrentPage(1); // Reset to first page when changing doctor filter
+    // Clear cache when switching doctors
+    setClientTreatmentsCache(new Map());
+  };
 
   const validateForm = () => {
     const errors: FormErrors = {};
@@ -451,8 +494,8 @@ const DentalClinicDashboard = () => {
     );
     const clientsWithTreatments = await Promise.all(
       selectedClientData.map(async (client) => {
-        if (client._id) {
-          const treatments = await loadClientTreatments(client._id);
+        if (client.id) {
+          const treatments = await loadClientTreatments(client.id);
           return { ...client, treatmentHistory: treatments };
         }
         return client;
@@ -552,10 +595,10 @@ const DentalClinicDashboard = () => {
     setActiveTab("info"); // Default to info tab
 
     // Load treatments in the background
-    if (client._id) {
+    if (client.id) {
       setLoadingTreatments(true); // Start loading indicator
       try {
-        const treatments = await loadClientTreatments(client._id);
+        const treatments = await loadClientTreatments(client.id);
         setSelectedClient((prev) =>
           prev ? { ...prev, treatmentHistory: treatments } : null
         );
@@ -588,7 +631,7 @@ const DentalClinicDashboard = () => {
       setLoading(true);
       const selectedClientIds = clients
         .filter((client) => selectedClients.includes(client.id))
-        .map((client) => client._id)
+        .map((client) => client.id)
         .filter(Boolean);
 
       if (selectedClientIds.length > 0) {
@@ -625,7 +668,7 @@ const DentalClinicDashboard = () => {
       setLoading(true);
       const selectedClientIds = clients
         .filter((client) => selectedClients.includes(client.id))
-        .map((client) => client._id)
+        .map((client) => client.id)
         .filter(Boolean);
 
       if (selectedClientIds.length > 0) {
@@ -654,48 +697,6 @@ const DentalClinicDashboard = () => {
     }
   };
 
-  const handleBulkExport = async () => {
-    const selectedClientIds = clients
-      .filter((client) => selectedClients.includes(client.id))
-      .map((client) => client._id)
-      .filter(Boolean) as string[];
-
-    if (selectedClientIds.length === 0) {
-      toast({
-        title: "Ogohlantirish",
-        description: "Eksport qilish uchun mijozlarni tanlang",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const result = await ClientService.bulkExportClients(selectedClientIds);
-
-      if (result.success) {
-        toast({
-          title: "Muvaffaqiyat",
-          description: `${selectedClientIds.length} ta mijoz ma'lumotlari ZIP fayl sifatida yuklab olindi`,
-        });
-      } else {
-        toast({
-          title: "Xatolik",
-          description: result.error || "Eksport qilishda xatolik yuz berdi",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Bulk export error:", error);
-      toast({
-        title: "Xatolik",
-        description: "Eksport qilishda xatolik yuz berdi",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const changeStatusToInTreatment = async () => {
     if (
@@ -707,7 +708,7 @@ const DentalClinicDashboard = () => {
         setLoading(true);
         const selectedClientIds = clients
           .filter((client) => selectedClients.includes(client.id))
-          .map((client) => client._id)
+          .map((client) => client.id)
           .filter(Boolean);
 
         if (selectedClientIds.length > 0) {
@@ -760,6 +761,7 @@ const DentalClinicDashboard = () => {
         address: newClient.address.trim() || undefined,
         initialTreatment: newClient.treatment.trim() || undefined,
         notes: newClient.notes.trim() || undefined,
+        doctorId: selectedDoctorId !== "all" ? selectedDoctorId : undefined,
       };
 
       Object.keys(clientData).forEach((key) => {
@@ -772,7 +774,7 @@ const DentalClinicDashboard = () => {
       const response = await ClientService.createClient(clientData);
 
       if (response.success) {
-        const newClientId = response.data._id;
+        const newClientId = response.data.id;
         if (uploadedImages.length > 0) {
           try {
             await UploadService.uploadClientImages(newClientId, uploadedImages);
@@ -842,7 +844,7 @@ const DentalClinicDashboard = () => {
     try {
       setLoading(true);
       const treatmentData = {
-        clientId: selectedClient?._id,
+        clientId: selectedClient?.id,
         visitType: newTreatment.visitType,
         treatmentType: "",
         description: newTreatment.description || undefined,
@@ -856,7 +858,7 @@ const DentalClinicDashboard = () => {
       const response = await TreatmentService.createTreatment(treatmentData);
  
        if (response.success) {
-        const newTreatmentId = response.data._id;
+        const newTreatmentId = response.data.id;
         
         if (newTreatment.images && newTreatment.images.length > 0) {
           try {
@@ -880,10 +882,10 @@ const DentalClinicDashboard = () => {
           });
         }
  
-         if (selectedClient?._id) {
+         if (selectedClient?.id) {
            // Force refresh treatments for the selected client and update cache
            const updatedTreatments = await loadClientTreatments(
-             selectedClient._id,
+             selectedClient.id,
              true
            );
            setSelectedClient((prev) =>
@@ -983,6 +985,11 @@ const DentalClinicDashboard = () => {
         setLanguage={setLanguage}
         filteredClientCount={filteredAndSortedClients.length}
         loading={loading}
+        currentUser={currentUser}
+        selectedDoctorId={selectedDoctorId}
+        onDoctorSelect={handleDoctorSelect}
+        onAddDoctorClick={() => setIsAddDoctorModalOpen(true)}
+        doctorsRefreshKey={doctorsRefreshKey}
       />
 
       <main className="container mx-auto px-4 md:px-6 py-4 sm:py-6 lg:py-8 pb-24">
@@ -1015,7 +1022,6 @@ const DentalClinicDashboard = () => {
           selectedClientCount={selectedClients.length}
           selectedClientIds={selectedClients}
           generatePDF={generatePDF}
-          handleBulkExport={handleBulkExport}
           handleApplySearch={handleApplySearch}
           onResetFilters={resetAllFilters}
           isFilterActive={isFilterActive}
@@ -1107,6 +1113,19 @@ const DentalClinicDashboard = () => {
       <ImagePreviewModal
         previewImage={previewImage}
         setPreviewImage={setPreviewImage}
+      />
+
+      <AddDoctorModal
+        t={t}
+        isOpen={isAddDoctorModalOpen}
+        onClose={() => setIsAddDoctorModalOpen(false)}
+        onSuccess={() => {
+          setDoctorsRefreshKey((prev) => prev + 1);
+          toast({
+            title: "Muvaffaqiyat",
+            description: "Yangi doktor muvaffaqiyatli qo'shildi",
+          });
+        }}
       />
     </div>
   );
