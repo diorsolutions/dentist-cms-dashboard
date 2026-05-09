@@ -9,6 +9,11 @@ async function createAdmin() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
 
+    // SYNC DATABASE TO CREATE TABLES IF THEY DON'T EXIST
+    console.log('Syncing database tables...');
+    await sequelize.sync({ alter: true });
+    console.log('Database tables synchronized.');
+
     const adminData = {
       username: 'admin',
       email: 'admin@dental.uz',
