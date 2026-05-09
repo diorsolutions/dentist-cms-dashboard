@@ -32,7 +32,6 @@ import {
   Stethoscope, // Added
   FileText, // Added
   Clock, // Added
-  Download, // Added for export
 } from "lucide-react";
 import UploadService from "@/services/uploadService";
 import ClientService from "@/services/clientService";
@@ -142,46 +141,13 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   setIsAddTreatmentOpen,
   formatDate,
   getStatusColor,
-  setPreviewImage,
   loadingTreatments,
 }) => {
   const { toast } = useToast();
-  const [isExporting, setIsExporting] = React.useState(false);
 
   const clientAge = selectedClient?.dateOfBirth
     ? calculateAge(selectedClient.dateOfBirth)
     : null;
-
-  const handleExportClient = async () => {
-    if (!selectedClient?._id) return;
-
-    setIsExporting(true);
-    try {
-      const result = await ClientService.exportClient(selectedClient._id);
-
-      if (result.success) {
-        toast({
-          title: t.success || "Muvaffaqiyat",
-          description: `Mijoz ma'lumotlari va rasmlari ZIP fayl sifatida yuklab olindi`,
-        });
-      } else {
-        toast({
-          title: t.error || "Xatolik",
-          description: result.error || "Eksport qilishda xatolik yuz berdi",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Export error:", error);
-      toast({
-        title: t.error || "Xatolik",
-        description: "Eksport qilishda xatolik yuz berdi",
-        variant: "destructive",
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -195,20 +161,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             <DialogTitle className="text-2xl font-bold">
               {selectedClient?.name}
             </DialogTitle>
-            <Button
-              onClick={handleExportClient}
-              disabled={isExporting}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              {isExporting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Download className="h-4 w-4" />
-              )}
-              {isExporting ? "Yuklanmoqda..." : "ZIP Yuklab olish"}
-            </Button>
           </div>
         </DialogHeader>
 

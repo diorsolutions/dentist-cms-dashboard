@@ -12,46 +12,14 @@ class ApiService {
     const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint
     const url = `${API_BASE_URL}/api/${cleanEndpoint}`
 
-    // ✅ FIRST THING WE DO: CHECK TOKEN BEFORE ANYTHING ELSE
     let token = null
     try {
       if (typeof window !== "undefined") {
+        token = localStorage.getItem("auth_token");
         
-        // ✅ 3 soniya davomida bir marotaba tekshiramiz
-        const now = Date.now();
-        if (now - lastTokenCheck > 3000) {
-          lastTokenCheck = now;
-          token = localStorage.getItem("auth_token");
-          console.log("🔐 Token status:", token ? "✅ EXISTS" : "❌ NOT FOUND");
-        } else {
-          // ✅ Oxirgi 3 soniya ichida tekshirilgan bo'lsa, yana localStorage ni o'qimaymiz
-          token = globalRedirected ? null : localStorage.getItem("auth_token");
-        }
-
-        // ✅ ALL PROTECTED ROUTES CHECK
-        if (!token && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
-          
-          // ✅ BIR MAROTABA GINA YO'NALTIRAMIZ, ABADIY TAKORLAMAYMIZ
-          if (!globalRedirected) {
-            globalRedirected = true;
-            console.log("⛔ NO TOKEN! Will redirect to login ONCE.");
-            
-            // ✅ 800ms KUTAMIZ TOKEN SAQLANISHIGA
-            setTimeout(() => {
-              // ✅ Oxirgi marta tekshiramiz
-              const finalTokenCheck = localStorage.getItem("auth_token");
-              if (!finalTokenCheck) {
-                console.log("🔄 Redirecting to login page now...");
-                window.location.replace('/login');
-              } else {
-                console.log("✅ Token appeared! Cancelled redirect.");
-                globalRedirected = false;
-              }
-            }, 800);
-          }
-          
-          throw new Error("Authentication required");
-        }
+        // TEMPORARY LOGIN BYPASS:
+        // We will not redirect or throw errors if the token is missing.
+        // The backend auth middleware has also been bypassed.
       }
     } catch (e) {
       console.warn("⚠️ localStorage error:", e.message)

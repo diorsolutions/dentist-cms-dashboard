@@ -12,19 +12,9 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
-      const isLoggedIn = localStorage.getItem("dental_clinic_auth");
-
-      if (isLoggedIn === "true") {
-        setIsAuthenticated(true);
-      } else {
-        router.push("/login");
-      }
-
-      setIsLoading(false);
-    };
-
-    checkAuth();
+    // TEMPORARY LOGIN BYPASS
+    setIsAuthenticated(true);
+    setIsLoading(false);
   }, [router]);
 
   if (isLoading) {

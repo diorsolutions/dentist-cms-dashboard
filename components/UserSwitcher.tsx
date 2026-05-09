@@ -218,13 +218,15 @@ const UserSwitcher: React.FC<UserSwitcherProps> = ({
                         Aktiv
                       </Badge>
                     )}
-                    <button
-                      onClick={(e) => handleDeleteDoctor(e, doctor.id, doctor.fullName)}
-                      className="p-1.5 rounded-md text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm border border-red-500/10 hover:border-red-500"
-                      title="Doktorni o'chirish"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {doctor.role !== "admin" && (
+                      <button
+                        onClick={(e) => handleDeleteDoctor(e, doctor.id, doctor.fullName)}
+                        className="p-1.5 rounded-md text-red-500 hover:bg-red-500 hover:text-white transition-all duration-200 shadow-sm border border-red-500/10 hover:border-red-500"
+                        title="Doktorni o'chirish"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
