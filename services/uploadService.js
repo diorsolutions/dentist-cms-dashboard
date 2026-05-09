@@ -113,13 +113,13 @@ class UploadService {
       return path;
     }
 
-    // If it starts with uploads/, use backend URL (fallback for old local files)
+    // If it starts with uploads/, use backend URL (with /api prefix for proxy compatibility)
     if (path.startsWith("uploads/")) {
-      return `${API_BASE_URL}/${path}`;
+      return `${API_BASE_URL}/api/${path}`;
     }
 
     // Otherwise, assume it's just the filename (fallback for old local files)
-    return `${API_BASE_URL}/uploads/${path}`;
+    return `${API_BASE_URL}/api/uploads/${path}`;
   }
 }
 
